@@ -4,7 +4,7 @@ This repository contains tooling to scrape the [Proxmox VE API viewer](https://p
 
 ## Getting started
 
-1. Install dependencies:
+1. Install dependencies (Node.js 22 or newer is required):
 
    ```bash
    npm install
@@ -31,8 +31,14 @@ This repository contains tooling to scrape the [Proxmox VE API viewer](https://p
 
 ## Linting
 
-Run ESLint against the tooling sources:
+Run Biome against the tooling sources:
 
 ```bash
 npm run lint
+```
+
+To apply automatic formatting fixes:
+
+```bash
+npm run format
 ```
