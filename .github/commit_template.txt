@@ -1,0 +1,14 @@
+# Conventional Commit template
+# type(scope?): short summary imperative mood
+# Examples of type: feat, fix, chore, docs, refactor, test, build, ci
+# Scope is optional but recommended (e.g., tooling, docs).
+
+type(scope?): short summary
+
+# Body: explain motivation and context. Wrap at 72 characters.
+# - Use bullet points for key details.
+# - Reference related tasks or issues when applicable.
+
+# Footer (optional)
+# BREAKING CHANGE: describe what changed and what to do.
+# Task: TASK-XXXX
