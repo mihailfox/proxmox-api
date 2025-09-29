@@ -1,0 +1,23 @@
+{
+  "name": "proxmox-api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Tooling to scrape the Proxmox API viewer and generate OpenAPI specifications.",
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint --ext .ts tools/api-scraper",
+    "test": "playwright test -c tools/api-scraper",
+    "scraper:scrape": "ts-node tools/api-scraper/src/cli.ts",
+    "build": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.1",
+    "@types/node": "^20.12.7",
+    "@typescript-eslint/eslint-plugin": "^7.2.0",
+    "@typescript-eslint/parser": "^7.2.0",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^9.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "5.5.4"
+  }
+}

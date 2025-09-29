@@ -24,14 +24,14 @@ Preconditions
 - Confirm repository PR template exists.
 
 Plan checklist
-- [ ] Read the Source of Truth in order. Capture key requirements.
-- [ ] Create Playwright + TypeScript project structure under tools/api-scraper/.
-- [ ] Configure package.json scripts for lint, test, and scrape entry points.
-- [ ] Add baseline linting/formatting configuration shared across tooling.
-- [ ] Verify Playwright can execute a sample smoke test locally.
-- [ ] Document setup steps in README or dedicated tooling docs if necessary.
-- [ ] Commit changes using Conventional Commits.
-- [ ] Update changelog with actions and outcomes.
+- [x] Read the Source of Truth in order. Capture key requirements.
+- [x] Create Playwright + TypeScript project structure under tools/api-scraper/.
+- [x] Configure package.json scripts for lint, test, and scrape entry points.
+- [x] Add baseline linting/formatting configuration shared across tooling.
+- [x] Verify Playwright can execute a sample smoke test locally.
+- [x] Document setup steps in README or dedicated tooling docs if necessary.
+- [x] Commit changes using Conventional Commits.
+- [x] Update changelog with actions and outcomes.
 
 Acceptance criteria
 - Playwright TypeScript project scaffolding exists in tools/api-scraper/.
