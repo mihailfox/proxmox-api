@@ -59,6 +59,6 @@ This plan defines the workflow for extracting the Proxmox API documentation from
 - **Data Accuracy**: Cross-verify generated OpenAPI snippets with manual samples during early iterations.
 
 ## Next Actions
-- [ ] Socialize this plan with stakeholders for validation.
+- [x] Socialize this plan with stakeholders for validation.
 - [ ] Create follow-up task tickets aligned with the sub-tasks above.
 - [ ] Establish coding standards specific to the scraping and generation toolchain.
