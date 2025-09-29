@@ -13,14 +13,22 @@
     "check": "biome check .",
     "test": "playwright test -c tools/api-scraper",
     "scraper:scrape": "ts-node tools/api-scraper/src/cli.ts",
-    "build": "tsc --noEmit"
+    "build": "tsc --noEmit",
+    "ui:dev": "vite",
+    "ui:build": "vite build",
+    "ui:preview": "vite preview",
+    "test:ui": "vitest"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.0.0",
     "@playwright/test": "^1.55.1",
     "@types/node": "^22.0.0",
-    "@biomejs/biome": "^2.0.0",
+    "@vitest/coverage-v8": "^2.1.3",
+    "jsdom": "^27.0.0",
     "ts-node": "^10.9.2",
-    "typescript": "5.5.4"
+    "typescript": "5.5.4",
+    "vite": "^5.4.2",
+    "vitest": "^2.1.3"
   },
   "dependencies": {
     "playwright": "^1.55.1"
