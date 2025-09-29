@@ -60,5 +60,6 @@ This plan defines the workflow for extracting the Proxmox API documentation from
 
 ## Next Actions
 - [x] Socialize this plan with stakeholders for validation.
-- [ ] Create follow-up task tickets aligned with the sub-tasks above.
+- [x] Create follow-up task tickets aligned with the sub-tasks above.
+  - TASK-0002 through TASK-0009 outline scaffolding, scraping, normalization, generation, automation, QA, documentation, and coding standards.
 - [ ] Establish coding standards specific to the scraping and generation toolchain.
