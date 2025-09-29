@@ -13,16 +13,19 @@
     "check": "biome check .",
     "test": "playwright test -c tools/api-scraper",
     "scraper:scrape": "ts-node tools/api-scraper/src/cli.ts",
-    "build": "tsc --noEmit",
-    "ui:dev": "vite",
-    "ui:build": "vite build",
-    "ui:preview": "vite preview",
+    "build": "tsc --noEmit && tsc --noEmit -p app/tsconfig.json",
+    "ui:dev": "remix vite:dev",
+    "ui:build": "remix vite:build",
+    "ui:preview": "remix vite:preview",
     "test:ui": "vitest"
   },
   "devDependencies": {
+    "@remix-run/dev": "^2.12.0",
     "@biomejs/biome": "^2.0.0",
     "@playwright/test": "^1.55.1",
     "@types/node": "^22.0.0",
+    "@types/react": "^18.3.8",
+    "@types/react-dom": "^18.3.0",
     "@vitest/coverage-v8": "^2.1.3",
     "jsdom": "^27.0.0",
     "ts-node": "^10.9.2",
@@ -31,6 +34,12 @@
     "vitest": "^2.1.3"
   },
   "dependencies": {
-    "playwright": "^1.55.1"
+    "@remix-run/node": "^2.12.0",
+    "@remix-run/react": "^2.12.0",
+    "@remix-run/serve": "^2.12.0",
+    "isbot": "^5.1.9",
+    "playwright": "^1.55.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   }
 }
