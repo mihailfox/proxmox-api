@@ -8,8 +8,13 @@
     "types": ["vite/client", "vitest/globals"],
     "allowJs": false,
     "isolatedModules": true,
-    "jsx": "preserve"
+    "jsx": "react-jsx"
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts"],
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.test.tsx",
+    "remix.env.d.ts"
+  ],
   "exclude": ["dist", "node_modules"]
 }

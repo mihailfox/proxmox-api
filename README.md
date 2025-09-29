@@ -28,9 +28,9 @@ This repository contains tooling to scrape the [Proxmox VE API viewer](https://p
   - `playwright.config.ts` defines the Playwright test runner configuration.
   - `tests/` holds smoke and regression tests for the scraper.
   - `src/cli.ts` is a placeholder CLI entry point that will evolve into the end-to-end scraping workflow.
-- `ui/` contains a Vite-powered sandbox for rapid UI prototyping and component experimentation.
-  - `npm run ui:dev` starts the Vite development server.
-  - `npm run ui:build` produces a production-ready bundle in `dist/ui`.
+- `app/` contains a Remix + Vite sandbox for rapid UI prototyping and component experimentation.
+  - `npm run ui:dev` starts the Remix-enhanced Vite development server.
+  - `npm run ui:build` compiles the Remix client and server bundles into `build/`.
   - `npm run test:ui` executes Vitest unit tests with jsdom.
 
 ## Linting
