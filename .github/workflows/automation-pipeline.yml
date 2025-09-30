@@ -4,6 +4,17 @@ on:
   pull_request:
     branches:
       - dev
+    paths:
+      - .github/workflows/automation-pipeline.yml
+      - package.json
+      - package-lock.json
+      - biome.json
+      - tsconfig.json
+      - vite.config.ts
+      - vitest.config.ts
+      - "app/**"
+      - "tests/**"
+      - "tools/**"
   workflow_dispatch: {}
 
 jobs:
