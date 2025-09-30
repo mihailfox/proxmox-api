@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Proxmox VE API Documentation",
-    "version": "2025-09-30T01:05:25.797Z",
-    "description": "Generated from the normalized Proxmox VE API intermediate representation.\nSource: https://pve.proxmox.com/pve-docs/api-viewer/\nScraped at: 2025-09-30T01:05:25.797Z\nNormalized at: 2025-09-30T04:13:07.901Z\nOperations: 628"
+    "version": "2025-09-30T05:16:40.545Z",
+    "description": "Generated from the normalized Proxmox VE API intermediate representation.\nSource: https://pve.proxmox.com/pve-docs/api-viewer/\nScraped at: 2025-09-30T05:16:40.545Z\nNormalized at: 2025-09-30T05:19:49.005Z\nOperations: 628"
   },
   "servers": [
     {
@@ -76434,10 +76434,10 @@
   },
   "x-proxmox": {
     "irVersion": "1.0.0",
-    "normalizedAt": "2025-09-30T04:13:07.901Z",
+    "normalizedAt": "2025-09-30T05:19:49.005Z",
     "source": {
-      "snapshotChecksum": "f122c4f84320d47d6cff6ee097d36b268bb35cc686abdf7e468ff90319ed12b0",
-      "scrapedAt": "2025-09-30T01:05:25.797Z",
+      "snapshotChecksum": "5e27ab09e5ff799f04fffdb09cb004a94969ed7cc7594b92b5c0c6be7aee72e7",
+      "scrapedAt": "2025-09-30T05:16:40.545Z",
       "sourceUrl": "https://pve.proxmox.com/pve-docs/api-viewer/",
       "documentTitle": "Proxmox VE API Documentation",
       "rawStats": {
