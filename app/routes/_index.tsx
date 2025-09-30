@@ -1,29 +1,54 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+
+type SwaggerUIProps = import('swagger-ui-react').SwaggerUIProps;
+type SwaggerUIComponent = import('react').ComponentType<SwaggerUIProps>;
 
 export default function Index() {
-  const [count, setCount] = useState(0);
+  const [SwaggerUI, setSwaggerUI] = useState<SwaggerUIComponent | null>(null);
+
+  useEffect(() => {
+    let isActive = true;
+
+    void import('swagger-ui-react').then((module) => {
+      if (isActive) {
+        setSwaggerUI(() => module.default as SwaggerUIComponent);
+      }
+    });
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
   return (
     <main className="app-shell">
       <header>
         <p className="eyebrow">Proxmox API Toolkit</p>
-        <h1>Remix meets Vite</h1>
+        <h1>Browse the OpenAPI specification</h1>
         <p>
-          This sandbox demonstrates how Remix can power interactive UI prototypes while keeping the
-          familiar Vite developer experience.
+          Load the generated Proxmox VE OpenAPI document directly inside this sandbox UI. Use the
+          navigation pane to inspect operations, schemas, and request payloads.
         </p>
       </header>
 
-      <section className="card">
-        <p>The counter keeps local UI state hydrated through Remix&apos;s streaming runtime.</p>
-        <div className="actions">
-          <button type="button" onClick={() => setCount((value) => value + 1)}>
-            Increment
-          </button>
-          <span className="value" aria-live="polite">
-            {count}
-          </span>
-        </div>
+      <section className="viewer" aria-label="Proxmox OpenAPI viewer">
+        {SwaggerUI ? (
+          <SwaggerUI
+            url="/openapi.json"
+            docExpansion="list"
+            defaultModelsExpandDepth={1}
+            defaultModelExpandDepth={2}
+            deepLinking
+          />
+        ) : (
+          <div className="viewer-loading" aria-live="polite">
+            <p>Loading OpenAPI viewer…</p>
+            <p className="hint">
+              If the specification does not load, ensure `npm run openapi:generate` has produced
+              <code>docs/openapi/proxmox-ve.json</code>.
+            </p>
+          </div>
+        )}
       </section>
     </main>
   );

@@ -11,9 +11,11 @@ import {
 } from '@remix-run/react';
 
 import globalStylesheetUrl from './styles/root.css?url';
+import swaggerStylesheetUrl from 'swagger-ui-react/swagger-ui.css?url';
 
 export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: globalStylesheetUrl },
+  { rel: 'stylesheet', href: swaggerStylesheetUrl },
   { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' }
 ];
 
