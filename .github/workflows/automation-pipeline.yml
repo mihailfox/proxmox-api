@@ -1,0 +1,53 @@
+name: automation-pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch: {}
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run automation pipeline (CI mode)
+        run: npm run automation:pipeline
+
+      - name: Validate generated OpenAPI document
+        run: npm run openapi:validate
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Run unit suites
+        run: |
+          npm run test:normalizer
+          npm run test:openapi
+          npm run test:ui
+
+      - name: Ensure artifacts are committed
+        run: |
+          git status --short
+          git diff --exit-code docs/openapi tools/api-normalizer/data/ir tools/api-scraper/data/raw

@@ -24,13 +24,13 @@ Preconditions
 - Verify tooling commands from previous tasks function locally.
 
 Plan checklist
-- [ ] Review existing scripts and outputs from TASK-0002 through TASK-0005.
-- [ ] Define automation entry points covering scrape, normalize, generate, and validate steps.
-- [ ] Implement CI workflow executing the pipeline and surfacing diffs.
-- [ ] Add documentation for triggering workflows manually or on schedule.
-- [ ] Ensure local developers can run equivalent commands.
-- [ ] Commit changes using Conventional Commits.
-- [ ] Update changelog with pipeline run logs or dry-run outputs.
+- [x] Review existing scripts and outputs from TASK-0002 through TASK-0005.
+- [x] Define automation entry points covering scrape, normalize, generate, and validate steps.
+- [x] Implement CI workflow executing the pipeline and surfacing diffs.
+- [x] Add documentation for triggering workflows manually or on schedule.
+- [x] Ensure local developers can run equivalent commands.
+- [x] Commit changes using Conventional Commits.
+- [x] Update changelog with pipeline run logs or dry-run outputs.
 
 Acceptance criteria
 - Automated workflow executes scrape -> normalize -> generate -> validate sequence.
