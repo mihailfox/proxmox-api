@@ -24,13 +24,13 @@ Preconditions
 - Verify documentation structure within repo.
 
 Plan checklist
-- [ ] Audit existing documentation and identify gaps.
-- [ ] Draft contributor guide covering setup, scrape, normalize, generate, and validate steps.
-- [ ] Document troubleshooting for common Playwright or tooling issues.
-- [ ] Outline release/versioning process for OpenAPI artifacts.
-- [ ] Review documentation for clarity and completeness.
-- [ ] Commit changes using Conventional Commits.
-- [ ] Update changelog summarizing documentation updates.
+- [x] Audit existing documentation and identify gaps.
+- [x] Draft contributor guide covering setup, scrape, normalize, generate, and validate steps.
+- [x] Document troubleshooting for common Playwright or tooling issues.
+- [x] Outline release/versioning process for OpenAPI artifacts.
+- [x] Review documentation for clarity and completeness.
+- [x] Commit changes using Conventional Commits.
+- [x] Update changelog summarizing documentation updates.
 
 Acceptance criteria
 - Documentation fully explains how to install dependencies, run pipelines, and interpret outputs.
