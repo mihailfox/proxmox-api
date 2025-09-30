@@ -25,7 +25,7 @@ export interface ApiSchemaMethod {
 export interface ApiSchemaPermission {
   description?: string;
   user?: string;
-  check?: string;
+  check?: unknown;
 }
 
 export interface ApiSchemaParameters {

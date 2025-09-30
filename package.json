@@ -13,11 +13,13 @@
     "check": "biome check .",
     "test": "playwright test -c tools/api-scraper",
     "scraper:scrape": "ts-node tools/api-scraper/src/cli.ts",
+    "normalizer:generate": "ts-node tools/api-normalizer/src/cli.ts",
     "build": "tsc --noEmit && tsc --noEmit -p app/tsconfig.json",
     "ui:dev": "remix vite:dev",
     "ui:build": "remix vite:build",
     "ui:preview": "remix vite:preview",
-    "test:ui": "vitest"
+    "test:ui": "vitest",
+    "test:normalizer": "vitest run --config tools/api-normalizer/vitest.config.ts"
   },
   "devDependencies": {
     "@remix-run/dev": "^2.12.0",

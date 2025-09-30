@@ -24,14 +24,14 @@ Preconditions
 - Install Node.js dependencies for normalization tooling.
 
 Plan checklist
-- [ ] Review scraper outputs and identify entities to normalize.
-- [ ] Define IR TypeScript types with documentation.
-- [ ] Implement transformation pipeline from raw JSON to IR.
-- [ ] Add validation and error handling for missing or malformed data.
-- [ ] Create automated tests verifying key endpoints.
-- [ ] Document how to regenerate IR from fresh scrapes.
-- [ ] Commit changes using Conventional Commits.
-- [ ] Update changelog with details and verification steps.
+- [x] Review scraper outputs and identify entities to normalize.
+- [x] Define IR TypeScript types with documentation.
+- [x] Implement transformation pipeline from raw JSON to IR.
+- [x] Add validation and error handling for missing or malformed data.
+- [x] Create automated tests verifying key endpoints.
+- [x] Document how to regenerate IR from fresh scrapes.
+- [x] Commit changes using Conventional Commits.
+- [x] Update changelog with details and verification steps.
 
 Acceptance criteria
 - IR definitions exist and cover endpoints, parameters, requests, and responses.
