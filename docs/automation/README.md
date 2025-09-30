@@ -53,6 +53,7 @@ step.
 ## Private GitHub Action usage
 
 - TypeScript action location: `.github/actions/proxmox-openapi-artifacts`.
+
 - Example workflow snippet:
 
   ```yaml

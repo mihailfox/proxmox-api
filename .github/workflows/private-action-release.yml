@@ -57,6 +57,7 @@ jobs:
             git diff -- .github/actions/proxmox-openapi-artifacts/package-lock.json
             exit 1
           fi
+
   release:
     name: Publish action release
     needs: validate
