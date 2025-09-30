@@ -23,7 +23,8 @@
     "ui:preview": "remix vite:preview",
     "test:ui": "vitest",
     "test:normalizer": "vitest run --config tools/api-normalizer/vitest.config.ts",
-    "test:openapi": "vitest run --config tools/openapi-generator/vitest.config.ts"
+    "test:openapi": "vitest run --config tools/openapi-generator/vitest.config.ts",
+    "test:regression": "vitest run --config tests/regression/vitest.config.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.0.0",
