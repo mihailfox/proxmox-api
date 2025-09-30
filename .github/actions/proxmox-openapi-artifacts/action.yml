@@ -30,15 +30,11 @@ inputs:
     required: false
     default: 'false'
   install-command:
-    description: 'Command used to install dependencies.'
+    description: 'Command used to install dependencies before running the pipeline.'
     required: false
     default: 'npm ci'
-  node-version:
-    description: 'Node.js version to install.'
-    required: false
-    default: '22'
   working-directory:
-    description: 'Repository subdirectory that contains package.json.'
+    description: 'Repository subdirectory that contains package.json and automation sources.'
     required: false
     default: '.'
   install-playwright-browsers:
@@ -49,7 +45,10 @@ inputs:
     description: 'Optional path to write the pipeline summary JSON.'
     required: false
   extra-cli-args:
-    description: 'Additional arguments to append to the automation pipeline CLI.'
+    description: 'Deprecated. The TypeScript action ignores this input.'
+    required: false
+  node-version:
+    description: 'Deprecated. Configure Node via actions/setup-node in the workflow.'
     required: false
 outputs:
   raw-snapshot:
@@ -62,92 +61,11 @@ outputs:
     description: 'Absolute path to the generated OpenAPI YAML file.'
   from-cache:
     description: 'Whether the pipeline reused an existing cached snapshot.'
+  summary-path:
+    description: 'Path to the JSON summary describing the pipeline run.'
 runs:
-  using: 'composite'
-  steps:
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ inputs.node-version }}
-        cache: npm
-        cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
-    - name: Install dependencies
-      shell: bash
-      run: |
-        set -euo pipefail
-        cd "${{ inputs.working-directory }}"
-        eval "${{ inputs.install-command }}"
-    - name: Install Playwright browsers
-      if: inputs.install-playwright-browsers == 'true'
-      shell: bash
-      run: |
-        set -euo pipefail
-        cd "${{ inputs.working-directory }}"
-        npx playwright install --with-deps
-    - id: pipeline
-      name: Run automation pipeline
-      shell: bash
-      run: |
-        set -euo pipefail
-        cd "${{ inputs.working-directory }}"
-        REPORT_PATH="${{ inputs.report-path }}"
-        if [ -z "$REPORT_PATH" ]; then
-          REPORT_PATH="$(mktemp -d)/proxmox-pipeline-summary.json"
-        fi
-        ARGS=("--report" "$REPORT_PATH")
-        if [ "${{ inputs.mode }}" != '' ]; then
-          ARGS+=("--mode" "${{ inputs.mode }}")
-        fi
-        if [ "${{ inputs.base-url }}" != '' ]; then
-          ARGS+=("--base-url" "${{ inputs.base-url }}")
-        fi
-        if [ "${{ inputs.raw-snapshot-path }}" != '' ]; then
-          ARGS+=("--raw-output" "${{ inputs.raw-snapshot-path }}")
-        fi
-        if [ "${{ inputs.ir-output-path }}" != '' ]; then
-          ARGS+=("--ir-output" "${{ inputs.ir-output-path }}")
-        fi
-        if [ "${{ inputs.openapi-dir }}" != '' ]; then
-          ARGS+=("--openapi-dir" "${{ inputs.openapi-dir }}")
-        fi
-        if [ "${{ inputs.openapi-basename }}" != '' ]; then
-          ARGS+=("--basename" "${{ inputs.openapi-basename }}")
-        fi
-        if [ "${{ inputs.offline }}" == 'true' ]; then
-          ARGS+=("--offline")
-        fi
-        if [ "${{ inputs.fallback-to-cache }}" == 'true' ]; then
-          ARGS+=("--fallback-to-cache")
-        fi
-        EXTRA_RAW="${{ inputs.extra-cli-args }}"
-        if [ "$EXTRA_RAW" != '' ]; then
-          # shellcheck disable=SC2206
-          EXTRA_ARGS=($EXTRA_RAW)
-          ARGS+=("${EXTRA_ARGS[@]}")
-        fi
-        npx ts-node tools/automation/src/cli.ts -- "${ARGS[@]}"
-        echo "summary_path=$REPORT_PATH" >> "$GITHUB_OUTPUT"
-    - name: Publish outputs
-      shell: bash
-      env:
-        SUMMARY_PATH: ${{ steps.pipeline.outputs.summary_path }}
-      run: |
-        set -euo pipefail
-        if [ ! -f "$SUMMARY_PATH" ]; then
-          echo "Pipeline summary missing at $SUMMARY_PATH" >&2
-          exit 1
-        fi
-        node <<'NODE'
-        const fs = require('node:fs');
-        const summaryPath = process.env.SUMMARY_PATH;
-        const outputFile = process.env.GITHUB_OUTPUT;
-        const summary = JSON.parse(fs.readFileSync(summaryPath, 'utf8'));
-        const lines = [
-          `raw-snapshot=${summary.rawSnapshotPath}`,
-          `normalized-document=${summary.normalizedDocumentPath}`,
-          `openapi-json=${summary.openApiJsonPath}`,
-          `openapi-yaml=${summary.openApiYamlPath}`,
-          `from-cache=${summary.usedCache ? 'true' : 'false'}`
-        ];
-        fs.appendFileSync(outputFile, `${lines.join('\n')}\n`);
-        NODE
+  using: 'node22'
+  main: 'dist/index.js'
+branding:
+  icon: 'server'
+  color: 'green'

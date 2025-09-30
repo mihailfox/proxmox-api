@@ -41,6 +41,23 @@ jobs:
         run: npm run build
       - name: Smoke automation pipeline
         run: npm run automation:pipeline -- --mode=ci --report tmp/action-summary.json
+      - name: Install action dependencies
+        run: npm install --prefix .github/actions/proxmox-openapi-artifacts
+      - name: Build action bundle
+        run: npm run package --prefix .github/actions/proxmox-openapi-artifacts
+      - name: Check action dist is up to date
+        run: |
+          if ! git diff --quiet -- .github/actions/proxmox-openapi-artifacts/dist; then
+            echo '::error::Action dist is out of date. Run npm run package --prefix .github/actions/proxmox-openapi-artifacts.'
+            git diff -- .github/actions/proxmox-openapi-artifacts/dist
+            exit 1
+          fi
+          if ! git diff --quiet -- .github/actions/proxmox-openapi-artifacts/package-lock.json; then
+            echo '::error::Action package-lock.json is out of date. Run npm install --prefix .github/actions/proxmox-openapi-artifacts.'
+            git diff -- .github/actions/proxmox-openapi-artifacts/package-lock.json
+            exit 1
+          fi
+
   release:
     name: Publish action release
     needs: validate
@@ -74,11 +91,14 @@ jobs:
       - name: Package action directory
         run: |
           set -euo pipefail
+          npm install --prefix .github/actions/proxmox-openapi-artifacts
+          npm run package --prefix .github/actions/proxmox-openapi-artifacts
+          rm -rf .github/actions/proxmox-openapi-artifacts/node_modules
           tar -czf proxmox-openapi-action.tgz \
-            .github/actions/proxmox-openapi-artifacts \
-            tools/automation/src \
-            package.json \
-            package-lock.json
+            .github/actions/proxmox-openapi-artifacts/action.yml \
+            .github/actions/proxmox-openapi-artifacts/dist \
+            .github/actions/proxmox-openapi-artifacts/package.json \
+            .github/actions/proxmox-openapi-artifacts/package-lock.json
       - name: Create release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

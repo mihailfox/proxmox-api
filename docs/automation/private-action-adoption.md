@@ -1,7 +1,8 @@
 # Private GitHub Action adoption guide
 
-Use this guide to integrate the `proxmox-openapi-artifacts` action into downstream
-repositories and validate the automation pipeline in isolated environments.
+Use this guide to integrate the TypeScript-based `proxmox-openapi-artifacts`
+action into downstream repositories and validate the automation pipeline in
+isolated environments.
 
 ## 1. Prerequisites
 
@@ -27,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: artifacts
-        uses: org/private-proxmox-action/.github/actions/proxmox-openapi-artifacts@v0.2.0
+        uses: org/private-proxmox-action/.github/actions/proxmox-openapi-artifacts@v0.3.0
         with:
           mode: ci
           install-playwright-browsers: false
@@ -42,15 +43,9 @@ jobs:
 
 Adjust the `uses:` reference to match the hosting strategy (internal repo tag,
 branch, or commit SHA). Enable `install-playwright-browsers` for first-run
-setups where the runner lacks cached browsers.
-
-> **Template alignment preview**
-> The current composite action will be migrated to a bundled TypeScript action
-> following [`actions/typescript-action`](https://github.com/actions/typescript-action).
-> Once that work lands, the usage snippet will compress to `uses:
-> org/private-proxmox-action@v0.x` with no nested `.github/actions/` path and the
-> action will ship prebuilt `dist/` assets so runners no longer need to execute
-> `npm ci`.
+setups where the runner lacks cached browsers. The action now vendors its
+TypeScript implementation in `dist/index.js`, so downstream workflows no longer
+need to invoke `ts-node` directly.
 
 ## 3. Sandbox validation checklist
 
@@ -65,7 +60,7 @@ setups where the runner lacks cached browsers.
 
 | Symptom | Mitigation |
 | --- | --- |
-| Workflow fails with `Cannot find module 'ts-node'` | Ensure `npm ci` ran successfully; check that the runner has network access to download dev dependencies. |
+| Workflow fails during dependency installation | Confirm the runner has permission to execute the `install-command` (defaults to `npm ci`). Override the input for environments that pre-bake dependencies. |
 | Playwright browser download errors | Set `install-playwright-browsers: false` and pre-install browsers on the runner, or rerun with retries during off-peak hours. |
 | Action outputs empty paths | Confirm the repository retains the default directory structure or provide explicit paths via the `raw-snapshot-path`, `ir-output-path`, and `openapi-dir` inputs. |
 

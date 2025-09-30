@@ -52,7 +52,8 @@ step.
 
 ## Private GitHub Action usage
 
-- Composite action location: `.github/actions/proxmox-openapi-artifacts`.
+- TypeScript action location: `.github/actions/proxmox-openapi-artifacts`.
+
 - Example workflow snippet:
 
   ```yaml
@@ -74,16 +75,17 @@ step.
             path: |
               ${{ steps.artifacts.outputs.openapi-json }}
               ${{ steps.artifacts.outputs.openapi-yaml }}
+              ${{ steps.artifacts.outputs.summary-path }}
   ```
-- Downstream repositories reference the action via a private checkout (e.g.,
-  Git submodule or GitHub Actions `uses:` with organization-level access).
+- The action ships a bundled `dist/index.js` generated via `esbuild`. Run
+  `npm run package --prefix .github/actions/proxmox-openapi-artifacts` before
+  committing to keep the compiled output in sync with the TypeScript sources.
+- Downstream repositories reference the action via a private checkout (e.g., a
+  submodule or GitHub Actions `uses:` with organization-level access). Once the
+  action repository hosts only the bundled assets, consumers no longer need to
+  run `npm ci` as part of their workflows.
 - See [private-action-adoption.md](./private-action-adoption.md) for onboarding
-  and sandbox validation guidance.
-- **Upcoming change**: the action will migrate to the
-  [`actions/typescript-action`](https://github.com/actions/typescript-action)
-  layout. Expect the path to simplify to `uses: org/private-proxmox-action@tag`
-  with prebuilt `dist/` assets once the migration tasks land. The adoption guide
-  tracks the detailed migration steps and consumer messaging.
+  and sandbox validation guidance, including the TypeScript-based usage notes.
 
 ## CI workflow
 
