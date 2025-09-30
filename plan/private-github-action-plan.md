@@ -52,12 +52,14 @@ portable artifacts that downstream repositories can consume.
 - **Task**: [TASK-0021](../tasks/TASK-0021-github-action-entrypoint.md)
 
 ### 3. Author the private GitHub Action package
-- Scaffold the `action.yml` (or composite action) with inputs for mode,
-  artifact destinations, and authentication toggles.
-- Implement dependency bootstrapping (npm install, Playwright browsers) within
-  the action runtime.
+- Implement the TypeScript action under
+  `.github/actions/proxmox-openapi-artifacts`, replacing the composite wrapper.
+- Use `esbuild` to bundle the automation entry point and shared helpers into
+  `dist/index.js`, mirroring the expectations of `actions/typescript-action`.
+- Keep dependency bootstrapping (npm install, optional Playwright browsers)
+  inside the action runtime until Playwright binaries are pre-provisioned.
 - Wire outputs (e.g., generated artifact paths, checksum summaries) for
-  downstream workflows.
+  downstream workflows, including the JSON summary path.
 - **Task**: [TASK-0022](../tasks/TASK-0022-github-action-package.md)
 
 ### 4. Release automation workflow
@@ -77,6 +79,39 @@ portable artifacts that downstream repositories can consume.
   in a clean environment.
 - Capture troubleshooting guidance and versioning strategy for private usage.
 - **Task**: [TASK-0024](../tasks/TASK-0024-github-action-adoption.md)
+
+### 6. Align with the `actions/typescript-action` template
+- The action now mirrors the template layout with `src/main.ts` bundled into
+  `dist/index.js` via `esbuild`. Shared automation helpers remain under
+  `tools/automation/` and are imported directly during bundling.
+- Release automation builds the TypeScript bundle and verifies that the
+  committed `dist/` and `package-lock.json` are in sync before publishing.
+- Follow-up iterations can adopt additional template niceties (unit tests,
+  `npm run all`, linting scoped to the action workspace) and evaluate slimming
+  the runtime dependency installation once Playwright provisioning is solved.
+- **Follow-up tasks**: update TASK-0020 through TASK-0024 acceptance criteria to
+  reflect the bundled layout and plan the remaining template parity checks (QA,
+  test harness, repository root relocation if desired).
+
+#### Template gap analysis
+- **Entrypoint strategy**: the template executes compiled TypeScript from
+  `dist/index.js`, whereas the current composite action shells into the shared
+  CLI. We need a thin TypeScript wrapper that imports the pipeline module and
+  exposes inputs/outputs via `@actions/core`.
+- **Dependency management**: template actions vendor production dependencies via
+  the bundled `dist/` artifact, removing the need for `npm ci` at runtime. Our
+  composite action currently installs dependencies on every run and requires the
+  full `tools/automation` tree. Migration will involve bundling the CLI and
+  Playwright bootstrap logic or publishing a separate npm package for reuse.
+- **Testing and validation**: the template expects Jest-based unit tests and a
+  `npm run all` aggregate script. We should port existing smoke tests into
+  TypeScript-targeted tests or wrap the automation pipeline to keep equivalent
+  coverage.
+- **Release workflow**: template repositories commit the compiled `dist/` output
+  and verify it with `check-dist`. Our release workflow packages source files
+  into a tarball. We'll need to update the workflow to build, verify, and tag
+  the bundled action while optionally still emitting the tarball for
+  compatibility during the transition.
 
 ## Success criteria
 - Each implementation task references the canonical automation docs and keeps
@@ -131,8 +166,9 @@ phases.
   input) and post-merge pushes to `main` touching action-related files.
 - **Validation steps**: `npm ci`, lint, TypeScript build, and a CI-mode pipeline
   smoke run writing a JSON summary.
-- **Packaging**: Bundles the composite action, automation sources, and
-  lockfiles into `proxmox-openapi-action.tgz` for release assets.
+  - **Packaging**: Bundles the TypeScript action manifest, committed `dist/`
+    output, and action-specific lockfiles into `proxmox-openapi-action.tgz` for
+    release assets.
 - **Release tagging**: Manual runs honour the provided tag and mark releases as
   stable; automatic pushes generate prerelease tags using the short commit SHA
   while still publishing assets for internal adoption.

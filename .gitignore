@@ -37,3 +37,6 @@ go.work.sum
 
 .runonce
 .env
+!.github/actions/proxmox-openapi-artifacts/dist/
+!.github/actions/proxmox-openapi-artifacts/dist/index.js
+!.github/actions/proxmox-openapi-artifacts/dist/index.js.map

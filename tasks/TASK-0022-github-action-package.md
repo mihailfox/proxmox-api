@@ -8,17 +8,21 @@ Source of truth
 - docs/automation/README.md
 
 Requirements summary
-- Create the GitHub Action definition (composite or JavaScript) encapsulating the automation entry point.
+- Create the GitHub Action definition as a bundled TypeScript/JavaScript action following the
+  `actions/typescript-action` structure.
 - Configure inputs for execution mode, artifact output paths, and optional overrides.
 - Ensure outputs expose artifact paths and summaries for downstream steps.
+- Bundle production dependencies into `dist/` so consumers do not need to run `npm ci`.
 
 Scope
-- Focus areas: .github/actions/, tools/automation/, package.json
+- Focus areas: action.yml, new `action/` package (e.g., `src/`, `dist/`), tools/automation/ integration hooks, package.json
 - Out of scope: app/, docs/openapi/
 - Data model and types: Automation pipeline outputs are authoritative.
 
 Allowed changes
 - Add action implementation files and helper scripts.
+- Adopt bundler configuration (`rollup`, `@vercel/ncc`, or template defaults) and supporting npm scripts required by
+  the TypeScript action toolchain.
 - Update tooling dependencies if required for the action runtime.
 - No breaking changes to existing automation commands without coordination.
 

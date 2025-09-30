@@ -9,16 +9,19 @@ Source of truth
 
 Requirements summary
 - Provide a dedicated script or CLI wrapper around `npm run automation:pipeline` for action consumption.
+- Shape the entry point as a reusable TypeScript module compatible with the `actions/typescript-action` layout so
+  the final GitHub Action can import it directly instead of shelling out.
 - Ensure configurable inputs for mode, output directories, and artifact naming.
 - Add smoke coverage validating CI and full execution paths.
 
 Scope
-- Focus areas: tools/automation/, tools/api-*/, package.json scripts
+- Focus areas: tools/automation/, tools/api-*/, package.json scripts, future `action/src/` scaffolding.
 - Out of scope: app/, docs/openapi/, public/
 - Data model and types: Existing automation pipeline outputs.
 
 Allowed changes
 - Refactor automation scripts to expose reusable entry point.
+- Introduce TypeScript wrappers or helpers that bridge the automation pipeline with the GitHub Action runtime.
 - Update package scripts and supporting utilities as needed.
 - No changes to generated OpenAPI schemas beyond deterministic regeneration.
 

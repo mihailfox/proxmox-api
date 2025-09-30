@@ -144,10 +144,12 @@ Follow this cadence before merging or releasing updated artifacts:
 ### 6.1 Private GitHub Action releases
 
 - Trigger the `private-action-release` workflow via the GitHub UI when the action or automation
-  tooling changes. Provide a semantic tag (for example `v0.2.0`) to create a stable release; omit the
+  tooling changes. Provide a semantic tag (for example `v0.3.0`) to create a stable release; omit the
   tag for prerelease builds tied to the current commit SHA.
-- The workflow validates linting/builds, performs a CI-mode pipeline smoke test, and uploads
-  `proxmox-openapi-action.tgz` containing the composite action and automation sources.
+- The workflow validates linting/builds, performs a CI-mode pipeline smoke test, and now bundles the
+  TypeScript action (`action.yml`, `dist/`, `package.json`, `package-lock.json`) before uploading the
+  `proxmox-openapi-action.tgz` asset. The archive no longer includes raw TypeScript sources because
+  the compiled `dist/index.js` is committed.
 - Downstream repositories can pin to specific tags or prereleases depending on stability
   requirements.
 

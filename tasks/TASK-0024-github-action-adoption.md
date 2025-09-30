@@ -8,9 +8,11 @@ Source of truth
 - docs/automation/README.md
 
 Requirements summary
-- Produce usage documentation and sample workflows for downstream repositories.
+- Produce usage documentation and sample workflows for downstream repositories, reflecting the bundled TypeScript action
+  footprint (`uses: org/repo@tag` with committed `dist/`).
 - Establish validation strategy via sandbox repo or integration tests.
-- Provide troubleshooting and versioning guidance for private distribution.
+- Provide troubleshooting and versioning guidance for private distribution, including how to consume the action without
+  running `npm ci` thanks to the prebuilt artifact.
 
 Scope
 - Focus areas: docs/automation/, docs/handover/, plan/
@@ -18,7 +20,7 @@ Scope
 - Data model and types: Generated OpenAPI specs remain authoritative outputs.
 
 Allowed changes
-- Documentation updates covering onboarding, validation, and troubleshooting.
+- Documentation updates covering onboarding, validation, troubleshooting, and template-aligned repository structure.
 - Optional automation for sandbox validation workflows.
 - No changes to core automation pipeline.
 
