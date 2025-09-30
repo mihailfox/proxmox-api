@@ -44,6 +44,14 @@ Adjust the `uses:` reference to match the hosting strategy (internal repo tag,
 branch, or commit SHA). Enable `install-playwright-browsers` for first-run
 setups where the runner lacks cached browsers.
 
+> **Template alignment preview**
+> The current composite action will be migrated to a bundled TypeScript action
+> following [`actions/typescript-action`](https://github.com/actions/typescript-action).
+> Once that work lands, the usage snippet will compress to `uses:
+> org/private-proxmox-action@v0.x` with no nested `.github/actions/` path and the
+> action will ship prebuilt `dist/` assets so runners no longer need to execute
+> `npm ci`.
+
 ## 3. Sandbox validation checklist
 
 - [ ] Run the workflow in a clean repository fork using the CI mode to confirm
@@ -69,3 +77,21 @@ setups where the runner lacks cached browsers.
   should pin to stable tags before shipping to production.
 - Document the adopted tag in downstream repositories to aid audits and
   reproducibility.
+
+## 6. Migration plan to the TypeScript action template
+
+1. **Repository restructure** – create an `action/` workspace with `src/`,
+   `dist/`, and `__tests__/` mirroring the template. Move the automation
+   invoker logic into `src/main.ts` and keep shared helpers in
+   `tools/automation/`.
+2. **Bundling workflow** – add `npm run bundle`/`npm run all` scripts and a
+   `check-dist` workflow to ensure the compiled output stays in sync with the
+   committed `dist/` directory.
+3. **Release update** – modify `private-action-release` to publish the bundled
+   action (including `dist/`, metadata, and docs) and, during transition, keep
+   the tarball asset for downstream consumers still relying on the composite
+   layout.
+4. **Consumer change management** – document the required switch from
+   `uses: repo/.github/actions/proxmox-openapi-artifacts@tag` to
+   `uses: repo@tag`, highlight that Node 22 remains required for runtime but
+   `npm ci` will become optional, and provide a dual-mode adoption window.

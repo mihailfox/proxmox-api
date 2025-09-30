@@ -78,6 +78,43 @@ portable artifacts that downstream repositories can consume.
 - Capture troubleshooting guidance and versioning strategy for private usage.
 - **Task**: [TASK-0024](../tasks/TASK-0024-github-action-adoption.md)
 
+### 6. Align with the `actions/typescript-action` template
+- Evaluate the template-provided repository layout (`src/`, `dist/`, `__tests__/`,
+  `script/`) and map existing automation code to TypeScript entry points rather
+  than composite-step shelling.
+- Replace the composite action wrapper with a bundled JavaScript action that
+  calls the shared automation helpers through a TypeScript façade compiled with
+  `rollup`/`@vercel/ncc` as demonstrated in the template.
+- Adopt the template's supporting workflows (`check-dist`, lint/CI) to ensure the
+  generated `dist/` output stays in sync with source control and to gate releases
+  on the bundled artifact.
+- Update release packaging so the published tarball mirrors the template's
+  expectation: committed `dist/index.js`, production dependencies, and
+  supporting metadata without requiring a follow-up `npm ci` on the runner.
+- **Follow-up tasks**: extend TASK-0020 through TASK-0024 with template-specific
+  acceptance criteria and add an implementation ticket to migrate the action
+  code under `action/` or a dedicated package using the template toolchain.
+
+#### Template gap analysis
+- **Entrypoint strategy**: the template executes compiled TypeScript from
+  `dist/index.js`, whereas the current composite action shells into the shared
+  CLI. We need a thin TypeScript wrapper that imports the pipeline module and
+  exposes inputs/outputs via `@actions/core`.
+- **Dependency management**: template actions vendor production dependencies via
+  the bundled `dist/` artifact, removing the need for `npm ci` at runtime. Our
+  composite action currently installs dependencies on every run and requires the
+  full `tools/automation` tree. Migration will involve bundling the CLI and
+  Playwright bootstrap logic or publishing a separate npm package for reuse.
+- **Testing and validation**: the template expects Jest-based unit tests and a
+  `npm run all` aggregate script. We should port existing smoke tests into
+  TypeScript-targeted tests or wrap the automation pipeline to keep equivalent
+  coverage.
+- **Release workflow**: template repositories commit the compiled `dist/` output
+  and verify it with `check-dist`. Our release workflow packages source files
+  into a tarball. We'll need to update the workflow to build, verify, and tag
+  the bundled action while optionally still emitting the tarball for
+  compatibility during the transition.
+
 ## Success criteria
 - Each implementation task references the canonical automation docs and keeps
   generated artifacts compatible with the existing OpenAPI specs.

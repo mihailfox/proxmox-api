@@ -79,6 +79,11 @@ step.
   Git submodule or GitHub Actions `uses:` with organization-level access).
 - See [private-action-adoption.md](./private-action-adoption.md) for onboarding
   and sandbox validation guidance.
+- **Upcoming change**: the action will migrate to the
+  [`actions/typescript-action`](https://github.com/actions/typescript-action)
+  layout. Expect the path to simplify to `uses: org/private-proxmox-action@tag`
+  with prebuilt `dist/` assets once the migration tasks land. The adoption guide
+  tracks the detailed migration steps and consumer messaging.
 
 ## CI workflow
 

@@ -8,8 +8,9 @@ Source of truth
 - docs/automation/README.md
 
 Requirements summary
-- Create a GitHub Actions workflow that builds, tags, and publishes the private action.
-- Generate GitHub releases with packaged assets and changelog entries.
+- Create a GitHub Actions workflow that builds, bundles (`npm run bundle`/`npm run all`), tags, and publishes the private action.
+- Generate GitHub releases with packaged assets and changelog entries, ensuring the committed `dist/` matches the build via a
+  `check-dist`-style verification.
 - Support manual dispatch and automatic runs on main branch merges.
 
 Scope
@@ -18,7 +19,7 @@ Scope
 - Data model and types: Automation pipeline outputs remain canonical.
 
 Allowed changes
-- Add release workflow YAML and supporting scripts.
+- Add release workflow YAML and supporting scripts, including template-inspired `check-dist` validation.
 - Update documentation describing release triggers and required secrets.
 - No changes to automation logic beyond packaging for release.
 

@@ -9,7 +9,10 @@ Source of truth
 
 Requirements summary
 - Capture inputs, outputs, runtime expectations, and portability requirements for the private GitHub Action.
-- Document action design decisions (composite vs. JavaScript) and integration guidelines.
+- Document action design decisions (composite vs. JavaScript) and integration guidelines, now targeting the
+  `actions/typescript-action` toolchain as the baseline implementation.
+- Record the gap analysis between the current composite package and the template so downstream tasks can
+  plan the migration effort explicitly.
 
 Scope
 - Focus areas: plan/, docs/automation/, docs/handover/
@@ -17,8 +20,8 @@ Scope
 - Data model and types: Existing automation pipeline outputs remain the ground truth.
 
 Allowed changes
-- Documentation updates describing the action requirements and design brief.
-- Planning artifacts outlining interface contracts.
+- Documentation updates describing the action requirements, template alignment, and design brief.
+- Planning artifacts outlining interface contracts and TypeScript action adoption steps.
 - No code or schema modifications.
 
 Branch
