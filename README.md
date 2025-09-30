@@ -46,3 +46,9 @@ To apply automatic formatting fixes:
 ```bash
 npm run format
 ```
+
+## Contributing
+
+Review the [coding standards](docs/contributing/coding-standards.md) before opening a pull request.
+They document TypeScript style expectations, Playwright testing requirements, and the review
+checklist that must be included in each PR.

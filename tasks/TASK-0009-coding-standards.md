@@ -24,13 +24,13 @@ Preconditions
 - Confirm alignment with organization-wide standards if applicable.
 
 Plan checklist
-- [ ] Audit current linting and formatting configuration.
-- [ ] Draft coding standards covering TypeScript style, Playwright usage, and testing requirements.
-- [ ] Update configuration files to enforce the standards where feasible.
-- [ ] Publish guidelines in contributing documentation.
-- [ ] Gather feedback placeholders for future iterations.
-- [ ] Commit changes using Conventional Commits.
-- [ ] Update changelog noting standards and configuration updates.
+- [x] Audit current linting and formatting configuration.
+- [x] Draft coding standards covering TypeScript style, Playwright usage, and testing requirements.
+- [x] Update configuration files to enforce the standards where feasible.
+- [x] Publish guidelines in contributing documentation.
+- [x] Gather feedback placeholders for future iterations.
+- [x] Commit changes using Conventional Commits.
+- [x] Update changelog noting standards and configuration updates.
 
 Acceptance criteria
 - Coding standards document exists and is referenced from README or contributing guide.
