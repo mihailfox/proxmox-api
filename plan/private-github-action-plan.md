@@ -78,6 +78,43 @@ portable artifacts that downstream repositories can consume.
 - Capture troubleshooting guidance and versioning strategy for private usage.
 - **Task**: [TASK-0024](../tasks/TASK-0024-github-action-adoption.md)
 
+### 6. Align with the `actions/typescript-action` template
+- Evaluate the template-provided repository layout (`src/`, `dist/`, `__tests__/`,
+  `script/`) and map existing automation code to TypeScript entry points rather
+  than composite-step shelling.
+- Replace the composite action wrapper with a bundled JavaScript action that
+  calls the shared automation helpers through a TypeScript façade compiled with
+  `rollup`/`@vercel/ncc` as demonstrated in the template.
+- Adopt the template's supporting workflows (`check-dist`, lint/CI) to ensure the
+  generated `dist/` output stays in sync with source control and to gate releases
+  on the bundled artifact.
+- Update release packaging so the published tarball mirrors the template's
+  expectation: committed `dist/index.js`, production dependencies, and
+  supporting metadata without requiring a follow-up `npm ci` on the runner.
+- **Follow-up tasks**: extend TASK-0020 through TASK-0024 with template-specific
+  acceptance criteria and add an implementation ticket to migrate the action
+  code under `action/` or a dedicated package using the template toolchain.
+
+#### Template gap analysis
+- **Entrypoint strategy**: the template executes compiled TypeScript from
+  `dist/index.js`, whereas the current composite action shells into the shared
+  CLI. We need a thin TypeScript wrapper that imports the pipeline module and
+  exposes inputs/outputs via `@actions/core`.
+- **Dependency management**: template actions vendor production dependencies via
+  the bundled `dist/` artifact, removing the need for `npm ci` at runtime. Our
+  composite action currently installs dependencies on every run and requires the
+  full `tools/automation` tree. Migration will involve bundling the CLI and
+  Playwright bootstrap logic or publishing a separate npm package for reuse.
+- **Testing and validation**: the template expects Jest-based unit tests and a
+  `npm run all` aggregate script. We should port existing smoke tests into
+  TypeScript-targeted tests or wrap the automation pipeline to keep equivalent
+  coverage.
+- **Release workflow**: template repositories commit the compiled `dist/` output
+  and verify it with `check-dist`. Our release workflow packages source files
+  into a tarball. We'll need to update the workflow to build, verify, and tag
+  the bundled action while optionally still emitting the tarball for
+  compatibility during the transition.
+
 ## Success criteria
 - Each implementation task references the canonical automation docs and keeps
   generated artifacts compatible with the existing OpenAPI specs.
@@ -97,4 +134,42 @@ portable artifacts that downstream repositories can consume.
 - Socialize the plan with maintainers for feedback.
 - Prioritize and schedule tasks TASK-0020 through TASK-0024.
 - Begin work with requirement/interface definition to minimize rework in later
-  phases.
+phases.
+
+## Action interface summary (TASK-0020)
+
+- **Action name**: `proxmox-openapi-artifacts` (composite action under
+  `.github/actions/`).
+- **Required runtime**: Node.js 22.x, npm 10+, Playwright browser binaries (the
+  action optionally installs them on-demand).
+- **Inputs**:
+  - `mode` (`ci` default) toggles cached vs. full scrape execution.
+  - `base-url`, `raw-snapshot-path`, `ir-output-path`, `openapi-dir`, and
+    `openapi-basename` mirror the CLI flags exposed by the automation pipeline.
+  - `offline` and `fallback-to-cache` control scrape behaviour for air-gapped
+    or flaky networks.
+  - `install-command`, `node-version`, `working-directory`, and
+    `install-playwright-browsers` support environment bootstrapping.
+  - `report-path` and `extra-cli-args` allow additional customization and
+    summary capture.
+- **Outputs**: The action emits absolute paths for the raw snapshot, normalized
+  IR, generated OpenAPI JSON/YAML, and a cache indicator so downstream steps can
+  upload artifacts or branch logic.
+- **Portability**: The automation entry point now exposes a JSON summary file to
+  decouple GitHub output wiring from the core pipeline logic. Consumers can run
+  the action inside private repositories without exposing secrets beyond the
+  standard GitHub token used for dependency installation or release uploads.
+
+## Release automation overview (TASK-0023)
+
+- **Workflow**: `.github/workflows/private-action-release.yml` validates the
+  pipeline, packages the action directory, and creates a GitHub release.
+- **Triggers**: Manual `workflow_dispatch` (with optional semantic version
+  input) and post-merge pushes to `main` touching action-related files.
+- **Validation steps**: `npm ci`, lint, TypeScript build, and a CI-mode pipeline
+  smoke run writing a JSON summary.
+- **Packaging**: Bundles the composite action, automation sources, and
+  lockfiles into `proxmox-openapi-action.tgz` for release assets.
+- **Release tagging**: Manual runs honour the provided tag and mark releases as
+  stable; automatic pushes generate prerelease tags using the short commit SHA
+  while still publishing assets for internal adoption.

@@ -39,6 +39,52 @@ step.
    `docs/openapi/proxmox-ve.(json|yaml)` for changes.
 3. Commit any updates together so the repository remains internally consistent.
 
+## JSON summaries and automation entry point
+
+- The CLI accepts `--report <path>` to write a JSON summary describing the raw
+  snapshot, normalized IR, OpenAPI outputs, and cache usage. GitHub Actions and
+  other automations consume this file to surface artifact paths as workflow
+  outputs.
+- The reusable `runAutomationPipeline` helper (exported from
+  `tools/automation/src/pipeline.ts`) powers both the CLI and the private GitHub
+  Action, ensuring all execution paths share the same option resolution and QA
+  logging.
+
+## Private GitHub Action usage
+
+- Composite action location: `.github/actions/proxmox-openapi-artifacts`.
+- Example workflow snippet:
+
+  ```yaml
+  jobs:
+    generate-openapi:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+        - id: artifacts
+          name: Generate artifacts
+          uses: ./.github/actions/proxmox-openapi-artifacts
+          with:
+            mode: full
+            install-playwright-browsers: true
+        - name: Upload OpenAPI
+          uses: actions/upload-artifact@v4
+          with:
+            name: proxmox-openapi
+            path: |
+              ${{ steps.artifacts.outputs.openapi-json }}
+              ${{ steps.artifacts.outputs.openapi-yaml }}
+  ```
+- Downstream repositories reference the action via a private checkout (e.g.,
+  Git submodule or GitHub Actions `uses:` with organization-level access).
+- See [private-action-adoption.md](./private-action-adoption.md) for onboarding
+  and sandbox validation guidance.
+- **Upcoming change**: the action will migrate to the
+  [`actions/typescript-action`](https://github.com/actions/typescript-action)
+  layout. Expect the path to simplify to `uses: org/private-proxmox-action@tag`
+  with prebuilt `dist/` assets once the migration tasks land. The adoption guide
+  tracks the detailed migration steps and consumer messaging.
+
 ## CI workflow
 
 The `automation-pipeline` GitHub Actions workflow executes the pipeline in CI
