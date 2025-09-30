@@ -4,7 +4,11 @@
     "maxSize": 5242880
   },
   "formatter": {
-    "enabled": true
+    "enabled": true,
+    "formatWithErrors": false,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100
   },
   "linter": {
     "enabled": true,
@@ -12,7 +16,23 @@
       "recommended": true
     }
   },
+  "overrides": [
+    {
+      "includes": ["docs/openapi/**/*"],
+      "linter": {
+        "enabled": false
+      },
+      "formatter": {
+        "enabled": false
+      }
+    }
+  ],
   "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "semicolons": "always",
+      "trailingCommas": "es5"
+    },
     "globals": [
       "module",
       "require",

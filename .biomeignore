@@ -4,3 +4,6 @@ dist
 playwright-report
 test-results
 blob-report
+docs/openapi
+docs/openapi/**
+**/docs/openapi/**

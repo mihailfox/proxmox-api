@@ -14,6 +14,7 @@ import type { RawApiSnapshot } from '../../api-scraper/src/types';
 import { normalizeSnapshot } from '../../api-normalizer/src/normalizer';
 import type { NormalizedApiDocument } from '../../api-normalizer/src/types';
 import { generateOpenApiDocument } from '../../openapi-generator/src/generator';
+import { logRegressionReport } from './regression/report';
 
 interface PipelineOptions {
   mode: 'ci' | 'full';
@@ -55,6 +56,8 @@ async function main(): Promise<void> {
 
   await SwaggerParser.validate(documentPaths.json);
   log(`Validated OpenAPI document ${relative(documentPaths.json)}`);
+
+  logRegressionReport();
 
   logHeading('Pipeline complete');
 }
