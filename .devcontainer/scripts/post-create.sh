@@ -10,6 +10,11 @@ if [[ -f "${ROOT_DIR}/../.env" ]]; then
   set +a
 fi
 
+curl -L --fail --show-error --progress-bar -o ripgrep.deb \
+  https://github.com/BurntSushi/ripgrep/releases/download/14.1.1/ripgrep_14.1.1-1_amd64.deb && \
+  sudo dpkg -i ripgrep.deb && \
+  rm ripgrep.deb
+
 cd "${ROOT_DIR}/.."
 
 npm ci
