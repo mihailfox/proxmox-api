@@ -1,21 +1,27 @@
 name: automation-pipeline
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
-      - main
-  schedule:
-    - cron: '0 6 * * 1'
+      - dev
+    paths:
+      - .github/workflows/automation-pipeline.yml
+      - package.json
+      - package-lock.json
+      - biome.json
+      - tsconfig.json
+      - vite.config.ts
+      - vitest.config.ts
+      - "app/**"
+      - "tests/**"
+      - "tools/**"
   workflow_dispatch: {}
 
 jobs:
   pipeline:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4

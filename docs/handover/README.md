@@ -141,6 +141,16 @@ Follow this cadence before merging or releasing updated artifacts:
 6. **QA sign-off**: Ensure the regression checklist items are checked (or deferred with rationale) in
    the pull request template before requesting review.
 
+### 6.1 Private GitHub Action releases
+
+- Trigger the `private-action-release` workflow via the GitHub UI when the action or automation
+  tooling changes. Provide a semantic tag (for example `v0.2.0`) to create a stable release; omit the
+  tag for prerelease builds tied to the current commit SHA.
+- The workflow validates linting/builds, performs a CI-mode pipeline smoke test, and uploads
+  `proxmox-openapi-action.tgz` containing the composite action and automation sources.
+- Downstream repositories can pin to specific tags or prereleases depending on stability
+  requirements.
+
 ## 7. Troubleshooting guide
 
 | Symptom | Likely cause | Resolution |
