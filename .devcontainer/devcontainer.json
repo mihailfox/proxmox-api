@@ -19,7 +19,8 @@
         "ms-playwright.playwright",
         "christian-kohler.npm-intellisense",
         "github.vscode-github-actions",
-        "donjayamanne.githistory"
+        "donjayamanne.githistory",
+        "biomejs.biome"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "bash",
