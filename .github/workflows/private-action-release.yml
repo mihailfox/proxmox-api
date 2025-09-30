@@ -1,0 +1,116 @@
+name: private-action-release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release tag (e.g., v0.1.0)'
+        required: false
+      generate-notes:
+        description: 'Automatically generate release notes'
+        required: false
+        default: 'true'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/actions/proxmox-openapi-artifacts/**'
+      - 'tools/automation/**'
+      - 'docs/automation/**'
+      - 'docs/handover/**'
+      - 'plan/private-github-action-plan.md'
+      - 'tasks/TASK-002*-github-action*.md'
+
+jobs:
+  validate:
+    name: Validate action tooling
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: TypeScript build
+        run: npm run build
+      - name: Smoke automation pipeline
+        run: npm run automation:pipeline -- --mode=ci --report tmp/action-summary.json
+      - name: Install action dependencies
+        run: npm install --prefix .github/actions/proxmox-openapi-artifacts
+      - name: Build action bundle
+        run: npm run package --prefix .github/actions/proxmox-openapi-artifacts
+      - name: Check action dist is up to date
+        run: |
+          if ! git diff --quiet -- .github/actions/proxmox-openapi-artifacts/dist; then
+            echo '::error::Action dist is out of date. Run npm run package --prefix .github/actions/proxmox-openapi-artifacts.'
+            git diff -- .github/actions/proxmox-openapi-artifacts/dist
+            exit 1
+          fi
+          if ! git diff --quiet -- .github/actions/proxmox-openapi-artifacts/package-lock.json; then
+            echo '::error::Action package-lock.json is out of date. Run npm install --prefix .github/actions/proxmox-openapi-artifacts.'
+            git diff -- .github/actions/proxmox-openapi-artifacts/package-lock.json
+            exit 1
+          fi
+  release:
+    name: Publish action release
+    needs: validate
+    if: ${{ success() }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Gather release inputs
+        id: metadata
+        run: |
+          set -euo pipefail
+          EVENT_NAME="$GITHUB_EVENT_NAME"
+          VERSION=""
+          GENERATE_NOTES="true"
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            VERSION="$(jq -r '.inputs.version // ""' "$GITHUB_EVENT_PATH")"
+            GENERATE_NOTES="$(jq -r '.inputs["generate-notes"] // "true"' "$GITHUB_EVENT_PATH")"
+          fi
+          if [ -z "$VERSION" ]; then
+            VERSION="action-${GITHUB_SHA::7}"
+          fi
+          echo "tag=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "generate_notes=$GENERATE_NOTES" >> "$GITHUB_OUTPUT"
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] && [ -n "$VERSION" ]; then
+            echo "is_prerelease=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_prerelease=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Package action directory
+        run: |
+          set -euo pipefail
+          npm install --prefix .github/actions/proxmox-openapi-artifacts
+          npm run package --prefix .github/actions/proxmox-openapi-artifacts
+          rm -rf .github/actions/proxmox-openapi-artifacts/node_modules
+          tar -czf proxmox-openapi-action.tgz \
+            .github/actions/proxmox-openapi-artifacts/action.yml \
+            .github/actions/proxmox-openapi-artifacts/dist \
+            .github/actions/proxmox-openapi-artifacts/package.json \
+            .github/actions/proxmox-openapi-artifacts/package-lock.json
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.metadata.outputs.tag }}"
+          GENERATE_NOTES="${{ steps.metadata.outputs.generate_notes }}"
+          PRERELEASE="${{ steps.metadata.outputs.is_prerelease }}"
+          ARGS=("$TAG" "proxmox-openapi-action.tgz")
+          if [ "$GENERATE_NOTES" = "true" ]; then
+            ARGS+=("--generate-notes")
+          fi
+          if [ "$PRERELEASE" = "true" ]; then
+            ARGS+=("--prerelease")
+          fi
+          gh release create "${ARGS[@]}"

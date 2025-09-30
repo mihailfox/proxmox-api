@@ -1,8 +1,6 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
-import { parseArgs } from 'node:util';
-
 import SwaggerParser from '@apidevtools/swagger-parser';
 import { stringify as stringifyYaml } from 'yaml';
 
@@ -16,6 +14,18 @@ import type { NormalizedApiDocument } from '../../api-normalizer/src/types';
 import { generateOpenApiDocument } from '../../openapi-generator/src/generator';
 import { logRegressionReport } from './regression/report';
 
+export interface AutomationPipelineRunOptions {
+  mode?: 'ci' | 'full';
+  baseUrl?: string;
+  rawSnapshotPath?: string;
+  irOutputPath?: string;
+  openApiOutputDir?: string;
+  openApiBasename?: string;
+  offline?: boolean;
+  fallbackToCache?: boolean;
+  summaryOutputPath?: string;
+}
+
 interface PipelineOptions {
   mode: 'ci' | 'full';
   baseUrl: string;
@@ -25,6 +35,7 @@ interface PipelineOptions {
   openApiBasename: string;
   offline: boolean;
   fallbackToCache: boolean;
+  summaryOutputPath?: string;
 }
 
 interface ScrapeOutcome {
@@ -33,75 +44,114 @@ interface ScrapeOutcome {
   fromCache: boolean;
 }
 
-async function main(): Promise<void> {
-  const options = resolveOptions();
-
-  logHeading('Starting automation pipeline');
-
-  const scrapeOutcome = await obtainRawSnapshot(options);
-  if (scrapeOutcome.sourcePath) {
-    log(`Raw snapshot source: ${relative(scrapeOutcome.sourcePath)}`);
-  }
-  log(`Snapshot ready (${scrapeOutcome.fromCache ? 'cache' : 'fresh scrape'})`);
-
-  const normalized = await buildNormalizedDocument(
-    scrapeOutcome.snapshot,
-    options.irOutputPath,
-    scrapeOutcome.fromCache
-  );
-  log(`Normalized IR written to ${relative(options.irOutputPath)}`);
-
-  const documentPaths = await writeOpenApiDocuments(normalized, options);
-  log(`OpenAPI artifacts updated:\n- ${relative(documentPaths.json)}\n- ${relative(documentPaths.yaml)}`);
-
-  await SwaggerParser.validate(documentPaths.json);
-  log(`Validated OpenAPI document ${relative(documentPaths.json)}`);
-
-  logRegressionReport();
-
-  logHeading('Pipeline complete');
+export interface AutomationPipelineResult {
+  rawSnapshotPath: string;
+  normalizedDocumentPath: string;
+  openApiJsonPath: string;
+  openApiYamlPath: string;
+  usedCache: boolean;
 }
 
-function resolveOptions(): PipelineOptions {
-  const { values } = parseArgs({
-    options: {
-      mode: { type: 'string', short: 'm' },
-      offline: { type: 'boolean' },
-      'fallback-to-cache': { type: 'boolean' },
-      'base-url': { type: 'string' },
-      'raw-output': { type: 'string' },
-      'ir-output': { type: 'string' },
-      'openapi-dir': { type: 'string' },
-      basename: { type: 'string', short: 'b' }
-    }
-  });
+interface PipelineRuntimeContext {
+  logger?: (message: string) => void;
+}
 
-  const mode = values.mode === 'full' ? 'full' : 'ci';
-  const offlineFlag = values.offline === true;
-  const fallbackFlag = values['fallback-to-cache'] === true;
-
+export function resolveAutomationPipelineOptions(
+  options: AutomationPipelineRunOptions = {}
+): PipelineOptions {
+  const mode = options.mode === 'full' ? 'full' : 'ci';
   const rawSnapshotPath = path.resolve(
-    values['raw-output'] ?? 'tools/api-scraper/data/raw/proxmox-api-schema.json'
+    options.rawSnapshotPath ?? 'tools/api-scraper/data/raw/proxmox-api-schema.json'
   );
   const irOutputPath = path.resolve(
-    values['ir-output'] ?? 'tools/api-normalizer/data/ir/proxmox-api-ir.json'
+    options.irOutputPath ?? 'tools/api-normalizer/data/ir/proxmox-api-ir.json'
   );
-  const openApiOutputDir = path.resolve(values['openapi-dir'] ?? 'docs/openapi');
-  const openApiBasename = values.basename ?? 'proxmox-ve';
+  const openApiOutputDir = path.resolve(options.openApiOutputDir ?? 'docs/openapi');
+  const openApiBasename = options.openApiBasename ?? 'proxmox-ve';
+
+  const offline =
+    mode === 'ci'
+      ? true
+      : options.offline === undefined
+        ? false
+        : options.offline;
+
+  const fallbackToCache =
+    mode === 'ci'
+      ? true
+      : options.fallbackToCache === undefined
+        ? false
+        : options.fallbackToCache;
 
   return {
     mode,
-    offline: mode === 'ci' ? true : offlineFlag,
-    fallbackToCache: mode === 'ci' ? true : fallbackFlag,
-    baseUrl: values['base-url'] ?? process.env.SCRAPER_BASE_URL ?? DEFAULT_BASE_URL,
+    baseUrl: options.baseUrl ?? process.env.SCRAPER_BASE_URL ?? DEFAULT_BASE_URL,
     rawSnapshotPath,
     irOutputPath,
     openApiOutputDir,
-    openApiBasename
+    openApiBasename,
+    offline,
+    fallbackToCache,
+    summaryOutputPath: options.summaryOutputPath
+      ? path.resolve(options.summaryOutputPath)
+      : undefined
   };
 }
 
-async function obtainRawSnapshot(options: PipelineOptions): Promise<ScrapeOutcome> {
+export async function runAutomationPipeline(
+  options: AutomationPipelineRunOptions = {},
+  context: PipelineRuntimeContext = {}
+): Promise<AutomationPipelineResult> {
+  const logger = context.logger ?? defaultLogger;
+  const resolved = resolveAutomationPipelineOptions(options);
+
+  logHeading(logger, 'Starting automation pipeline');
+
+  const scrapeOutcome = await obtainRawSnapshot(resolved, logger);
+  if (scrapeOutcome.sourcePath) {
+    logger(`Raw snapshot source: ${relative(scrapeOutcome.sourcePath)}`);
+  }
+  logger(`Snapshot ready (${scrapeOutcome.fromCache ? 'cache' : 'fresh scrape'})`);
+
+  const normalized = await buildNormalizedDocument(
+    scrapeOutcome.snapshot,
+    resolved.irOutputPath,
+    scrapeOutcome.fromCache
+  );
+  logger(`Normalized IR written to ${relative(resolved.irOutputPath)}`);
+
+  const documentPaths = await writeOpenApiDocuments(normalized, resolved);
+  logger(
+    `OpenAPI artifacts updated:\n- ${relative(documentPaths.json)}\n- ${relative(documentPaths.yaml)}`
+  );
+
+  await SwaggerParser.validate(documentPaths.json);
+  logger(`Validated OpenAPI document ${relative(documentPaths.json)}`);
+
+  logRegressionReport();
+
+  const summary: AutomationPipelineResult = {
+    rawSnapshotPath: resolved.rawSnapshotPath,
+    normalizedDocumentPath: resolved.irOutputPath,
+    openApiJsonPath: documentPaths.json,
+    openApiYamlPath: documentPaths.yaml,
+    usedCache: scrapeOutcome.fromCache
+  };
+
+  if (resolved.summaryOutputPath) {
+    await writeSummary(resolved.summaryOutputPath, summary);
+    logger(`Pipeline summary written to ${relative(resolved.summaryOutputPath)}`);
+  }
+
+  logHeading(logger, 'Pipeline complete');
+
+  return summary;
+}
+
+async function obtainRawSnapshot(
+  options: PipelineOptions,
+  logger: (message: string) => void
+): Promise<ScrapeOutcome> {
   const { rawSnapshotPath, baseUrl, offline, fallbackToCache } = options;
 
   if (offline) {
@@ -112,7 +162,7 @@ async function obtainRawSnapshot(options: PipelineOptions): Promise<ScrapeOutcom
   await fs.mkdir(path.dirname(rawSnapshotPath), { recursive: true });
 
   try {
-    log(`Scraping API viewer at ${baseUrl}`);
+    logger(`Scraping API viewer at ${baseUrl}`);
     const result = await scrapeApiDocumentation({
       baseUrl,
       persist: {
@@ -195,19 +245,22 @@ async function writeOpenApiDocuments(
   return { json: jsonPath, yaml: yamlPath };
 }
 
-function log(message: string): void {
+function defaultLogger(message: string): void {
   process.stdout.write(`${message}\n`);
 }
 
-function logHeading(message: string): void {
-  process.stdout.write(`\n=== ${message} ===\n`);
+function logHeading(logger: (message: string) => void, message: string): void {
+  logger(`\n=== ${message} ===`);
 }
 
 function relative(filePath: string): string {
   return path.relative(process.cwd(), filePath) || '.';
 }
 
-void main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+async function writeSummary(
+  filePath: string,
+  summary: AutomationPipelineResult
+): Promise<void> {
+  await fs.mkdir(path.dirname(filePath), { recursive: true });
+  await fs.writeFile(filePath, `${JSON.stringify(summary, null, 2)}\n`, 'utf8');
+}
