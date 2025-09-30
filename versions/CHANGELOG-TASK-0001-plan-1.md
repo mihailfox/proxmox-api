@@ -2,14 +2,13 @@
 
 ## Summary
 - Created task definition and planning documents for extracting Proxmox API documentation into OpenAPI format.
-- Established follow-up subtasks (TASK-0002..TASK-0007) covering tooling, scraping, normalization, OpenAPI generation, QA, and documentation.
-- Recorded initial change log entry under `plan/change-log.md`.
+- Established follow-up subtasks (TASK-0002..TASK-0009) covering tooling, scraping, normalization, OpenAPI generation, QA, and documentation.
 
 ## Command Log
-- `git checkout -b feature/20240620---task-0001-plan-openapi-extraction`
+- `git checkout -b feature/20250929---task-0001-plan-openapi-extraction`
 - `mkdir -p tasks plan versions`
 - `cat README.md`
 - Authored `tasks/TASK-0001-plan-openapi-extraction.md`
-- Authored `plan/TASK-0001-openapi-extraction-plan.md`
+- Authored `plan/proxmox-openapi-extraction-plan.md`
 - Authored `plan/change-log.md`
 - Authored `versions/CHANGELOG-TASK-0001-plan-1.md`

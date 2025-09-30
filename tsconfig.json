@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "types": ["node", "@playwright/test", "vitest/globals"],
+    "outDir": "dist"
+  },
+  "include": [
+    "tools/api-scraper/**/*.ts",
+    "tools/api-normalizer/**/*.ts",
+    "tools/openapi-generator/**/*.ts"
+  ],
+  "exclude": ["node_modules", "dist"]
+}

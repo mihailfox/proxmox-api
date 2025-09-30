@@ -1,25 +1,26 @@
 Title
-- Plan OpenAPI extraction for Proxmox API documentation.
+- Plan Proxmox API documentation extraction to OpenAPI.
 
 Source of truth
-- README.md (project overview).
+- README.md
 
 Scope
-- Focus areas: `plan/`, `tasks/`, `versions/` documentation assets.
-- Out of scope: Application source, build artifacts, runtime code.
-- Data model and types: Not applicable (planning documentation only).
+- Focus areas: plan/, tasks/
+- Out of scope: All other directories.
+- Data model and types: Not applicable; no schemas referenced.
 
 Allowed changes
-- Documentation under the focus areas.
-- No source code or schema changes.
+- Planning documentation within plan/.
+- Task tracking documentation within tasks/.
+- No code or schema modifications.
 
 Branch
-- feature/20240620---task-0001-plan-openapi-extraction
+- feature/2025-09-29---task-0001-plan-openapi
 
 Preconditions
 - Run: source .env (if exists)
 - Ensure required CLIs are authenticated if needed.
-- Confirm repository PR template and standard scripts.
+- Confirm the repository has the PR template and standard scripts (TBD during future implementation).
 
 Plan checklist
 - [ ] Read the Source of Truth in order. Extract requirements into a short list.
@@ -67,16 +68,3 @@ Acceptance criteria
 - Behavior is verified by QA steps relevant to the change.
 - PR is open with template, checklist, and task link.
 - Changelog file exists and is human readable.
-
-Acceptance commands template
-- Environment
-  - source .env (if exists)
-- Optional schema or types sync
-  - Trigger CI/CLI sync if applicable and verify updated artifacts.
-- Install and checks
-  - Install dependencies
-  - Run linter
-  - Build artifacts
-- Tests
-  - Run unit tests
-  - Run integration and/or end-to-end tests as applicable
