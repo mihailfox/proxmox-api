@@ -47,6 +47,9 @@ jobs:
           npm run test:openapi
           npm run test:ui
 
+      - name: Run regression QA suite
+        run: npm run test:regression
+
       - name: Ensure artifacts are committed
         run: |
           git status --short

@@ -12,6 +12,17 @@
       "recommended": true
     }
   },
+  "overrides": [
+    {
+      "includes": ["docs/openapi/**/*"],
+      "linter": {
+        "enabled": false
+      },
+      "formatter": {
+        "enabled": false
+      }
+    }
+  ],
   "javascript": {
     "globals": [
       "module",

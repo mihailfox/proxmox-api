@@ -24,13 +24,13 @@ Preconditions
 - Gather sample outputs from previous tasks for comparison.
 
 Plan checklist
-- [ ] Inventory existing automated tests across tooling.
-- [ ] Define regression coverage requirements (scrape diffs, IR validation, OpenAPI contract checks).
-- [ ] Implement automated comparisons for high-risk areas.
-- [ ] Document QA procedures, including manual smoke tests.
-- [ ] Update CI to surface QA results where appropriate.
-- [ ] Commit changes using Conventional Commits.
-- [ ] Update changelog with QA findings and tooling updates.
+- [x] Inventory existing automated tests across tooling.
+- [x] Define regression coverage requirements (scrape diffs, IR validation, OpenAPI contract checks).
+- [x] Implement automated comparisons for high-risk areas.
+- [x] Document QA procedures, including manual smoke tests.
+- [x] Update CI to surface QA results where appropriate.
+- [x] Commit changes using Conventional Commits.
+- [x] Update changelog with QA findings and tooling updates.
 
 Acceptance criteria
 - Regression test suite covers scraping, normalization, and OpenAPI generation outputs.
