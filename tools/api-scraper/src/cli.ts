@@ -1,15 +1,27 @@
 #!/usr/bin/env ts-node
-import { chromium } from '@playwright/test';
+import path from 'node:path';
 
-export async function runScraper(): Promise<void> {
-  const browser = await chromium.launch();
-  const context = await browser.newContext({ ignoreHTTPSErrors: true });
-  const page = await context.newPage();
-  await page.goto('https://pve.proxmox.com/pve-docs/api-viewer/');
-  const title = await page.title();
-  console.log(`Loaded API viewer page with title: ${title}`);
-  await context.close();
-  await browser.close();
+import { DEFAULT_BASE_URL, scrapeApiDocumentation } from './scraper';
+
+async function runScraper(): Promise<void> {
+  const outputDir = path.resolve(__dirname, '..', 'data', 'raw');
+  const { snapshot, filePath } = await scrapeApiDocumentation({
+    persist: {
+      outputDir
+    }
+  });
+
+  const summary = [
+    `Scraped ${snapshot.stats.rootGroupCount} top-level groups`,
+    `${snapshot.stats.endpointCount} documented endpoints`,
+    `source: ${DEFAULT_BASE_URL}`
+  ].join(' | ');
+
+  if (filePath) {
+    console.log(`${summary} -> ${filePath}`);
+  } else {
+    console.log(summary);
+  }
 }
 
 if (require.main === module) {
@@ -18,3 +30,5 @@ if (require.main === module) {
     process.exitCode = 1;
   });
 }
+
+export { runScraper };

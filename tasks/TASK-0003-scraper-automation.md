@@ -24,14 +24,14 @@ Preconditions
 - Ensure network access to Proxmox API viewer for scraping.
 
 Plan checklist
-- [ ] Review scaffolding from TASK-0002 and confirm directory layout.
-- [ ] Define raw payload schema for scraped data.
-- [ ] Implement navigation logic covering key sections (nodes, pools, storage, etc.).
-- [ ] Persist scraped payloads to versioned JSON files.
-- [ ] Add tests validating DOM selectors and payload shape.
-- [ ] Document scraping command usage and troubleshooting steps.
-- [ ] Commit changes using Conventional Commits.
-- [ ] Update changelog with commands and results.
+- [x] Review scaffolding from TASK-0002 and confirm directory layout.
+- [x] Define raw payload schema for scraped data.
+- [x] Implement navigation logic covering key sections (nodes, pools, storage, etc.).
+- [x] Persist scraped payloads to versioned JSON files.
+- [x] Add tests validating DOM selectors and payload shape.
+- [x] Document scraping command usage and troubleshooting steps.
+- [x] Commit changes using Conventional Commits.
+- [x] Update changelog with commands and results.
 
 Acceptance criteria
 - Playwright automation extracts endpoint metadata across the documentation tree.
