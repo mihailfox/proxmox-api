@@ -97,4 +97,42 @@ portable artifacts that downstream repositories can consume.
 - Socialize the plan with maintainers for feedback.
 - Prioritize and schedule tasks TASK-0020 through TASK-0024.
 - Begin work with requirement/interface definition to minimize rework in later
-  phases.
+phases.
+
+## Action interface summary (TASK-0020)
+
+- **Action name**: `proxmox-openapi-artifacts` (composite action under
+  `.github/actions/`).
+- **Required runtime**: Node.js 22.x, npm 10+, Playwright browser binaries (the
+  action optionally installs them on-demand).
+- **Inputs**:
+  - `mode` (`ci` default) toggles cached vs. full scrape execution.
+  - `base-url`, `raw-snapshot-path`, `ir-output-path`, `openapi-dir`, and
+    `openapi-basename` mirror the CLI flags exposed by the automation pipeline.
+  - `offline` and `fallback-to-cache` control scrape behaviour for air-gapped
+    or flaky networks.
+  - `install-command`, `node-version`, `working-directory`, and
+    `install-playwright-browsers` support environment bootstrapping.
+  - `report-path` and `extra-cli-args` allow additional customization and
+    summary capture.
+- **Outputs**: The action emits absolute paths for the raw snapshot, normalized
+  IR, generated OpenAPI JSON/YAML, and a cache indicator so downstream steps can
+  upload artifacts or branch logic.
+- **Portability**: The automation entry point now exposes a JSON summary file to
+  decouple GitHub output wiring from the core pipeline logic. Consumers can run
+  the action inside private repositories without exposing secrets beyond the
+  standard GitHub token used for dependency installation or release uploads.
+
+## Release automation overview (TASK-0023)
+
+- **Workflow**: `.github/workflows/private-action-release.yml` validates the
+  pipeline, packages the action directory, and creates a GitHub release.
+- **Triggers**: Manual `workflow_dispatch` (with optional semantic version
+  input) and post-merge pushes to `main` touching action-related files.
+- **Validation steps**: `npm ci`, lint, TypeScript build, and a CI-mode pipeline
+  smoke run writing a JSON summary.
+- **Packaging**: Bundles the composite action, automation sources, and
+  lockfiles into `proxmox-openapi-action.tgz` for release assets.
+- **Release tagging**: Manual runs honour the provided tag and mark releases as
+  stable; automatic pushes generate prerelease tags using the short commit SHA
+  while still publishing assets for internal adoption.

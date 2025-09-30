@@ -1,38 +1,40 @@
 Title
-- Extract reusable automation entry point for GitHub Action.
+- Implement private GitHub Action pipeline foundation.
 
 Source of truth
 - plan/private-github-action-plan.md
 - plan/proxmox-openapi-extraction-plan.md
 - docs/handover/README.md
 - docs/automation/README.md
-
-Requirements summary
-- Provide a dedicated script or CLI wrapper around `npm run automation:pipeline` for action consumption.
-- Ensure configurable inputs for mode, output directories, and artifact naming.
-- Add smoke coverage validating CI and full execution paths.
+- tasks/TASK-0019-github-action-plan.md
+- tasks/TASK-0020-github-action-requirements.md
+- tasks/TASK-0021-github-action-entrypoint.md
+- tasks/TASK-0022-github-action-package.md
+- tasks/TASK-0023-github-action-release.md
+- tasks/TASK-0024-github-action-adoption.md
 
 Scope
-- Focus areas: tools/automation/, tools/api-*/, package.json scripts
-- Out of scope: app/, docs/openapi/, public/
-- Data model and types: Existing automation pipeline outputs.
+- Focus areas: tools/automation/, tools/api-*/, package.json, .github/actions/, .github/workflows/, docs/automation/, docs/handover/, plan/
+- Out of scope: app/, public/, docs/openapi/ (except deterministic regeneration), tests/ unrelated to automation pipeline
+- Data model and types: Existing automation pipeline outputs and generated OpenAPI specs remain canonical.
 
 Allowed changes
-- Refactor automation scripts to expose reusable entry point.
-- Update package scripts and supporting utilities as needed.
-- No changes to generated OpenAPI schemas beyond deterministic regeneration.
+- Refactor automation tooling to expose reusable entry points and configuration.
+- Add GitHub Action implementation, workflows, and supporting scripts.
+- Update documentation and planning artifacts relevant to the action rollout.
+- Regenerate artifacts only when required to keep outputs deterministic.
 
 Branch
-- feature/{date}---task-0021-github-action-entrypoint
+- feature/2025-09-30---task-0026-github-action-implementation
 
 Preconditions
 - Run: source .env (if exists)
-- Ensure required CLIs are authenticated.
+- Ensure required CLIs are authenticated (gh, npm, Playwright installs when needed).
 - Confirm the repository has the PR template and standard scripts.
 
 Plan checklist
 - [x] Read the Source of Truth in order. Extract requirements into a short list.
-- [ ] (defer) If the project syncs schema or types from a remote system, trigger the sync on the target branch. No remote sync needed for automation refactor.
+- [ ] (defer) If the project syncs schema or types from a remote system, trigger the sync on the target branch. No remote sync needed for this task.
       Example with GitHub CLI:
 -      - [ ] gh workflow run "<WORKFLOW NAME>" --ref <BRANCH>
 -      - [ ] Verify updated schema, seed data, and generated types.
@@ -61,29 +63,18 @@ Plan checklist
       - [x] feat(...), fix(...), chore(...), docs(...), refactor(...)
 - [ ] Open PR.
       - [ ] Use the repo PR template.
-      - [ ] Title: feat: TASK-0021 short description
+      - [ ] Title: feat: TASK-0026 short description
       - [ ] Body: link this task file, paste checklist, tick completed items, list deferrals.
-- [ ] (defer) Changelog. Consolidated under TASK-0026 umbrella changelog.
-      - [ ] (defer) Create versions/CHANGELOG-TASK-0021-{PR or short hash}-1.md. Consolidated with TASK-0026.
-      - [ ] (defer) Include the command log, key decisions, and outcomes. Consolidated with TASK-0026.
+- [x] Changelog.
+      - [x] Create versions/CHANGELOG-TASK-0026-{PR or short hash}-1.md
+      - [x] Include the command log, key decisions, and outcomes.
 - [ ] Done.
       - [ ] Mark remaining boxes as - [ ] (defer) with reasons.
 
 Acceptance criteria
-- Automation entry point supports configurable inputs for action usage.
-- Regression commands succeed in CI and full modes.
-- Documentation updated to reflect new entry point.
-- Deterministic artifacts maintained.
-
-Acceptance commands template
-- Environment
-  - source .env (if exists)
-- Optional schema or types sync
-  - Trigger CI/CLI sync if applicable and verify updated artifacts.
-- Install and checks
-  - Install dependencies
-  - Run linter
-  - Build artifacts
-- Tests
-  - Run unit tests
-  - Run integration and/or end-to-end tests as applicable
+- GitHub Action implementation aligns with documented requirements and exposes reusable automation entry point.
+- Release workflow exists for packaging and publishing the private action.
+- Documentation updated for adoption and onboarding.
+- All acceptance commands pass.
+- PR opened with template, checklist, and task link.
+- Changelog recorded with execution details.
