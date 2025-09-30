@@ -16,7 +16,7 @@
     "normalizer:generate": "ts-node tools/api-normalizer/src/cli.ts",
     "openapi:generate": "ts-node tools/openapi-generator/src/cli.ts",
     "openapi:validate": "ts-node tools/openapi-generator/src/validate.ts",
-    "automation:pipeline": "ts-node tools/automation/src/pipeline.ts",
+    "automation:pipeline": "ts-node tools/automation/src/cli.ts",
     "build": "tsc --noEmit && tsc --noEmit -p app/tsconfig.json && tsc --noEmit -p tools/automation/tsconfig.json",
     "ui:dev": "remix vite:dev",
     "ui:build": "remix vite:build",
