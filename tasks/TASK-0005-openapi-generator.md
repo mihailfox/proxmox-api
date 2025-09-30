@@ -24,13 +24,13 @@ Preconditions
 - Install necessary validator tooling.
 
 Plan checklist
-- [ ] Analyze IR structure and map components to OpenAPI sections.
-- [ ] Implement generator producing deterministic OpenAPI outputs.
-- [ ] Integrate validation tooling to enforce spec quality.
-- [ ] Add tests comparing generated specs against fixtures.
-- [ ] Document generation commands and output locations.
-- [ ] Commit changes using Conventional Commits.
-- [ ] Update changelog with execution logs and decisions.
+- [x] Analyze IR structure and map components to OpenAPI sections.
+- [x] Implement generator producing deterministic OpenAPI outputs.
+- [x] Integrate validation tooling to enforce spec quality.
+- [x] Add tests comparing generated specs against fixtures.
+- [x] Document generation commands and output locations.
+- [x] Commit changes using Conventional Commits.
+- [x] Update changelog with execution logs and decisions.
 
 Acceptance criteria
 - Generator outputs valid OpenAPI 3.1 JSON and/or YAML files.
