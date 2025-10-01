@@ -15,11 +15,11 @@ This checklist enumerates the automated and manual verifications required before
 
 Perform the following validations whenever baselines are intentionally regenerated:
 
-- [ ] **Visual diff review**: Inspect git diffs for `tools/api-scraper/data/raw/proxmox-api-schema.json`, `tools/api-normalizer/data/ir/proxmox-api-ir.json`, and `docs/openapi/proxmox-ve.{json,yaml}` to confirm expected upstream changes.
+- [ ] **Visual diff review**: Inspect git diffs for `tools/api-scraper/data/raw/proxmox-api-schema.json`, `tools/api-normalizer/data/ir/proxmox-api-ir.json`, and the regenerated `var/openapi/proxmox-ve.{json,yaml}` artifacts to confirm expected upstream changes before uploading them to the release assets.
 - [ ] **Playwright scrape spot check**: Run `npm run scraper:scrape` (with a clean cache) and confirm the resulting snapshot captures representative endpoints (e.g., `/nodes`, `/access`, `/cluster`).
 - [ ] **OpenAPI validator**: Execute `npm run openapi:validate` and confirm no schema warnings are reported.
 - [ ] **IR sampling**: Inspect a handful of normalized endpoints in `tools/api-normalizer/data/ir/proxmox-api-ir.json` to confirm security metadata and schema flags were preserved.
-- [ ] **Documentation sync**: Ensure `docs/openapi/` artifacts mirror the latest pipeline outputs and update downstream consumers if version numbers change.
+- [ ] **Documentation sync**: Ensure the GitHub release assets include the refreshed `proxmox-ve.json` (and optional YAML) so downstream consumers receive the latest schema, and update references if version numbers change.
 
 ## Escalation guidance
 

@@ -1,10 +1,12 @@
-import { readFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { dirname } from 'node:path';
 
 import type { LoaderFunctionArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
 
-const SPEC_PATH = resolve('docs/openapi/proxmox-ve.json');
+import { OPENAPI_JSON_PATH } from '../../tools/shared/paths';
+
+const SPEC_PATH = OPENAPI_JSON_PATH;
 
 type OpenAPISpec = {
   openapi?: unknown;
@@ -16,18 +18,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return json({ error: 'Method Not Allowed' }, { status: 405 });
   }
 
-  let contents: string;
-
-  try {
-    contents = await readFile(SPEC_PATH, 'utf-8');
-  } catch (error) {
-    const nodeError = error as NodeJS.ErrnoException;
-    if (nodeError?.code === 'ENOENT') {
-      throw json({ error: 'OpenAPI spec not found' }, { status: 404 });
-    }
-
-    throw json({ error: 'Failed to read OpenAPI spec' }, { status: 500 });
-  }
+  const contents = await readSpec();
 
   let parsed: OpenAPISpec;
 
@@ -54,4 +45,70 @@ export async function loader({ request }: LoaderFunctionArgs) {
       'Cache-Control': 'public, max-age=300'
     }
   });
+}
+
+async function readSpec(): Promise<string> {
+  try {
+    return await readFile(SPEC_PATH, 'utf-8');
+  } catch (error) {
+    const nodeError = error as NodeJS.ErrnoException;
+    if (nodeError?.code !== 'ENOENT') {
+      throw json({ error: 'Failed to read OpenAPI spec' }, { status: 500 });
+    }
+  }
+
+  const releaseUrl = process.env.OPENAPI_SPEC_RELEASE_URL;
+  if (!releaseUrl) {
+    throw json(
+      {
+        error: 'OpenAPI spec not found',
+        remediation:
+          'Run `npm run automation:pipeline` to generate local artifacts or set OPENAPI_SPEC_RELEASE_URL to a release asset URL.'
+      },
+      { status: 404 }
+    );
+  }
+
+  let response: Response;
+
+  try {
+    response = await fetch(releaseUrl);
+  } catch (error) {
+    throw json(
+      {
+        error: 'Unable to download OpenAPI spec release asset',
+        details: error instanceof Error ? error.message : String(error)
+      },
+      { status: 502 }
+    );
+  }
+
+  if (!response.ok) {
+    throw json(
+      {
+        error: 'Failed to download OpenAPI spec release asset',
+        details: `${response.status} ${response.statusText}`
+      },
+      { status: 502 }
+    );
+  }
+
+  const buffer = Buffer.from(await response.arrayBuffer());
+  const contents = buffer.toString('utf-8');
+
+  try {
+    JSON.parse(contents);
+  } catch (error) {
+    throw json(
+      {
+        error: 'Downloaded OpenAPI spec is invalid JSON',
+        details: error instanceof Error ? error.message : String(error)
+      },
+      { status: 502 }
+    );
+  }
+
+  await mkdir(dirname(SPEC_PATH), { recursive: true });
+  await writeFile(SPEC_PATH, contents, 'utf-8');
+  return contents;
 }

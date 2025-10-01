@@ -18,7 +18,7 @@
   },
   "overrides": [
     {
-      "includes": ["docs/openapi/**/*"],
+      "includes": ["var/openapi/**/*"],
       "linter": {
         "enabled": false
       },

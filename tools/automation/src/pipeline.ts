@@ -13,6 +13,7 @@ import { normalizeSnapshot } from '../../api-normalizer/src/normalizer';
 import type { NormalizedApiDocument } from '../../api-normalizer/src/types';
 import { generateOpenApiDocument } from '../../openapi-generator/src/generator';
 import { logRegressionReport } from './regression/report';
+import { OPENAPI_ARTIFACT_DIR, OPENAPI_BASENAME } from '../../shared/paths';
 
 export interface AutomationPipelineRunOptions {
   mode?: 'ci' | 'full';
@@ -66,8 +67,8 @@ export function resolveAutomationPipelineOptions(
   const irOutputPath = path.resolve(
     options.irOutputPath ?? 'tools/api-normalizer/data/ir/proxmox-api-ir.json'
   );
-  const openApiOutputDir = path.resolve(options.openApiOutputDir ?? 'docs/openapi');
-  const openApiBasename = options.openApiBasename ?? 'proxmox-ve';
+  const openApiOutputDir = path.resolve(options.openApiOutputDir ?? OPENAPI_ARTIFACT_DIR);
+  const openApiBasename = options.openApiBasename ?? OPENAPI_BASENAME;
 
   const offline =
     mode === 'ci'

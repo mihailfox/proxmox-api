@@ -18,7 +18,7 @@ step.
   - `-- --base-url <url>` — target an alternate API viewer instance.
   - `-- --raw-output <path>` — override the persisted raw snapshot location.
   - `-- --ir-output <path>` — change the normalized IR output file.
-  - `-- --openapi-dir <dir>` — redirect generated OpenAPI files.
+  - `-- --openapi-dir <dir>` — redirect generated OpenAPI files (default `var/openapi/`).
   - `-- --basename <name>` — adjust the OpenAPI filename prefix.
 
 ## Fallback behaviour
@@ -36,8 +36,9 @@ step.
    upstream data.
 2. Inspect `tools/api-scraper/data/raw/proxmox-api-schema.json`,
    `tools/api-normalizer/data/ir/proxmox-api-ir.json`, and
-   `docs/openapi/proxmox-ve.(json|yaml)` for changes.
-3. Commit any updates together so the repository remains internally consistent.
+   `var/openapi/proxmox-ve.(json|yaml)` for changes.
+3. Upload refreshed specs to the release assets for the Proxmox API toolkit so consumers can fetch
+   the latest schema without pulling from git.
 
 ## JSON summaries and automation entry point
 

@@ -19,7 +19,7 @@ the delivery tasks completed to date so new contributors can take ownership with
 | --- | --- | --- | --- |
 | Scrape | `tools/api-scraper/` | `npm run scraper:scrape` | `tools/api-scraper/data/raw/proxmox-api-schema.json` |
 | Normalize | `tools/api-normalizer/` | `npm run normalizer:generate` | `tools/api-normalizer/data/ir/proxmox-api-ir.json` |
-| OpenAPI emit | `tools/openapi-generator/` | `npm run openapi:generate` | `docs/openapi/proxmox-ve.{json,yaml}` |
+| OpenAPI emit | `tools/openapi-generator/` | `npm run openapi:generate` | `var/openapi/proxmox-ve.{json,yaml}` |
 | End-to-end pipeline | `tools/automation/` | `npm run automation:pipeline` | Updates all artifacts and logs QA summary |
 | Regression QA | `tests/regression/` | `npm run test:regression` | Checksums + parity assertions |
 
@@ -88,7 +88,7 @@ npm run normalizer:generate
 npm run openapi:generate
 ```
 
-- Emits both JSON and YAML specs under `docs/openapi/`.
+- Emits both JSON and YAML specs under `var/openapi/`.
 - Override the output directory, basename, or formats via CLI flags:
   - `-- --output <dir>`
   - `-- --basename <name>`
@@ -114,6 +114,8 @@ npm run automation:pipeline
 - When `--mode=ci` is combined with flaky connectivity, pass `--fallback-to-cache` (default) to
   gracefully reuse the last committed snapshot.
 - Review the tail of the pipeline log for the regression report summary (checksums, counts, parity).
+- Generated OpenAPI files live in `var/openapi/`. Upload `proxmox-ve.json` (and optional YAML) to the
+  GitHub release assets so downstream consumers can download the spec without cloning the repo.
 
 ## 5. QA and validation flow
 

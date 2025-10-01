@@ -44,8 +44,9 @@ export default function Index() {
           <div className="viewer-loading" aria-live="polite">
             <p>Loading OpenAPI viewer…</p>
             <p className="hint">
-              If the specification does not load, ensure `npm run openapi:generate` has produced
-              <code>docs/openapi/proxmox-ve.json</code>.
+              If the specification does not load, run <code>npm run automation:pipeline</code> to
+              refresh <code>var/openapi/proxmox-ve.json</code> or set
+              <code>OPENAPI_SPEC_RELEASE_URL</code> to a published release asset.
             </p>
           </div>
         )}
