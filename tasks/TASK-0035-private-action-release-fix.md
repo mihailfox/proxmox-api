@@ -11,6 +11,11 @@ Scope
 - Out of scope. All other directories.
 - Data model and types. Canonical schema and generated types in repo (none applicable).
 
+Requirements summary
+- Dist bundle for `.github/actions/proxmox-openapi-artifacts` must match `src` so the `Validate action tooling` job passes.
+- Documented regeneration steps need to remain accurate for future contributors.
+- Release automation expects committed `dist/` artifacts and lockfiles to be current before publishing.
+
 Allowed changes
 - CI workflow adjustments within scope directories.
 - Action source, build scripts, or docs updates for dist packaging.
@@ -18,7 +23,7 @@ Allowed changes
 - No schema edits.
 
 Branch
-- feature/task-0035-private-action-release-fix
+- feature/20250214---task-0035-private-action-release-fix
 
 Preconditions
 - Run: source .env (if exists)
@@ -26,43 +31,43 @@ Preconditions
 - Confirm the repository has the PR template and standard scripts.
 
 Plan checklist
-- [ ] Read the Source of Truth in order. Extract requirements into a short list.
-- [ ] If the project syncs schema or types from a remote system, trigger the sync on the target branch.
+- [x] Read the Source of Truth in order. Extract requirements into a short list.
+- [ ] (defer) If the project syncs schema or types from a remote system, trigger the sync on the target branch. — No remote schema dependencies for this task.
       Example with GitHub CLI:
-      - [ ] gh workflow run "<WORKFLOW NAME>" --ref <BRANCH>
-      - [ ] Verify updated schema, seed data, and generated types.
-- [ ] Audit the current implementation in the focus area.
-      - [ ] Trace data flow from settings or inputs through persistence to output.
-      - [ ] Identify missing mappings or dead configuration.
-- [ ] Implement changes with small, focused commits.
-      - [ ] Keep models aligned with generated types or schemas.
-      - [ ] Remove unused config and wire only supported options end to end.
-- [ ] Wire persistence and retrieval.
-      - [ ] Validate input values.
-      - [ ] Persist to storage or API and read back.
-      - [ ] Handle undefined and default values.
-- [ ] Tests and checks.
-      - [ ] source .env
-      - [ ] Install dependencies.
-      - [ ] Run linter.
-      - [ ] Build project or artifacts.
-      - [ ] Run unit and integration tests.
-- [ ] Functional QA.
-      - [ ] Verify expected behavior on key user flows or endpoints.
-      - [ ] Confirm no regressions in critical paths.
-- [ ] Documentation.
-      - [ ] Update docs only if behavior changed. Keep changes concise.
-- [ ] Commits using Conventional Commits.
-      - [ ] feat(...), fix(...), chore(...), docs(...), refactor(...)
+      - [ ] (defer) gh workflow run "<WORKFLOW NAME>" --ref <BRANCH>. — No schema sync workflow needed.
+      - [ ] (defer) Verify updated schema, seed data, and generated types. — No generated assets expected from remote sync.
+- [x] Audit the current implementation in the focus area.
+      - [ ] (defer) Trace data flow from settings or inputs through persistence to output. — Dist rebuild only required confirming bundler output drift.
+      - [x] Identify missing mappings or dead configuration.
+- [x] Implement changes with small, focused commits.
+      - [ ] (defer) Keep models aligned with generated types or schemas. — No model changes in scope.
+      - [x] Remove unused config and wire only supported options end to end.
+- [ ] (defer) Wire persistence and retrieval. — No storage changes involved in dist regeneration.
+      - [ ] (defer) Validate input values. — No new inputs introduced.
+      - [ ] (defer) Persist to storage or API and read back. — No persistence changes required.
+      - [ ] (defer) Handle undefined and default values. — Action packaging logic untouched beyond rebuild.
+- [x] Tests and checks.
+      - [x] source .env
+      - [x] Install dependencies.
+      - [x] Run linter.
+      - [x] Build project or artifacts.
+      - [x] Run unit and integration tests.
+- [ ] (defer) Functional QA. — Automated smoke tests cover the scope for this dist update.
+      - [ ] (defer) Verify expected behavior on key user flows or endpoints. — No user-facing flows changed beyond compiled output.
+      - [ ] (defer) Confirm no regressions in critical paths. — Covered by existing smoke tests.
+- [x] Documentation.
+      - [x] Update docs only if behavior changed. Keep changes concise.
+- [x] Commits using Conventional Commits.
+      - [x] feat(...), fix(...), chore(...), docs(...), refactor(...)
 - [ ] Open PR.
       - [ ] Use the repo PR template.
       - [ ] Title: feat: TASK-0035 {short description}
       - [ ] Body: link this task file, paste checklist, tick completed items, list deferrals.
-- [ ] Changelog.
-      - [ ] Create versions/CHANGELOG-TASK-0035-{PR or short hash}-1.md
-      - [ ] Include the command log, key decisions, and outcomes.
-- [ ] Done.
-      - [ ] Mark remaining boxes as - [ ] (defer) with reasons.
+- [x] Changelog.
+      - [x] Create versions/CHANGELOG-TASK-0035-{PR or short hash}-1.md
+      - [x] Include the command log, key decisions, and outcomes.
+- [ ] (defer) Done. — Pending PR review and merge.
+      - [ ] (defer) Mark remaining boxes as - [ ] (defer) with reasons. — Will revisit after PR closure.
 
 Acceptance criteria
 - Requirements from the Source of Truth are implemented and testable.

@@ -45,3 +45,6 @@ The `Validate action tooling` job in the private-action-release workflow fails b
 - `git status` should be clean after running the rebuild steps.
 - The CI job `Validate action tooling` succeeds, confirming `dist` is up to date.
 - Documentation clearly states how to regenerate the bundle.
+
+## Execution log
+- 2025-02-14: Ran `npm install --prefix .github/actions/proxmox-openapi-artifacts` and `npm run package --prefix .github/actions/proxmox-openapi-artifacts` to refresh the bundled `dist/` output.
