@@ -95,20 +95,19 @@ function countOperations(document: OpenAPIV3_1.Document): number {
   ] as const;
   const methodSet = new Set<string>(methodNames);
 
-  return Object.values(document.paths ?? {}).reduce((total, pathItem) => {
+  return Object.values(document.paths ?? {}).reduce<number>((total, pathItem) => {
     if (!pathItem) {
       return total;
     }
 
-    return (
-      total +
-      Object.entries(pathItem).reduce((count, [key, value]) => {
-        if (!methodSet.has(key) || !value) {
-          return count;
-        }
-        return count + 1;
-      }, 0)
-    );
+    const methodCount = Object.entries(pathItem).reduce<number>((count, [key, value]) => {
+      if (!methodSet.has(key) || !value) {
+        return count;
+      }
+      return count + 1;
+    }, 0);
+
+    return total + methodCount;
   }, 0);
 }
 
