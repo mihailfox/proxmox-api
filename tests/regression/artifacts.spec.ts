@@ -1,10 +1,17 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, beforeAll } from 'vitest';
+import { readdirSync } from 'node:fs';
+import path from 'node:path';
 
 import { ARTIFACT_BASELINES } from '../../tools/automation/src/regression/baselines';
 import {
   computeArtifactState,
   computeRegressionSummary
 } from '../../tools/automation/src/regression/summary';
+import { ensureOpenApiArtifacts } from './helpers';
+
+beforeAll(async () => {
+  await ensureOpenApiArtifacts();
+});
 
 describe('artifact baselines', () => {
   for (const baseline of ARTIFACT_BASELINES) {
@@ -19,7 +26,11 @@ describe('artifact baselines', () => {
 });
 
 describe('regression summary parity', () => {
-  const summary = computeRegressionSummary();
+  let summary: ReturnType<typeof computeRegressionSummary>;
+
+  beforeAll(() => {
+    summary = computeRegressionSummary();
+  });
 
   it('keeps normalized counts aligned with the raw snapshot', () => {
     expect(summary.snapshotStats.endpointCount).toBeGreaterThan(0);
@@ -37,5 +48,25 @@ describe('regression summary parity', () => {
   it('produces consistent OpenAPI documents across formats', () => {
     expect(summary.parity.jsonMatchesYaml).toBe(true);
     expect(summary.tagCount).toBeGreaterThan(0);
+  });
+});
+
+describe('repository hygiene', () => {
+  it('keeps docs/openapi free of committed artifacts', () => {
+    const directory = path.resolve('docs/openapi');
+    let entries: string[] = [];
+
+    try {
+      entries = readdirSync(directory);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+        entries = [];
+      } else {
+        throw error;
+      }
+    }
+
+    const trackedEntries = entries.filter((entry) => !entry.startsWith('.'));
+    expect(trackedEntries).toHaveLength(0);
   });
 });

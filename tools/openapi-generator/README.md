@@ -3,7 +3,7 @@
 The OpenAPI generator transforms the normalized Proxmox VE API intermediate
 representation (IR) into an OpenAPI 3.1 specification. It consumes the IR JSON
 produced by the normalizer and emits deterministic JSON and YAML documents in
-`docs/openapi/`.
+`var/openapi/` (ignored by git).
 
 ## Usage
 

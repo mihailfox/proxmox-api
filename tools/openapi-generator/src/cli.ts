@@ -5,6 +5,7 @@ import { stringify as stringifyYaml } from 'yaml';
 
 import { generateOpenApiDocument } from './generator';
 import type { NormalizedApiDocument } from '../../api-normalizer/src/types';
+import { OPENAPI_ARTIFACT_DIR, OPENAPI_BASENAME } from '../../shared/paths';
 
 type SupportedFormat = 'json' | 'yaml';
 
@@ -31,8 +32,8 @@ async function main(): Promise<void> {
   });
 
   const inputPath = path.resolve(values.input ?? 'tools/api-normalizer/data/ir/proxmox-api-ir.json');
-  const outputDir = path.resolve(values.output ?? 'docs/openapi');
-  const basename = values.basename ?? 'proxmox-ve';
+  const outputDir = path.resolve(values.output ?? OPENAPI_ARTIFACT_DIR);
+  const basename = values.basename ?? OPENAPI_BASENAME;
   const formats = parseFormatList(values.format);
 
   const rawContent = await fs.readFile(inputPath, 'utf8');

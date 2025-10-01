@@ -2,6 +2,8 @@ import path from 'node:path';
 import { parseArgs } from 'node:util';
 import SwaggerParser from '@apidevtools/swagger-parser';
 
+import { OPENAPI_JSON_PATH } from '../../shared/paths';
+
 async function main(): Promise<void> {
   const { values } = parseArgs({
     options: {
@@ -12,7 +14,7 @@ async function main(): Promise<void> {
     }
   });
 
-  const inputPath = path.resolve(values.input ?? 'docs/openapi/proxmox-ve.json');
+  const inputPath = path.resolve(values.input ?? OPENAPI_JSON_PATH);
 
   await SwaggerParser.validate(inputPath);
 
