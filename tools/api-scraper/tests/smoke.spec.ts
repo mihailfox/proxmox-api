@@ -7,8 +7,14 @@ import {
   toRawTree
 } from '../src/extractor';
 import type { RawApiTreeNode } from '../src/types';
+import { registerCodexMock } from '../src/codex-mock';
 
 test.describe('Proxmox API viewer smoke test', () => {
+  test.beforeEach(async ({ page }, testInfo) => {
+    const baseUrl = typeof testInfo.project.use.baseURL === 'string' ? testInfo.project.use.baseURL : undefined;
+    await registerCodexMock(page.context(), baseUrl);
+  });
+
   test('loads documentation landing page', async ({ page }) => {
     await page.goto('./');
     await expect(page).toHaveTitle(/Proxmox VE API Documentation/);

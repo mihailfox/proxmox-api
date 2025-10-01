@@ -10,7 +10,7 @@ import type {
 const API_SCRIPT_REGEX = /const apiSchema = (\[.*?\])\s*;\s*let method2cmd/s;
 
 export async function fetchApiScript(page: Page, scriptPath = 'apidoc.js'): Promise<string> {
-  return await page.evaluate(async (path) => {
+  return await page.evaluate(async (path: string) => {
     const response = await fetch(path);
     if (!response.ok) {
       throw new Error(`Unable to download ${path}: ${response.status} ${response.statusText}`);
