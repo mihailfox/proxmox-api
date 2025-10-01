@@ -1,5 +1,0 @@
-    "version": "2025-09-30T01:05:25.797Z",
-    "description": "Generated from the normalized Proxmox VE API intermediate representation.\nSource: https://pve.proxmox.com/pve-docs/api-viewer/\nScraped at: 2025-09-30T01:05:25.797Z\nNormalized at: 2025-09-30T04:13:07.901Z\nOperations: 628"
-    "normalizedAt": "2025-09-30T04:13:07.901Z",
-      "snapshotChecksum": "f122c4f84320d47d6cff6ee097d36b268bb35cc686abdf7e468ff90319ed12b0",
-      "scrapedAt": "2025-09-30T01:05:25.797Z",

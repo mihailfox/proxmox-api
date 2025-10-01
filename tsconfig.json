@@ -14,7 +14,8 @@
   "include": [
     "tools/api-scraper/**/*.ts",
     "tools/api-normalizer/**/*.ts",
-    "tools/openapi-generator/**/*.ts"
+    "tools/openapi-generator/**/*.ts",
+    "tools/shared/**/*.ts"
   ],
   "exclude": ["node_modules", "dist"]
 }
