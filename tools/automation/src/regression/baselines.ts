@@ -34,13 +34,13 @@ export const ARTIFACT_BASELINES: ArtifactBaseline[] = [
     label: 'OpenAPI JSON document',
     description: 'Generated OpenAPI 3.1 specification (JSON).',
     path: resolvePath('docs/openapi/proxmox-ve.json'),
-    sha256: '7d1b572844bee1298fdfbccd47a36b7ce21740b908ebd93a54e4c62888e5bdf3'
+    sha256: '19f286459da70f728368e782892f052002fa19481d0a886f5cf8ca275da0b1be'
   },
   {
     id: 'openapi-yaml',
     label: 'OpenAPI YAML document',
     description: 'Generated OpenAPI 3.1 specification (YAML).',
     path: resolvePath('docs/openapi/proxmox-ve.yaml'),
-    sha256: 'd1cb8459518bd2416a2ec47bc0d45ef604df0ea6fc983f01f6aa8d86b1cd0338'
+    sha256: '46e89c6904327fd81b813bc91f2a0bcb1bd1e7f3bf7c56fc3fc853e968f2850d'
   }
 ];
