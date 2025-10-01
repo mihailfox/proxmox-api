@@ -20758,16 +20758,33 @@ function schemaHasContent(schema) {
   if (schema.properties && Object.keys(schema.properties).length > 0) {
     return true;
   }
-  if (schema.additionalProperties === true) {
-    return true;
+// ../../../tools/automation/data/regression/openapi.sha256.json
+var openapi_sha256_default = {
+  json: {
+    sha256: "ba575eedb1cb1ba46a8213ce0b91a19466d36819761f6a72c860889cdf502973"
+  },
+  yaml: {
+    sha256: "8de007b4e53222cb561c80a591ac3ba755d6f8fc840fdd1b3113ff309abdd8db"
   }
-  if (typeof schema.additionalProperties === "object") {
-    return true;
-  }
-  return false;
-}
-function cloneSchema(schema) {
-  return JSON.parse(JSON.stringify(schema));
+};
+
+// ../../../tools/shared/paths.ts
+var REPO_ROOT = import_node_path3.default.resolve(__dirname, "..", "..");
+var VAR_DIR = import_node_path3.default.join(REPO_ROOT, "var");
+var OPENAPI_ARTIFACT_DIR = import_node_path3.default.join(VAR_DIR, "openapi");
+var OPENAPI_BASENAME = "proxmox-ve";
+var OPENAPI_JSON_PATH = import_node_path3.default.join(OPENAPI_ARTIFACT_DIR, `${OPENAPI_BASENAME}.json`);
+var OPENAPI_YAML_PATH = import_node_path3.default.join(OPENAPI_ARTIFACT_DIR, `${OPENAPI_BASENAME}.yaml`);
+function resolveFromRoot(relativePath) {
+  return import_node_path3.default.join(REPO_ROOT, relativePath);
+
+// ../../../tools/automation/src/regression/baselines.ts
+    path: resolveFromRoot("tools/api-scraper/data/raw/proxmox-api-schema.json"),
+    path: resolveFromRoot("tools/api-normalizer/data/ir/proxmox-api-ir.json"),
+    path: OPENAPI_JSON_PATH,
+    sha256: openapi_sha256_default.json.sha256
+    path: OPENAPI_YAML_PATH,
+    sha256: openapi_sha256_default.yaml.sha256
 }
 function buildTopLevelDescription(ir) {
   const lines = [
@@ -20915,8 +20932,8 @@ function logRegressionReport() {
   }
   import_node_process.default.stdout.write("\n--- Coverage summary ---\n");
   import_node_process.default.stdout.write(
-    `Raw snapshot endpoints: ${summary.snapshotStats.endpointCount} (groups: ${summary.snapshotStats.rootGroupCount})
-`
+  const openApiOutputDir = import_node_path4.default.resolve(options.openApiOutputDir ?? OPENAPI_ARTIFACT_DIR);
+  const openApiBasename = options.openApiBasename ?? OPENAPI_BASENAME;
   );
   import_node_process.default.stdout.write(
     `Normalized endpoints: ${summary.normalizedSummary.endpointCount}, methods: ${summary.normalizedSummary.methodCount}
