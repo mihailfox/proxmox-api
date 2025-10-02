@@ -1,9 +1,9 @@
-import checksums from '../../data/regression/openapi.sha256.json';
+import checksums from '../../data/regression/openapi.sha256.json' assert { type: 'json' };
 import {
   OPENAPI_JSON_PATH,
   OPENAPI_YAML_PATH,
   resolveFromRoot
-} from '../../../shared/paths';
+} from '../../../shared/paths.js';
 
 export interface ArtifactBaseline {
   id: 'raw-snapshot' | 'normalized-ir' | 'openapi-json' | 'openapi-yaml';

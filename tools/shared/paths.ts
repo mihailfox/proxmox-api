@@ -1,6 +1,8 @@
 import path from 'node:path';
 
-export const REPO_ROOT = path.resolve(__dirname, '..', '..');
+import { resolveFromModule } from './module-paths.js';
+
+export const REPO_ROOT = resolveFromModule(import.meta, '..', '..');
 
 export const VAR_DIR = path.join(REPO_ROOT, 'var');
 export const OPENAPI_ARTIFACT_DIR = path.join(VAR_DIR, 'openapi');

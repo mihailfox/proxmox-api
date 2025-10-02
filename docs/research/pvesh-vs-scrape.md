@@ -8,7 +8,7 @@
 Run the TypeScript helper after cloning the upstream Perl repositories alongside this project:
 
 ```bash
-npx ts-node --project tools/analysis/tsconfig.json \
+npx tsx --tsconfig tools/analysis/tsconfig.json \
   tools/analysis/src/pvesh-comparison.ts \
   --official /path/to/pve-manager \
   --official /path/to/pve-cluster \

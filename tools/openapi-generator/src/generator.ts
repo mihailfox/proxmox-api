@@ -1,4 +1,9 @@
-import type { NormalizedApiDocument, NormalizedEndpoint, NormalizedGroup, NormalizedSchema } from '../../api-normalizer/src/types';
+import type {
+  NormalizedApiDocument,
+  NormalizedEndpoint,
+  NormalizedGroup,
+  NormalizedSchema
+} from '../../api-normalizer/src/types.js';
 import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
 
 type Document = OpenAPIV3_1.Document;

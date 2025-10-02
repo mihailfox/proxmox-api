@@ -1,8 +1,11 @@
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitest/config';
 
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
+
 export default defineConfig({
-  root: path.resolve(__dirname),
+  root: currentDir,
   test: {
     environment: 'jsdom',
     globals: true,
@@ -10,7 +13,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
-      reportsDirectory: path.resolve(__dirname, 'coverage/ui')
+      reportsDirectory: path.resolve(currentDir, 'coverage/ui')
     }
   }
 });

@@ -2,9 +2,9 @@ import { readFileSync } from 'node:fs';
 
 import { describe, expect, it } from 'vitest';
 
-import type { NormalizedApiDocument } from '../../api-normalizer/src/types';
+import type { NormalizedApiDocument } from '../../api-normalizer/src/types.js';
 import type { OpenAPIV3_1 } from 'openapi-types';
-import { generateOpenApiDocument } from '../src/generator';
+import { generateOpenApiDocument } from '../src/generator.js';
 
 const IR_PATH = 'tools/api-normalizer/data/ir/proxmox-api-ir.json';
 const ir = JSON.parse(readFileSync(IR_PATH, 'utf8')) as NormalizedApiDocument;

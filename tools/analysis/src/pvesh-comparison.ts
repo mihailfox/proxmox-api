@@ -91,7 +91,7 @@ function parseArgs(argv: string[]): CliOptions {
 }
 
 function printUsageAndExit(): never {
-  const usage = `Usage: ts-node pvesh-comparison.ts [options]\n\n` +
+  const usage = `Usage: tsx pvesh-comparison.ts [options]\n\n` +
     `Options:\n` +
     `  --official <path>   Add a search root for Perl modules (repeatable, comma-separated values supported).\n` +
     `                      Defaults to vendor/pve-manager.\n` +

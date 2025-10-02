@@ -45,7 +45,7 @@ Adjust the `uses:` reference to match the hosting strategy (internal repo tag,
 branch, or commit SHA). Enable `install-playwright-browsers` for first-run
 setups where the runner lacks cached browsers. The action now vendors its
 TypeScript implementation in `dist/index.js`, so downstream workflows no longer
-need to invoke `ts-node` directly.
+need to invoke a TypeScript runtime such as `tsx` directly.
 
 ## 3. Sandbox validation checklist
 

@@ -5,9 +5,9 @@ import {
   fetchApiScript,
   parseApiSchema,
   toRawTree
-} from '../src/extractor';
-import type { RawApiTreeNode } from '../src/types';
-import { registerCodexMock } from '../src/codex-mock';
+} from '../src/extractor.js';
+import type { RawApiTreeNode } from '../src/types.js';
+import { registerCodexMock } from '../src/codex-mock.js';
 
 test.describe('Proxmox API viewer smoke test', () => {
   test.beforeEach(async ({ page }, testInfo) => {
