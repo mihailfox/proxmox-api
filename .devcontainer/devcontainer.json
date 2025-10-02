@@ -11,6 +11,7 @@
     "ghcr.io/eitsupi/devcontainer-features/jq-likes:2": {}
   },
   "forwardPorts": [ 5173, 4173 ],
+  "updateContentCommand": ".devcontainer/scripts/update-content.sh",
   "postCreateCommand": ".devcontainer/scripts/post-create.sh",
   "customizations": {
     "vscode": {
@@ -28,6 +29,7 @@
       }
     }
   },
+  // here you can pass environment variables from the host
   "containerEnv": {
     "GH_PAT": "${localEnv:GH_PAT}",
     "GITHUB_TOKEN": "${localEnv:GH_PAT}"
