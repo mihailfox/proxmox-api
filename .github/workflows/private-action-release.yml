@@ -57,10 +57,89 @@ jobs:
             git diff -- .github/actions/proxmox-openapi-artifacts/package-lock.json
             exit 1
           fi
-
-  release:
+  release_action:
     name: Publish action release
     needs: validate
+    if: ${{ success() }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      action_tag: ${{ steps.metadata.outputs.action_tag }}
+      schema_tag: ${{ steps.metadata.outputs.schema_tag }}
+      generate_notes: ${{ steps.metadata.outputs.generate_notes }}
+      is_prerelease: ${{ steps.metadata.outputs.is_prerelease }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Gather release inputs
+        id: metadata
+        run: |
+          set -euo pipefail
+          EVENT_NAME="$GITHUB_EVENT_NAME"
+          REQUESTED_VERSION=""
+          GENERATE_NOTES="true"
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            REQUESTED_VERSION="$(jq -r '.inputs.version // ""' "$GITHUB_EVENT_PATH")"
+            GENERATE_NOTES="$(jq -r '.inputs["generate-notes"] // "true"' "$GITHUB_EVENT_PATH")"
+          fi
+          if [ -n "$REQUESTED_VERSION" ]; then
+            ACTION_TAG="$REQUESTED_VERSION"
+            SCHEMA_TAG="schema-$REQUESTED_VERSION"
+            IS_PRERELEASE="false"
+          else
+            SHORT="${GITHUB_SHA::7}"
+            ACTION_TAG="action-$SHORT"
+            SCHEMA_TAG="schema-$SHORT"
+            IS_PRERELEASE="true"
+          fi
+          echo "action_tag=$ACTION_TAG" >> "$GITHUB_OUTPUT"
+          echo "schema_tag=$SCHEMA_TAG" >> "$GITHUB_OUTPUT"
+          echo "generate_notes=$GENERATE_NOTES" >> "$GITHUB_OUTPUT"
+          echo "is_prerelease=$IS_PRERELEASE" >> "$GITHUB_OUTPUT"
+      - name: Package action directory
+        run: |
+          set -euo pipefail
+          npm install --prefix .github/actions/proxmox-openapi-artifacts
+          npm run package --prefix .github/actions/proxmox-openapi-artifacts
+          rm -rf .github/actions/proxmox-openapi-artifacts/node_modules
+          tar -czf proxmox-openapi-action.tgz \
+            .github/actions/proxmox-openapi-artifacts/action.yml \
+            .github/actions/proxmox-openapi-artifacts/dist \
+            .github/actions/proxmox-openapi-artifacts/package.json \
+            .github/actions/proxmox-openapi-artifacts/package-lock.json
+      - name: Create action release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.metadata.outputs.action_tag }}"
+          GENERATE_NOTES="${{ steps.metadata.outputs.generate_notes }}"
+          PRERELEASE="${{ steps.metadata.outputs.is_prerelease }}"
+          ARGS=(
+            "$TAG"
+            "proxmox-openapi-action.tgz"
+          )
+          if [ "$GENERATE_NOTES" = "true" ]; then
+            ARGS+=("--generate-notes")
+          fi
+          if [ "$PRERELEASE" = "true" ]; then
+            ARGS+=("--prerelease")
+          fi
+          gh release create "${ARGS[@]}"
+
+  release_schema:
+    name: Publish Proxmox API schema
+    needs:
+      - validate
+      - release_action
     if: ${{ success() }}
     runs-on: ubuntu-latest
     permissions:
@@ -77,49 +156,16 @@ jobs:
         run: npm ci
       - name: Generate OpenAPI artifacts
         run: npm run automation:pipeline -- --mode=ci --report var/automation-summary.json
-      - name: Gather release inputs
-        id: metadata
-        run: |
-          set -euo pipefail
-          EVENT_NAME="$GITHUB_EVENT_NAME"
-          VERSION=""
-          GENERATE_NOTES="true"
-          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
-            VERSION="$(jq -r '.inputs.version // ""' "$GITHUB_EVENT_PATH")"
-            GENERATE_NOTES="$(jq -r '.inputs["generate-notes"] // "true"' "$GITHUB_EVENT_PATH")"
-          fi
-          if [ -z "$VERSION" ]; then
-            VERSION="action-${GITHUB_SHA::7}"
-          fi
-          echo "tag=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "generate_notes=$GENERATE_NOTES" >> "$GITHUB_OUTPUT"
-          if [ "$EVENT_NAME" = "workflow_dispatch" ] && [ -n "$VERSION" ]; then
-            echo "is_prerelease=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "is_prerelease=true" >> "$GITHUB_OUTPUT"
-          fi
-      - name: Package action directory
-        run: |
-          set -euo pipefail
-          npm install --prefix .github/actions/proxmox-openapi-artifacts
-          npm run package --prefix .github/actions/proxmox-openapi-artifacts
-          rm -rf .github/actions/proxmox-openapi-artifacts/node_modules
-          tar -czf proxmox-openapi-action.tgz \
-            .github/actions/proxmox-openapi-artifacts/action.yml \
-            .github/actions/proxmox-openapi-artifacts/dist \
-            .github/actions/proxmox-openapi-artifacts/package.json \
-            .github/actions/proxmox-openapi-artifacts/package-lock.json
-      - name: Create release
+      - name: Create schema release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          TAG="${{ steps.metadata.outputs.tag }}"
-          GENERATE_NOTES="${{ steps.metadata.outputs.generate_notes }}"
-          PRERELEASE="${{ steps.metadata.outputs.is_prerelease }}"
+          TAG="${{ needs.release_action.outputs.schema_tag }}"
+          GENERATE_NOTES="${{ needs.release_action.outputs.generate_notes }}"
+          PRERELEASE="${{ needs.release_action.outputs.is_prerelease }}"
           ARGS=(
             "$TAG"
-            "proxmox-openapi-action.tgz"
             "var/openapi/proxmox-ve.json"
             "var/openapi/proxmox-ve.yaml"
             "var/automation-summary.json"
