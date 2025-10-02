@@ -12,7 +12,8 @@ Scope
 - Data model and types. Canonical source is existing generated action bundle outputs; no schema changes.
 
 Allowed changes
-- Regenerate `.github/actions/proxmox-openapi-artifacts/dist` contents.
+- (Superseded) The action no longer commits `.github/actions/proxmox-openapi-artifacts/dist`; validate the
+  runtime `tsx` execution instead.
 - Update supporting docs if regeneration steps change.
 - No modifications to unrelated modules or schemas.
 

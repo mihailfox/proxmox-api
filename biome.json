@@ -25,15 +25,6 @@
       "formatter": {
         "enabled": false
       }
-    },
-    {
-      "includes": [".github/actions/proxmox-openapi-artifacts/dist/**/*"],
-      "linter": {
-        "enabled": false
-      },
-      "formatter": {
-        "enabled": false
-      }
     }
   ],
   "javascript": {

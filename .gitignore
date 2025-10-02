@@ -4,7 +4,9 @@
 *.dll
 *.so
 *.dylib
+# Generic build directories
 dist/
+.github/actions/proxmox-openapi-artifacts/dist/
 
 # Test binary, built with `go test -c`
 *.test
@@ -41,6 +43,3 @@ go.work.sum
 
 .runonce
 .env
-!.github/actions/proxmox-openapi-artifacts/dist/
-!.github/actions/proxmox-openapi-artifacts/dist/index.js
-!.github/actions/proxmox-openapi-artifacts/dist/index.js.map

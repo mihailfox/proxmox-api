@@ -26,8 +26,8 @@
     "test:normalizer": "vitest run --config tools/api-normalizer/vitest.config.ts",
     "test:openapi": "vitest run --config tools/openapi-generator/vitest.config.ts",
     "test:regression": "vitest run --config tests/regression/vitest.config.ts",
-    "action:install": "npm install --prefix .github/actions/proxmox-openapi-artifacts",
-    "action:package": "npm run package --prefix .github/actions/proxmox-openapi-artifacts"
+    "action:install": "npm ci --prefix .github/actions/proxmox-openapi-artifacts",
+    "action:package": "npm run lint --prefix .github/actions/proxmox-openapi-artifacts && npm run typecheck --prefix .github/actions/proxmox-openapi-artifacts"
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "^12.0.0",

@@ -8,9 +8,10 @@ Source of truth
 - docs/automation/README.md
 
 Requirements summary
-- Create a GitHub Actions workflow that builds, bundles (`npm run bundle`/`npm run all`), tags, and publishes the private action.
-- Generate GitHub releases with packaged assets and changelog entries, ensuring the committed `dist/` matches the build via a
-  `check-dist`-style verification.
+- Create a GitHub Actions workflow that validates lint/typecheck results, tags, and publishes the private action without a
+  committed bundle.
+- Generate GitHub releases with packaged assets and changelog entries, ensuring the workspace installs cleanly and passes
+  `npm run action:package` prior to publishing.
 - Support manual dispatch and automatic runs on main branch merges.
 
 Scope
@@ -19,7 +20,7 @@ Scope
 - Data model and types: Automation pipeline outputs remain canonical.
 
 Allowed changes
-- Add release workflow YAML and supporting scripts, including template-inspired `check-dist` validation.
+- Add release workflow YAML and supporting scripts, including validation of lint/typecheck commands and reproducible installs.
 - Update documentation describing release triggers and required secrets.
 - No changes to automation logic beyond packaging for release.
 
@@ -72,7 +73,7 @@ Plan checklist
 
 Acceptance criteria
 - Release workflow can create a Git tag and GitHub release for the action.
-- Release artifacts (dist bundle, metadata) are attached to the release.
+- Release artifacts (action workspace sources, metadata) are attached to the release.
 - Workflow supports manual dispatch and post-merge execution.
 - Documentation updated with release procedure.
 

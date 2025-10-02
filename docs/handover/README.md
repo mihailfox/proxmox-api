@@ -149,14 +149,14 @@ Follow this cadence before merging or releasing updated artifacts:
   tooling changes. Provide a semantic tag (for example `v0.3.0`) to create a stable release; omit the
   tag for prerelease builds tied to the current commit SHA.
 - The workflow validates linting/builds and now publishes two releases from separate jobs:
-  - `release_action` packages the TypeScript action (`action.yml`, `dist/`, `package.json`,
-    `package-lock.json`) and creates the GitHub release tag (`v0.x.y` or the auto-generated
+  - `release_action` packages the TypeScript action workspace (`action.yml`, `src/`, `tsconfig.json`,
+    `package.json`, `package-lock.json`) and creates the GitHub release tag (`v0.x.y` or the auto-generated
     `action-<sha>` when no tag is provided) with the `proxmox-openapi-action.zip` asset.
   - `release_schema` regenerates the OpenAPI artifacts in CI mode and publishes a companion release
     tagged `schema-<version>` (or `schema-<sha>` for prereleases) containing a `proxmox-openapi-schema.zip`
     archive with the JSON and YAML specs for consumers focused on the schema alone.
-  The action archive no longer bundles raw TypeScript sources because the compiled `dist/index.js`
-  remains committed.
+  The action archive ships the TypeScript sources and lockfile so runners install dependencies on demand
+  before executing `src/main.ts` with `tsx`.
 - Downstream repositories can pin to specific tags or prereleases depending on stability
   requirements.
 

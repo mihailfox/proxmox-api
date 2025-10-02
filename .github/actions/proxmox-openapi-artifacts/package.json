@@ -4,34 +4,17 @@
   "private": true,
   "description": "GitHub Action that runs the Proxmox OpenAPI automation pipeline.",
   "type": "module",
-  "main": "./dist/index.cjs",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "default": "./dist/index.cjs"
-    }
-  },
   "scripts": {
     "lint": "biome lint src",
-    "typecheck": "tsc --project tsconfig.json --noEmit",
-    "bundle:cjs": "esbuild src/main.ts --bundle --platform=node --target=node20 --format=cjs --outfile=dist/index.cjs --sourcemap --external:playwright --external:@apidevtools/swagger-parser --external:yaml --banner:js=\"const { pathToFileURL } = require('node:url'); const import_meta = { url: pathToFileURL(__filename).href };\"",
-    "bundle:esm": "esbuild src/main.ts --bundle --platform=node --target=node20 --format=esm --outfile=dist/index.js --sourcemap --external:playwright --external:@apidevtools/swagger-parser --external:yaml",
-    "bundle": "npm run clean && npm run bundle:cjs && npm run bundle:esm",
-    "package": "npm run typecheck && npm run bundle",
-    "clean": "rm -rf dist"
+    "typecheck": "tsc --project tsconfig.json --noEmit"
   },
   "dependencies": {
     "@actions/core": "^1.11.1",
-    "@actions/exec": "^1.1.1"
+    "@actions/exec": "^1.1.1",
+    "tsx": "^4.19.2"
   },
   "devDependencies": {
-    "@apidevtools/swagger-parser": "^12.0.0",
     "@types/node": "^22.0.0",
-    "esbuild": "^0.25.10",
-    "openapi-types": "^12.1.3",
-    "playwright": "^1.55.1",
-    "typescript": "^5.7.3",
-    "yaml": "^2.8.1"
+    "typescript": "^5.7.3"
   }
 }
