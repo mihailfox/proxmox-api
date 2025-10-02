@@ -167,7 +167,7 @@ phases.
 - **Validation steps**: `npm ci`, lint, TypeScript build, and a CI-mode pipeline
   smoke run writing a JSON summary.
   - **Packaging**: Bundles the TypeScript action manifest, committed `dist/`
-    output, and action-specific lockfiles into `proxmox-openapi-action.tgz` for
+    output, and action-specific lockfiles into `proxmox-openapi-action.zip` for
     release assets.
 - **Release tagging**: Manual runs honour the provided tag and mark releases as
   stable; automatic pushes generate prerelease tags using the short commit SHA
