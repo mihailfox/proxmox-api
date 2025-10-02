@@ -3,11 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "description": "GitHub Action that runs the Proxmox OpenAPI automation pipeline.",
-  "main": "dist/index.js",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.cjs"
+    }
+  },
   "scripts": {
     "lint": "biome lint src",
     "typecheck": "tsc --project tsconfig.json --noEmit",
-    "bundle": "esbuild src/main.ts --bundle --platform=node --target=node22 --outfile=dist/index.js --sourcemap --external:playwright --external:@apidevtools/swagger-parser --external:yaml",
+    "bundle:cjs": "esbuild src/main.ts --bundle --platform=node --target=node20 --format=cjs --outfile=dist/index.cjs --sourcemap --external:playwright --external:@apidevtools/swagger-parser --external:yaml --banner:js=\"const { pathToFileURL } = require('node:url'); const import_meta = { url: pathToFileURL(__filename).href };\"",
+    "bundle:esm": "esbuild src/main.ts --bundle --platform=node --target=node20 --format=esm --outfile=dist/index.js --sourcemap --external:playwright --external:@apidevtools/swagger-parser --external:yaml",
+    "bundle": "npm run clean && npm run bundle:cjs && npm run bundle:esm",
     "package": "npm run typecheck && npm run bundle",
     "clean": "rm -rf dist"
   },

@@ -41,6 +41,14 @@ jobs:
         run: npm run action:install
       - name: Build action bundle
         run: npm run action:package
+      - name: Verify action bundle syntax on Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check action bundle compatibility with Node 20
+        run: |
+          node --check .github/actions/proxmox-openapi-artifacts/dist/index.cjs
+          node --check .github/actions/proxmox-openapi-artifacts/dist/index.js
   release_action:
     name: Publish action release
     needs: validate

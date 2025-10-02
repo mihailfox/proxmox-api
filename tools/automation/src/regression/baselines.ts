@@ -1,4 +1,4 @@
-import checksums from '../../data/regression/openapi.sha256.json' assert { type: 'json' };
+import checksums from '../../data/regression/openapi.sha256.json' with { type: 'json' };
 import {
   OPENAPI_JSON_PATH,
   OPENAPI_YAML_PATH,

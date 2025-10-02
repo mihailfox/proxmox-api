@@ -64,8 +64,8 @@ outputs:
   summary-path:
     description: 'Path to the JSON summary describing the pipeline run.'
 runs:
-  using: 'node22'
-  main: 'dist/index.js'
+  using: 'node20'
+  main: 'dist/index.cjs'
 branding:
   icon: 'server'
   color: 'green'
