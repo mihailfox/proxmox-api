@@ -1,27 +1,25 @@
 # Plan: Fix private-action-release dist out-of-date failure
 
 ## Context
-The `Validate action tooling` job in the private-action-release workflow fails because the compiled distribution at `.github/actions/proxmox-openapi-artifacts/dist` diverges from the TypeScript sources. The job checks that `dist` and `package-lock.json` match the repository state; when they do not, it asks maintainers to run `npm run package --prefix .github/actions/proxmox-openapi-artifacts`.
+Historical failures of the `Validate action tooling` job stemmed from drift between the compiled distribution under `.github/actions/proxmox-openapi-artifacts/dist` and the TypeScript sources. The workspace now executes its TypeScript entrypoint directly with `tsx`, removing the prebuilt `dist/` directory from version control. The job instead verifies that the workspace installs cleanly and passes lint/typecheck checks.
 
 ## Objectives
-1. Align the `dist` bundle with the current sources so CI passes.
-2. Prevent future drift between the TypeScript source and compiled output.
-3. Document the process for regenerating the action bundle when sources change.
+1. Ensure the action workspace dependencies install without mutation so CI passes.
+2. Prevent future drift by keeping lint and typecheck scripts green.
+3. Document the process for validating the action workspace when sources change.
 
 ## Step-by-step plan
 1. **Audit current differences**
    - Run `git status --short .github/actions/proxmox-openapi-artifacts` to confirm which files are dirty.
-   - Inspect diffs in `dist/index.js` and related outputs to understand the drift from `src`.
-   - Verify whether `package-lock.json` also differs.
+   - Inspect diffs in `src/**` and `package-lock.json` to understand pending changes.
 
-2. **Rebuild the action dist**
+2. **Validate the action workspace**
    - Execute `npm install --prefix .github/actions/proxmox-openapi-artifacts` to ensure dependencies match the lockfile.
-   - Run `npm run package --prefix .github/actions/proxmox-openapi-artifacts` to regenerate the compiled JavaScript in `dist`.
-   - Confirm the command completes without errors.
+   - Run `npm run lint --prefix .github/actions/proxmox-openapi-artifacts` and `npm run typecheck --prefix .github/actions/proxmox-openapi-artifacts`.
+   - Confirm both commands complete without errors.
 
 3. **Validate generated artifacts**
-   - Compare the regenerated `dist` files with source expectations; ensure no unexpected files appear or disappear.
-   - If TypeScript configs changed, check `tsconfig.json` and build scripts for necessary adjustments.
+   - If TypeScript configs changed, check `tsconfig.json` and scripts for necessary adjustments.
    - Re-run `git status` to make sure only intended files changed.
 
 4. **Update project documentation**
@@ -32,8 +30,8 @@ The `Validate action tooling` job in the private-action-release workflow fails b
    - Alternatively, document the expectation in contributor guidelines.
 
 6. **Commit and verify**
-   - Stage updated `dist` files (and `package-lock.json` if modified).
-   - Commit with a Conventional Commit message, e.g., `chore(action): rebuild proxmox openapi artifacts dist`.
+   - Stage updated source files and `package-lock.json` if modified.
+   - Commit with a Conventional Commit message summarising the validation work.
    - Run the workflow or pertinent tests locally if feasible, then push and ensure CI passes.
 
 ## Risks and mitigations
@@ -42,9 +40,10 @@ The `Validate action tooling` job in the private-action-release workflow fails b
 - **Future drift**: Reinforce contributor guidelines and consider automation to detect and regenerate bundles before merging.
 
 ## Acceptance validation
-- `git status` should be clean after running the rebuild steps.
-- The CI job `Validate action tooling` succeeds, confirming `dist` is up to date.
-- Documentation clearly states how to regenerate the bundle.
+- `git status` should be clean after running the validation steps.
+- The CI job `Validate action tooling` succeeds, confirming lint/typecheck remain green.
+- Documentation clearly states how to validate the workspace.
 
 ## Execution log
 - 2025-02-14: Ran `npm install --prefix .github/actions/proxmox-openapi-artifacts` and `npm run package --prefix .github/actions/proxmox-openapi-artifacts` to refresh the bundled `dist/` output.
+- 2025-10-02: Migrated the plan to the on-demand `tsx` execution model; validation now focuses on lint/typecheck instead of rebuilding `dist/`.

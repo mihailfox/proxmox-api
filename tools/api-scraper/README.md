@@ -27,4 +27,4 @@ stable—changes in Proxmox upstream documentation translate directly into git d
   launch Chromium.
 - Network access to `https://pve.proxmox.com` is required. Set the `https_proxy`/`http_proxy`
   environment variables if routing through a proxy.
-- Re-run `npm install` when dependencies change to avoid `ts-node` compilation errors.
+- Re-run `npm install` when dependencies change to keep the `tsx` runtime and TypeScript compiler in sync.

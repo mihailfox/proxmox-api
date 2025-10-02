@@ -7,13 +7,13 @@ import { stringify as stringifyYaml } from 'yaml';
 import {
   DEFAULT_BASE_URL,
   scrapeApiDocumentation
-} from '../../api-scraper/src/scraper';
-import type { RawApiSnapshot } from '../../api-scraper/src/types';
-import { normalizeSnapshot } from '../../api-normalizer/src/normalizer';
-import type { NormalizedApiDocument } from '../../api-normalizer/src/types';
-import { generateOpenApiDocument } from '../../openapi-generator/src/generator';
-import { logRegressionReport } from './regression/report';
-import { OPENAPI_ARTIFACT_DIR, OPENAPI_BASENAME } from '../../shared/paths';
+} from '../../api-scraper/src/scraper.js';
+import type { RawApiSnapshot } from '../../api-scraper/src/types.js';
+import { normalizeSnapshot } from '../../api-normalizer/src/normalizer.js';
+import type { NormalizedApiDocument } from '../../api-normalizer/src/types.js';
+import { generateOpenApiDocument } from '../../openapi-generator/src/generator.js';
+import { logRegressionReport } from './regression/report.js';
+import { OPENAPI_ARTIFACT_DIR, OPENAPI_BASENAME } from '../../shared/paths.js';
 
 export interface AutomationPipelineRunOptions {
   mode?: 'ci' | 'full';

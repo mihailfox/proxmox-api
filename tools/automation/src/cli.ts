@@ -4,7 +4,7 @@ import { parseArgs } from 'node:util';
 import {
   runAutomationPipeline,
   type AutomationPipelineRunOptions
-} from './pipeline';
+} from './pipeline.js';
 
 function parseCliOptions(): AutomationPipelineRunOptions {
   const { values } = parseArgs({

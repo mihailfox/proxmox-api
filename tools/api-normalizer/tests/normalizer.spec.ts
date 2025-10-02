@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import rawSnapshot from '../../api-scraper/data/raw/proxmox-api-schema.json';
-import type { RawApiSnapshot } from '../../api-scraper/src/types';
-import { normalizeSnapshot } from '../src/normalizer';
-import type { NormalizedGroup } from '../src/types';
+import rawSnapshot from '../../api-scraper/data/raw/proxmox-api-schema.json' with { type: 'json' };
+import type { RawApiSnapshot } from '../../api-scraper/src/types.js';
+import { normalizeSnapshot } from '../src/normalizer.js';
+import type { NormalizedGroup } from '../src/types.js';
 
 const snapshot = rawSnapshot as unknown as RawApiSnapshot;
 

@@ -3,9 +3,9 @@ import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { stringify as stringifyYaml } from 'yaml';
 
-import { generateOpenApiDocument } from './generator';
-import type { NormalizedApiDocument } from '../../api-normalizer/src/types';
-import { OPENAPI_ARTIFACT_DIR, OPENAPI_BASENAME } from '../../shared/paths';
+import { generateOpenApiDocument } from './generator.js';
+import type { NormalizedApiDocument } from '../../api-normalizer/src/types.js';
+import { OPENAPI_ARTIFACT_DIR, OPENAPI_BASENAME } from '../../shared/paths.js';
 
 type SupportedFormat = 'json' | 'yaml';
 

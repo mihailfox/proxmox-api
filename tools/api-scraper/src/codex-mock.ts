@@ -8,7 +8,7 @@ import type {
   ApiSchemaNode,
   RawApiMethod,
   RawApiTreeNode
-} from './types';
+} from './types.js';
 
 const MOCK_ROOT = resolve('tools/api-scraper/mocks');
 const MOCK_INDEX_PATH = resolve(MOCK_ROOT, 'index.html');

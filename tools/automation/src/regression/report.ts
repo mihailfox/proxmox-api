@@ -1,6 +1,6 @@
 import process from 'node:process';
 
-import { computeRegressionSummary } from './summary';
+import { computeRegressionSummary } from './summary.js';
 
 export function logRegressionReport(): void {
   const summary = computeRegressionSummary();

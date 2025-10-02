@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json",
   "name": "Proxmox API Tooling",
-  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:22-bookworm",
   "features": {
     "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
@@ -11,6 +11,7 @@
     "ghcr.io/eitsupi/devcontainer-features/jq-likes:2": {}
   },
   "forwardPorts": [ 5173, 4173 ],
+  "updateContentCommand": ".devcontainer/scripts/update-content.sh",
   "postCreateCommand": ".devcontainer/scripts/post-create.sh",
   "customizations": {
     "vscode": {
@@ -24,10 +25,39 @@
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "bash",
-        "telemetry.feedback.enabled": false
+        "telemetry.feedback.enabled": false,
+        "editor.mouseWheelZoom": true,
+        "editor.tabSize": 2,
+        "editor.formatOnPaste": true,
+        "files.autoSave": "afterDelay",
+        "editor.autoIndentOnPaste": true,
+        "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
+        "editor.columnSelection": false,
+        "editor.guides.bracketPairs": "active",
+        "editor.inertialScroll": true,
+        "editor.linkedEditing": true,
+        "editor.tabCompletion": "onlySnippets",
+        "editor.cursorBlinking": "phase",
+        "editor.cursorSmoothCaretAnimation": "on",
+        "editor.cursorStyle": "block-outline",
+        "editor.formatOnSaveMode": "modifications",
+        "editor.formatOnSave": true,
+        "editor.minimap.autohide": "scroll",
+        "editor.minimap.enabled": false,
+        "editor.acceptSuggestionOnEnter": "smart",
+        "editor.inlineSuggest.edits.allowCodeShifting": "horizontal",
+        "editor.inlineSuggest.minShowDelay": 200,
+        "editor.fontFamily": "'JetBrainsMonoNL Nerd Font Mono', 'monospace'",
+        "editor.fontSize": 16,
+        "files.autoSaveWhenNoErrors": true,
+        "files.autoSaveWorkspaceFilesOnly": true,
+        "terminal.integrated.cursorBlinking": true,
+        "telemetry.editStats.enabled": false,
+        "biome.requireConfiguration": true
       }
     }
   },
+  // here you can pass environment variables from the host
   "containerEnv": {
     "GH_PAT": "${localEnv:GH_PAT}",
     "GITHUB_TOKEN": "${localEnv:GH_PAT}"

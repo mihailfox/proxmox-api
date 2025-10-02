@@ -1,9 +1,8 @@
-#!/usr/bin/env ts-node
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
-import type { RawApiSnapshot } from '../../api-scraper/src/types';
-import { normalizeSnapshot } from './normalizer';
+import type { RawApiSnapshot } from '../../api-scraper/src/types.js';
+import { normalizeSnapshot } from './normalizer.js';
 
 interface CliOptions {
   inputPath: string;

@@ -7,7 +7,7 @@ import os from 'node:os';
 import {
   runAutomationPipeline,
   type AutomationPipelineRunOptions
-} from '../../../../tools/automation/src/pipeline';
+} from '../../../../tools/automation/src/pipeline.js';
 
 function coerceBoolean(input: string | undefined, defaultValue: boolean): boolean {
   if (!input) {

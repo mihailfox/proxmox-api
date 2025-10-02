@@ -4,10 +4,10 @@ import { readFileSync } from 'node:fs';
 import type { OpenAPIV3_1 } from 'openapi-types';
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 
-import type { RawApiSnapshot } from '../../../api-scraper/src/types';
-import type { NormalizedApiDocument } from '../../../api-normalizer/src/types';
-import { ARTIFACT_BASELINES, type ArtifactBaseline } from './baselines';
-import { generateOpenApiDocument } from '../../../openapi-generator/src/generator';
+import type { RawApiSnapshot } from '../../../api-scraper/src/types.js';
+import type { NormalizedApiDocument } from '../../../api-normalizer/src/types.js';
+import { ARTIFACT_BASELINES, type ArtifactBaseline } from './baselines.js';
+import { generateOpenApiDocument } from '../../../openapi-generator/src/generator.js';
 
 export interface ArtifactState {
   baseline: ArtifactBaseline;

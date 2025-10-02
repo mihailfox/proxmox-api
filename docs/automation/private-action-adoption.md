@@ -43,9 +43,9 @@ jobs:
 
 Adjust the `uses:` reference to match the hosting strategy (internal repo tag,
 branch, or commit SHA). Enable `install-playwright-browsers` for first-run
-setups where the runner lacks cached browsers. The action now vendors its
-TypeScript implementation in `dist/index.js`, so downstream workflows no longer
-need to invoke `ts-node` directly.
+setups where the runner lacks cached browsers. The action installs its
+dependencies on demand and executes the TypeScript entrypoint with `tsx`, so
+downstream workflows do not need to manage a prebuilt `dist/` directory.
 
 ## 3. Sandbox validation checklist
 
@@ -79,12 +79,12 @@ need to invoke `ts-node` directly.
    `dist/`, and `__tests__/` mirroring the template. Move the automation
    invoker logic into `src/main.ts` and keep shared helpers in
    `tools/automation/`.
-2. **Bundling workflow** – add `npm run bundle`/`npm run all` scripts and a
-   `check-dist` workflow to ensure the compiled output stays in sync with the
-   committed `dist/` directory.
-3. **Release update** – modify `private-action-release` to publish the bundled
-   action (including `dist/`, metadata, and docs) and, during transition, keep
-   the tarball asset for downstream consumers still relying on the composite
+2. **Execution workflow** – add validation scripts that lint and typecheck the
+   action workspace and ensure `npm install` remains reproducible for release
+   packaging.
+3. **Release update** – modify `private-action-release` to publish the action
+   workspace (metadata, sources, and lockfile) and, during transition, keep the
+   tarball asset for downstream consumers still relying on the composite
    layout.
 4. **Consumer change management** – document the required switch from
    `uses: repo/.github/actions/proxmox-openapi-artifacts@tag` to
