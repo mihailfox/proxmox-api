@@ -188,14 +188,16 @@ function extractMethodBlocks(content: string): MethodBlock[] {
 function extractPackageSections(content: string): PackageSection[] {
   const regex = /package\s+([\w:]+)\s*;/g;
   const packages: { name: string; bodyStart: number; statementStart: number }[] = [];
-  let match: RegExpExecArray | null;
+  let execResult = regex.exec(content);
 
-  while ((match = regex.exec(content)) !== null) {
+  while (execResult) {
     packages.push({
-      name: match[1],
+      name: execResult[1],
       bodyStart: regex.lastIndex,
-      statementStart: match.index,
+      statementStart: execResult.index,
     });
+
+    execResult = regex.exec(content);
   }
 
   const sections: PackageSection[] = [];
@@ -230,7 +232,11 @@ async function walkForPerlModules(base: string, moduleMap: Map<string, ModuleEnt
   const stack: string[] = [base];
 
   while (stack.length > 0) {
-    const current = stack.pop()!;
+    const current = stack.pop();
+    if (!current) {
+      continue;
+    }
+
     const entries = await fs.readdir(current, { withFileTypes: true });
 
     for (const entry of entries) {
