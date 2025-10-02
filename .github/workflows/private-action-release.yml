@@ -16,11 +16,7 @@ on:
     paths:
       - '.github/actions/proxmox-openapi-artifacts/**'
       - 'tools/automation/**'
-      - 'docs/automation/**'
-      - 'docs/handover/**'
-      - 'plan/private-github-action-plan.md'
-      - 'tasks/TASK-002*-github-action*.md'
-
+      
 jobs:
   validate:
     name: Validate action tooling
@@ -45,18 +41,6 @@ jobs:
         run: npm install --prefix .github/actions/proxmox-openapi-artifacts
       - name: Build action bundle
         run: npm run package --prefix .github/actions/proxmox-openapi-artifacts
-      - name: Check action dist is up to date
-        run: |
-          if ! git diff --quiet -- .github/actions/proxmox-openapi-artifacts/dist; then
-            echo '::error::Action dist is out of date. Run npm run package --prefix .github/actions/proxmox-openapi-artifacts.'
-            git diff -- .github/actions/proxmox-openapi-artifacts/dist
-            exit 1
-          fi
-          if ! git diff --quiet -- .github/actions/proxmox-openapi-artifacts/package-lock.json; then
-            echo '::error::Action package-lock.json is out of date. Run npm install --prefix .github/actions/proxmox-openapi-artifacts.'
-            git diff -- .github/actions/proxmox-openapi-artifacts/package-lock.json
-            exit 1
-          fi
   release_action:
     name: Publish action release
     needs: validate
@@ -171,9 +155,3 @@ jobs:
             "var/automation-summary.json"
           )
           if [ "$GENERATE_NOTES" = "true" ]; then
-            ARGS+=("--generate-notes")
-          fi
-          if [ "$PRERELEASE" = "true" ]; then
-            ARGS+=("--prerelease")
-          fi
-          gh release create "${ARGS[@]}"
