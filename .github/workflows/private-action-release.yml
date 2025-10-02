@@ -155,9 +155,3 @@ jobs:
             "var/automation-summary.json"
           )
           if [ "$GENERATE_NOTES" = "true" ]; then
-            ARGS+=("--generate-notes")
-          fi
-          if [ "$PRERELEASE" = "true" ]; then
-            ARGS+=("--prerelease")
-          fi
-          gh release create "${ARGS[@]}"
