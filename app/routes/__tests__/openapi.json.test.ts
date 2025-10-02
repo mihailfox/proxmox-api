@@ -4,7 +4,7 @@ import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 
 import { loader } from '../openapi[.]json';
-import { OPENAPI_JSON_PATH } from '../../../tools/shared/paths';
+import { OPENAPI_JSON_PATH } from '../../../tools/shared/paths.js';
 
 const SPEC_PATH = OPENAPI_JSON_PATH;
 const SPEC_DIR = dirname(SPEC_PATH);

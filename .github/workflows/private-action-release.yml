@@ -38,9 +38,9 @@ jobs:
       - name: Smoke automation pipeline
         run: npm run automation:pipeline -- --mode=ci --report tmp/action-summary.json
       - name: Install action dependencies
-        run: npm install --prefix .github/actions/proxmox-openapi-artifacts
-      - name: Build action bundle
-        run: npm run package --prefix .github/actions/proxmox-openapi-artifacts
+        run: npm run action:install
+      - name: Lint and typecheck action workspace
+        run: npm run action:package
   release_action:
     name: Publish action release
     needs: validate
@@ -91,17 +91,18 @@ jobs:
       - name: Package action directory
         run: |
           set -euo pipefail
-          npm install --prefix .github/actions/proxmox-openapi-artifacts
-          npm run package --prefix .github/actions/proxmox-openapi-artifacts
+          npm run action:install
+          npm run action:package
           rm -rf .github/actions/proxmox-openapi-artifacts/node_modules
           rm -f proxmox-openapi-action.zip
           (
             cd .github/actions/proxmox-openapi-artifacts
             zip -r ../../../proxmox-openapi-action.zip \
               action.yml \
-              dist \
               package.json \
-              package-lock.json
+              package-lock.json \
+              src \
+              tsconfig.json
           )
       - name: Create action release
         env:

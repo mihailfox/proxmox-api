@@ -1,8 +1,8 @@
 import { access } from 'node:fs/promises';
 import { constants } from 'node:fs';
 
-import { runAutomationPipeline } from '../../tools/automation/src/pipeline';
-import { OPENAPI_JSON_PATH, OPENAPI_YAML_PATH } from '../../tools/shared/paths';
+import { runAutomationPipeline } from '../../tools/automation/src/pipeline.js';
+import { OPENAPI_JSON_PATH, OPENAPI_YAML_PATH } from '../../tools/shared/paths.js';
 
 let ensurePromise: Promise<void> | null = null;
 

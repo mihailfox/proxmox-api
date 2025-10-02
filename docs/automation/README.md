@@ -78,13 +78,13 @@ step.
               ${{ steps.artifacts.outputs.openapi-yaml }}
               ${{ steps.artifacts.outputs.summary-path }}
   ```
-- The action ships a bundled `dist/index.js` generated via `esbuild`. Run
-  `npm run package --prefix .github/actions/proxmox-openapi-artifacts` before
-  committing to keep the compiled output in sync with the TypeScript sources.
+- The action executes its TypeScript entrypoint with `tsx` at runtime. Run
+  `npm install --prefix .github/actions/proxmox-openapi-artifacts` followed by
+  `npm run action:package` to verify lint/typecheck results before committing
+  workspace changes.
 - Downstream repositories reference the action via a private checkout (e.g., a
-  submodule or GitHub Actions `uses:` with organization-level access). Once the
-  action repository hosts only the bundled assets, consumers no longer need to
-  run `npm ci` as part of their workflows.
+  submodule or GitHub Actions `uses:` with organization-level access). Runners
+  install the lightweight action dependencies on demand prior to execution.
 - See [private-action-adoption.md](./private-action-adoption.md) for onboarding
   and sandbox validation guidance, including the TypeScript-based usage notes.
 

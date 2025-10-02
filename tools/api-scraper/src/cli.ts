@@ -1,10 +1,8 @@
-#!/usr/bin/env ts-node
-import path from 'node:path';
-
-import { DEFAULT_BASE_URL, scrapeApiDocumentation } from './scraper';
+import { isExecutedFromCli, resolveFromModule } from '../../shared/module-paths.js';
+import { DEFAULT_BASE_URL, scrapeApiDocumentation } from './scraper.js';
 
 async function runScraper(): Promise<void> {
-  const outputDir = path.resolve(__dirname, '..', 'data', 'raw');
+  const outputDir = resolveFromModule(import.meta, '..', 'data', 'raw');
   const { snapshot, filePath } = await scrapeApiDocumentation({
     persist: {
       outputDir
@@ -24,7 +22,7 @@ async function runScraper(): Promise<void> {
   }
 }
 
-if (require.main === module) {
+if (isExecutedFromCli(import.meta)) {
   runScraper().catch((error) => {
     console.error('Scraper execution failed:', error);
     process.exitCode = 1;

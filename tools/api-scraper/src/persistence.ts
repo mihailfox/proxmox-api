@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
-import type { RawApiSnapshot } from './types';
+import type { RawApiSnapshot } from './types.js';
 
 export interface PersistOptions {
   outputDir: string;

@@ -8,11 +8,11 @@ Source of truth
 - docs/automation/README.md
 
 Requirements summary
-- Produce usage documentation and sample workflows for downstream repositories, reflecting the bundled TypeScript action
-  footprint (`uses: org/repo@tag` with committed `dist/`).
+- Produce usage documentation and sample workflows for downstream repositories, reflecting the runtime TypeScript action
+  footprint (`uses: org/repo@tag` with on-demand dependency install via `tsx`).
 - Establish validation strategy via sandbox repo or integration tests.
-- Provide troubleshooting and versioning guidance for private distribution, including how to consume the action without
-  running `npm ci` thanks to the prebuilt artifact.
+- Provide troubleshooting and versioning guidance for private distribution, including how the action installs dependencies on
+  demand before executing `src/main.ts` with `tsx`.
 
 Scope
 - Focus areas: docs/automation/, docs/handover/, plan/

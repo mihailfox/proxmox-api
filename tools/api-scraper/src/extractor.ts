@@ -5,7 +5,7 @@ import type {
   ApiSchemaNode,
   RawApiMethod,
   RawApiTreeNode
-} from './types';
+} from './types.js';
 
 const API_SCRIPT_REGEX = /const apiSchema = (\[.*?\])\s*;\s*let method2cmd/s;
 
