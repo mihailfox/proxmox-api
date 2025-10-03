@@ -40,7 +40,7 @@ if [ -n "$force_color_prompt" ]; then
 fi
 
 if [ "$color_prompt" = yes ]; then
-  PS1='${debian_chroot:+($debian_chroot)}\[$(tput setaf 39)\]\u\[$(tput setaf 81)\]@\[$(tput se>
+  PS1='${debian_chroot:+($debian_chroot)}\[$(tput setaf 39)\]\u\[$(tput setaf 81)\]@\[$(tput setaf 77)\]\h \[$(tput setaf 226)\]\w \[$(tput sgr0)\]\n$ '
 else
   PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
@@ -133,7 +133,8 @@ if [[ -f "${ROOT_DIR}/../.env" ]]; then
   set +a
 fi
 
-sudo apt-get update -y && sudo apt upgrade -y
+sudo apt update -y && \
+  sudo apt upgrade -y --no-install-recommends --show-progress
 
 curl -L --fail --show-error --progress-bar -o /tmp/ripgrep.deb \
   https://github.com/BurntSushi/ripgrep/releases/download/14.1.1/ripgrep_14.1.1-1_amd64.deb && \
@@ -151,12 +152,18 @@ curl -L --fail --show-error --progress-bar -o /tmp/lsd.deb \
   rm -f /tmp/lsd.deb
 
 curl -L --fail --show-error --progress-bar -o /tmp/bat.deb \
-  https://github.com/sharkdp/bat/releases/download/v0.25.0/bat-musl_0.25.0_musl-linux-amd64.deb && \
+  https://github.com/sharkdp/bat/releases/download/v0.25.0/bat_0.25.0_amd64.deb && \
   sudo dpkg -i /tmp/bat.deb && \
   rm -f /tmp/bat.deb
 
-cd "${ROOT_DIR}/.."
+curl -L --fail --show-error --progress-bar -o /tmp/zoxide.deb \
+  https://github.com/ajeetdsouza/zoxide/releases/download/v0.9.8/zoxide_0.9.8-1_amd64.deb && \
+  sudo dpkg -i /tmp/zoxide.deb && \
+  rm -f /tmp/zoxide.deb
 
+
+cd "${ROOT_DIR}/.."
+  
 npm ci
 
 npx --yes playwright install --only-shell --with-deps chromium 
