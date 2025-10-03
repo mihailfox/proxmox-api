@@ -27,6 +27,16 @@ This repository contains tooling to scrape the [Proxmox VE API viewer](https://p
 
    This command scrapes the upstream documentation, normalizes the snapshot, generates JSON/YAML
    OpenAPI documents, and validates the output. For cached CI parity, drop the `--mode=full` flag.
+   The pipeline also supports:
+
+   - `-- --offline` to skip the live scrape and reuse the cached snapshot when reviewing historical
+     artifacts.
+   - `-- --fallback-to-cache=false` to surface scrape failures immediately in full mode instead of
+     silently reusing the cache.
+   - `-- --report <path>` to persist a JSON summary describing the raw snapshot, IR, OpenAPI outputs,
+     and cache usage.
+
+   Set `SCRAPER_BASE_URL` when targeting a staging API viewer.
 
 Refer to the [handover guide](docs/handover/README.md) for deeper documentation covering setup,
 manual QA, release planning, and troubleshooting.
@@ -36,7 +46,15 @@ manual QA, release planning, and troubleshooting.
 - `tools/api-scraper/` contains the Playwright-based scraping toolkit.
   - `playwright.config.ts` defines the Playwright test runner configuration.
   - `tests/` holds smoke and regression tests for the scraper.
-  - `src/cli.ts` is a placeholder CLI entry point that will evolve into the end-to-end scraping workflow.
+  - `src/cli.ts` provides the `npm run scraper:scrape` entry point.
+- `tools/api-normalizer/` houses the IR builder that transforms raw snapshots into a deterministic
+  intermediate representation consumed by the generator.
+- `tools/openapi-generator/` maps the normalized IR to OpenAPI 3.1 JSON and YAML artifacts.
+- `tools/automation/` orchestrates the scrape → normalize → emit workflow and includes the
+  `npm run automation:pipeline` CLI plus regression logging helpers.
+- `tools/shared/` and `tools/analysis/` host cross-cutting utilities (path resolution, regression
+  summaries) and research scripts for parity validation against upstream Perl modules.
+- `tests/regression/` implements checksum and parity assertions for generated artifacts.
 - `app/` contains a Remix + Vite sandbox for rapid UI prototyping and component experimentation.
   - `npm run ui:dev` starts the Remix-enhanced Vite development server.
   - `npm run ui:build` compiles the Remix client and server bundles into `build/`.
