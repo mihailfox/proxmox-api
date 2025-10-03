@@ -6,10 +6,9 @@ on:
       version:
         description: 'Release tag (e.g., v0.1.0)'
         required: false
-      generate-notes:
-        description: 'Automatically generate release notes'
+      release-items:
+        description: 'Task or issue IDs to include in release notes (comma or semicolon separated)'
         required: false
-        default: 'true'
   push:
     branches:
       - main
@@ -118,8 +117,10 @@ jobs:
     outputs:
       action_tag: ${{ steps.metadata.outputs.action_tag }}
       release_version: ${{ steps.metadata.outputs.release_version }}
-      generate_notes: ${{ steps.metadata.outputs.generate_notes }}
       is_prerelease: ${{ steps.metadata.outputs.is_prerelease }}
+      previous_tag: ${{ steps.metadata.outputs.previous_tag }}
+      release_items: ${{ steps.metadata.outputs.release_items }}
+      release_notes_b64: ${{ steps.compose.outputs.notes_b64 }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -138,10 +139,12 @@ jobs:
           set -euo pipefail
           EVENT_NAME="$GITHUB_EVENT_NAME"
           REQUESTED_VERSION=""
-          GENERATE_NOTES="true"
+          RELEASE_ITEMS=""
+          SOURCE_MODE="automatic"
           if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
             REQUESTED_VERSION="$(jq -r '.inputs.version // ""' "$GITHUB_EVENT_PATH")"
-            GENERATE_NOTES="$(jq -r '.inputs["generate-notes"] // "true"' "$GITHUB_EVENT_PATH")"
+            RELEASE_ITEMS="$(jq -r '.inputs["release-items"] // ""' "$GITHUB_EVENT_PATH")"
+            SOURCE_MODE="manual"
           fi
 
           normalize_version() {
@@ -154,15 +157,12 @@ jobs:
             return 1
           }
 
-          LAST_TAG=""
-          SOURCE_MODE="automatic"
+          LAST_TAG="$(git tag --list 'v[0-9]*.[0-9]*.[0-9A-Za-z.+-]*' --sort=-version:refname | head -n1)"
 
           if [ -n "$REQUESTED_VERSION" ]; then
             RELEASE_VERSION="$(normalize_version "$REQUESTED_VERSION")"
             ACTION_TAG="$RELEASE_VERSION"
-            SOURCE_MODE="manual"
           else
-            LAST_TAG="$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-version:refname | head -n1)"
             if [ -z "$LAST_TAG" ]; then
               RELEASE_VERSION="v0.1.0"
             else
@@ -184,8 +184,9 @@ jobs:
 
           echo "action_tag=$ACTION_TAG" >> "$GITHUB_OUTPUT"
           echo "release_version=$ACTION_TAG" >> "$GITHUB_OUTPUT"
-          echo "generate_notes=$GENERATE_NOTES" >> "$GITHUB_OUTPUT"
           echo "is_prerelease=$IS_PRERELEASE" >> "$GITHUB_OUTPUT"
+          echo "previous_tag=$LAST_TAG" >> "$GITHUB_OUTPUT"
+          echo "release_items=$RELEASE_ITEMS" >> "$GITHUB_OUTPUT"
 
           {
             echo "## Release metadata"
@@ -194,9 +195,32 @@ jobs:
               echo "- Previous stable tag: $LAST_TAG"
             fi
             echo "- Mode: $SOURCE_MODE"
-            echo "- Generate notes: $GENERATE_NOTES"
             echo "- Prerelease: $IS_PRERELEASE"
+            if [ -n "$RELEASE_ITEMS" ]; then
+              echo "- Release items: $RELEASE_ITEMS"
+            fi
           } >> "$GITHUB_STEP_SUMMARY"
+      - name: Compose release notes
+        id: compose
+        env:
+          RELEASE_ITEMS: ${{ steps.metadata.outputs.release_items }}
+          PREVIOUS_TAG: ${{ steps.metadata.outputs.previous_tag }}
+        run: |
+          set -euo pipefail
+          ARGS=("--output=var/reports/release-notes.md")
+          if [ -n "$RELEASE_ITEMS" ]; then
+            ARGS+=("--items=$RELEASE_ITEMS")
+          fi
+          if [ -n "$PREVIOUS_TAG" ]; then
+            ARGS+=("--base-ref=$PREVIOUS_TAG")
+          fi
+          npx tsx tools/scripts/compose-release-notes.ts "${ARGS[@]}"
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+import base64
+from pathlib import Path
+data = Path("var/reports/release-notes.md").read_bytes()
+print("notes_b64=" + base64.b64encode(data).decode("utf-8"))
+PY
       - name: Package action directory
         run: |
           set -euo pipefail
@@ -219,15 +243,18 @@ jobs:
         run: |
           set -euo pipefail
           TAG="${{ steps.metadata.outputs.action_tag }}"
-          GENERATE_NOTES="${{ steps.metadata.outputs.generate_notes }}"
           PRERELEASE="${{ steps.metadata.outputs.is_prerelease }}"
+          NOTES_FILE="var/reports/release-notes.md"
+          if [ ! -s "$NOTES_FILE" ]; then
+            echo "Release notes file not found at $NOTES_FILE" >&2
+            exit 1
+          fi
           ARGS=(
             "$TAG"
             "proxmox-openapi-action.zip"
+            "--notes-file"
+            "$NOTES_FILE"
           )
-          if [ "$GENERATE_NOTES" = "true" ]; then
-            ARGS+=("--generate-notes")
-          fi
           if [ "$PRERELEASE" = "true" ]; then
             ARGS+=("--prerelease")
           fi
@@ -293,11 +320,28 @@ jobs:
           zip -j proxmox-openapi-schema.zip \
             var/openapi/proxmox-ve.json \
             var/openapi/proxmox-ve.yaml
+      - name: Restore release notes
+        env:
+          NOTES_B64: ${{ needs.release_action.outputs.release_notes_b64 }}
+        run: |
+          set -euo pipefail
+          if [ -z "$NOTES_B64" ]; then
+            echo "Missing release notes from action job." >&2
+            exit 1
+          fi
+          python - <<'PY'
+import base64
+import os
+from pathlib import Path
+notes_b64 = os.environ.get('NOTES_B64', '')
+output_path = Path('var/reports/release-notes.md')
+output_path.parent.mkdir(parents=True, exist_ok=True)
+output_path.write_bytes(base64.b64decode(notes_b64))
+PY
       - name: Create schema release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_VERSION: ${{ needs.release_action.outputs.release_version }}
-          GENERATE_NOTES: ${{ needs.release_action.outputs.generate_notes }}
           PRERELEASE: ${{ needs.release_action.outputs.is_prerelease }}
           PVE_VERSION: ${{ steps.pve.outputs.version }}
           PVE_UPDATED_AT: ${{ steps.pve.outputs.updated_at }}
@@ -315,10 +359,9 @@ jobs:
             "$SCHEMA_TAG"
             "proxmox-openapi-schema.zip"
             "pve-metadata.json"
+            "--notes-file"
+            "var/reports/release-notes.md"
           )
-          if [ "$GENERATE_NOTES" = "true" ]; then
-            ARGS+=("--generate-notes")
-          fi
           if [ "$PRERELEASE" = "true" ]; then
             ARGS+=("--prerelease")
           fi
