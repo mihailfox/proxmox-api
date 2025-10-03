@@ -20,7 +20,7 @@ Perform the following validations whenever baselines are intentionally regenerat
 - [ ] **Playwright scrape spot check**: Run `npm run scraper:scrape` (with a clean cache) and confirm the resulting snapshot captures representative endpoints (e.g., `/nodes`, `/access`, `/cluster`).
 - [ ] **OpenAPI validator**: Execute `npm run openapi:validate` and confirm no schema warnings are reported.
 - [ ] **IR sampling**: Inspect a handful of normalized endpoints in `tools/api-normalizer/data/ir/proxmox-api-ir.json` to confirm security metadata and schema flags were preserved.
-- [ ] **Documentation sync**: Ensure the GitHub release assets include the refreshed `proxmox-ve.json` (and optional YAML) so downstream consumers receive the latest schema, and update references if version numbers change. Attach the pipeline summary JSON when available to capture source paths and cache usage.
+- [ ] **Documentation sync**: Ensure the GitHub release assets include the refreshed `proxmox-ve.json` (and optional YAML) so downstream consumers receive the latest schema, and update references if version numbers change. Attach `var/reports/automation-summary.json` (or the exported workflow artifact) and paste the generated Markdown snippet into the "Automation summary" section of the task changelog.
 
 ## Escalation guidance
 
