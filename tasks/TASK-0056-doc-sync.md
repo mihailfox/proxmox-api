@@ -23,12 +23,12 @@ Preconditions
 - Install dependencies if adding tests.
 
 Plan checklist
-- [ ] Evaluate the effort to add a minimal regression test; capture the decision (implement or document) within this task file.
-- [ ] Update README.md Tooling layout entry to match the chosen approach.
-- [ ] If tests are added, implement them under tools/api-scraper/tests/ and update docs accordingly.
-- [ ] Revise docs/automation/private-action-task-review.md to note that the release workflow now runs `npm ci` before packaging and adjust downstream recommendations.
-- [ ] Run lint/test suites for any new code (if applicable) and spellcheck/format docs as needed.
-- [ ] Produce a versions/ changelog entry summarising decisions and outcomes.
+- [x] Evaluate the effort to add a minimal regression test; document the decision to defer additional Playwright coverage and describe current tests in README.md.
+- [x] Update README.md Tooling layout entry to match the chosen approach.
+- [ ] (defer) Additional regression tests not introduced in this iteration; documented current coverage instead.
+- [x] Revise docs/automation/private-action-task-review.md to note that the release workflow now runs `npm ci` before packaging and adjust downstream recommendations.
+- [x] Run lint/test suites for any new code (if applicable) and spellcheck/format docs as needed.
+- [x] Produce a versions/ changelog entry summarising decisions and outcomes.
 
 Acceptance criteria
 - Documentation accurately states the current scraper test coverage and clearly indicates any follow-up work (if regression tests remain deferred).

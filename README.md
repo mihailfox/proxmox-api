@@ -45,7 +45,7 @@ manual QA, release planning, and troubleshooting.
 
 - `tools/api-scraper/` contains the Playwright-based scraping toolkit.
   - `playwright.config.ts` defines the Playwright test runner configuration.
-  - `tests/` holds smoke and regression tests for the scraper.
+  - `tests/` currently includes the end-to-end smoke spec and a CLI option parser check; deeper regression coverage is deferred.
   - `src/cli.ts` provides the `npm run scraper:scrape` entry point.
 - `tools/api-normalizer/` houses the IR builder that transforms raw snapshots into a deterministic
   intermediate representation consumed by the generator.
