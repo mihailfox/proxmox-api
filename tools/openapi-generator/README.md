@@ -15,7 +15,9 @@ produced by the normalizer and emits deterministic JSON and YAML documents in
    npm run openapi:generate
    ```
 
-   Use `-- --input <path>` or `-- --output <dir>` to override paths.
+   Use `-- --input <path>` or `-- --output <dir>` to override paths. Combine with
+   `-- --basename <name>` to change the filename prefix or `-- --format json,yaml`
+   to restrict the generated artifacts.
 3. Validate the generated specification:
 
    ```bash

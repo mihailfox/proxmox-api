@@ -47,6 +47,20 @@ setups where the runner lacks cached browsers. The action installs its
 dependencies on demand and executes the TypeScript entrypoint with `tsx`, so
 downstream workflows do not need to manage a prebuilt `dist/` directory.
 
+### Key inputs
+
+- `install-command` (default `npm ci`) — customize dependency installation when
+  the repository uses workspaces or alternative package managers.
+- `working-directory` — set to the subdirectory containing `package.json` if the
+  repo embeds the automation toolkit in a monorepo.
+- `fallback-to-cache` / `offline` — mirror the CLI flags to control cache reuse
+  when the upstream viewer is unavailable.
+- `report-path` — persist the pipeline summary JSON in a known location (attach
+  to releases or cache for later diagnostics).
+- `openapi-dir`, `raw-snapshot-path`, `ir-output-path`, and `openapi-basename`
+  — override artifact locations when the repository layout differs from the
+  default checkout structure.
+
 ## 3. Sandbox validation checklist
 
 - [ ] Run the workflow in a clean repository fork using the CI mode to confirm
@@ -54,7 +68,8 @@ downstream workflows do not need to manage a prebuilt `dist/` directory.
 - [ ] Trigger the workflow with `mode: full` and `install-playwright-browsers:
       true` to ensure live scraping succeeds in the sandbox environment.
 - [ ] Upload the generated artifacts and inspect them manually to verify parity
-      with canonical outputs from this repository.
+      with canonical outputs from this repository. Include the action's
+      `summary-path` output alongside the artifacts for auditing.
 
 ## 4. Troubleshooting
 
