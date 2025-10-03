@@ -215,12 +215,10 @@ jobs:
             ARGS+=("--base-ref=$PREVIOUS_TAG")
           fi
           npx tsx tools/scripts/compose-release-notes.ts "${ARGS[@]}"
-          python - <<'PY' >> "$GITHUB_OUTPUT"
-import base64
-from pathlib import Path
-data = Path("var/reports/release-notes.md").read_bytes()
-print("notes_b64=" + base64.b64encode(data).decode("utf-8"))
-PY
+          python tools/scripts/base64_encode_file.py \
+            --input var/reports/release-notes.md \
+            --key notes_b64 \
+            --output "$GITHUB_OUTPUT"
       - name: Package action directory
         run: |
           set -euo pipefail
@@ -329,15 +327,9 @@ PY
             echo "Missing release notes from action job." >&2
             exit 1
           fi
-          python - <<'PY'
-import base64
-import os
-from pathlib import Path
-notes_b64 = os.environ.get('NOTES_B64', '')
-output_path = Path('var/reports/release-notes.md')
-output_path.parent.mkdir(parents=True, exist_ok=True)
-output_path.write_bytes(base64.b64decode(notes_b64))
-PY
+          python tools/scripts/base64_decode_to_file.py \
+            --env NOTES_B64 \
+            --output var/reports/release-notes.md
       - name: Create schema release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
