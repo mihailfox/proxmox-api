@@ -57,30 +57,7 @@ jobs:
         id: metadata
         run: |
           set -euo pipefail
-          python - <<'PY' > pve-metadata.json
-import json
-import re
-import urllib.request
-
-URL = "https://pve.proxmox.com/pve-docs/"
-data = {}
-try:
-    with urllib.request.urlopen(URL, timeout=30) as response:
-        html = response.read().decode("utf-8", "replace")
-except Exception as exc:  # pragma: no cover - diagnostic path
-    data["error"] = str(exc)
-else:
-    text = re.sub(r"<[^>]+>", " ", html)
-    text = text.replace("&nbsp;", " ")
-    text = " ".join(text.split())
-    version_match = re.search(r"Version\s+([0-9]+(?:\.[0-9]+)*)", text)
-    if version_match:
-        data["version"] = version_match.group(1)
-    updated_match = re.search(r"Last updated\s+([A-Za-z]{3}\s+[A-Za-z]{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2}\s+\S+\s+\d{4})", text)
-    if updated_match:
-        data["updated_at"] = " ".join(updated_match.group(1).split())
-print(json.dumps(data))
-PY
+          python tools/scripts/fetch_pve_docs_metadata.py --output pve-metadata.json
           cat pve-metadata.json
           VERSION="$(jq -r '.version // empty' pve-metadata.json)"
           UPDATED="$(jq -r '.updated_at // empty' pve-metadata.json)"
@@ -189,18 +166,7 @@ PY
             if [ -z "$LAST_TAG" ]; then
               RELEASE_VERSION="v0.1.0"
             else
-              RELEASE_VERSION="$(LAST_TAG="$LAST_TAG" python - <<'PY'
-import os
-import re
-tag = os.environ.get("LAST_TAG", "").strip()
-match = re.fullmatch(r"v(\d+)\.(\d+)\.(\d+)", tag)
-if not match:
-    raise SystemExit(f"Unsupported existing tag format: {tag!r}")
-major, minor, patch = map(int, match.groups())
-patch += 1
-print(f"v{major}.{minor}.{patch}")
-PY
-)"
+              RELEASE_VERSION="$(python tools/scripts/compute_next_version.py --last-tag "$LAST_TAG")"
             fi
             ACTION_TAG="$RELEASE_VERSION"
           fi
@@ -298,30 +264,7 @@ PY
           if [ -n "$PVE_METADATA" ] && [ "$PVE_METADATA" != "null" ]; then
             printf '%s' "$PVE_METADATA" | jq . > pve-metadata.json
           else
-            python - <<'PY' > pve-metadata.json
-import json
-import re
-import urllib.request
-
-URL = "https://pve.proxmox.com/pve-docs/"
-data = {}
-try:
-    with urllib.request.urlopen(URL, timeout=30) as response:
-        html = response.read().decode("utf-8", "replace")
-except Exception as exc:  # pragma: no cover - diagnostic path
-    data["error"] = str(exc)
-else:
-    text = re.sub(r"<[^>]+>", " ", html)
-    text = text.replace("&nbsp;", " ")
-    text = " ".join(text.split())
-    version_match = re.search(r"Version\s+([0-9]+(?:\.[0-9]+)*)", text)
-    if version_match:
-        data["version"] = version_match.group(1)
-    updated_match = re.search(r"Last updated\s+([A-Za-z]{3}\s+[A-Za-z]{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2}\s+\S+\s+\d{4})", text)
-    if updated_match:
-        data["updated_at"] = " ".join(updated_match.group(1).split())
-print(json.dumps(data))
-PY
+            python tools/scripts/fetch_pve_docs_metadata.py --output pve-metadata.json
           fi
           cat pve-metadata.json
           VERSION="$(jq -r '.version // empty' pve-metadata.json)"
