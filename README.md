@@ -31,8 +31,7 @@ This repository contains tooling to scrape the [Proxmox VE API viewer](https://p
 
    - `-- --offline` to skip the live scrape and reuse the cached snapshot when reviewing historical
      artifacts.
-   - `-- --fallback-to-cache=false` to surface scrape failures immediately in full mode instead of
-     silently reusing the cache.
+   - `-- --fallback-to-cache=false` (or `-- --no-fallback-to-cache`) to surface scrape failures immediately in full mode instead of silently reusing the cache.
    - `-- --report <path>` to persist a JSON summary describing the raw snapshot, IR, OpenAPI outputs,
      and cache usage.
 

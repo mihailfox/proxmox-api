@@ -21,8 +21,8 @@ step.
   - `-- --openapi-dir <dir>` — redirect generated OpenAPI files (default `var/openapi/`).
   - `-- --basename <name>` — adjust the OpenAPI filename prefix.
   - `-- --offline` — skip the live scrape and reuse the cached snapshot.
-  - `-- --fallback-to-cache=false` — propagate scrape failures instead of silently reusing the cache
-    (helpful when diagnosing upstream outages).
+  - `-- --fallback-to-cache=false` (or `-- --no-fallback-to-cache`) — propagate scrape failures instead
+    of silently reusing the cache (helpful when diagnosing upstream outages).
   - `-- --report <path>` — write a JSON summary describing inputs, outputs, and cache usage for
     downstream automations.
 

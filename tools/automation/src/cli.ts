@@ -5,13 +5,18 @@ import {
   runAutomationPipeline,
   type AutomationPipelineRunOptions
 } from './pipeline.js';
+import { normalizeBooleanFlagArguments } from './cli-arg-utils.js';
 
-function parseCliOptions(): AutomationPipelineRunOptions {
+function parseCliOptions(argv: readonly string[] = process.argv.slice(2)): AutomationPipelineRunOptions {
+  const { argv: sanitizedArgv, value: fallbackValue } = normalizeBooleanFlagArguments(
+    argv,
+    'fallback-to-cache'
+  );
   const { values } = parseArgs({
+    args: Array.from(sanitizedArgv),
     options: {
       mode: { type: 'string', short: 'm' },
       offline: { type: 'boolean' },
-      'fallback-to-cache': { type: 'boolean' },
       'base-url': { type: 'string' },
       'raw-output': { type: 'string' },
       'ir-output': { type: 'string' },
@@ -24,8 +29,8 @@ function parseCliOptions(): AutomationPipelineRunOptions {
 
   return {
     mode: values.mode === 'full' ? 'full' : 'ci',
-    offline: values.offline === true,
-    fallbackToCache: values['fallback-to-cache'] === true,
+    offline: typeof values.offline === 'boolean' ? values.offline : undefined,
+    fallbackToCache: fallbackValue,
     baseUrl: values['base-url'],
     rawSnapshotPath: values['raw-output'],
     irOutputPath: values['ir-output'],
@@ -44,3 +49,5 @@ void main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
+
+export { parseCliOptions };
