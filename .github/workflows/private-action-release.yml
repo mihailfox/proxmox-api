@@ -41,20 +41,89 @@ jobs:
         run: npm run action:install
       - name: Lint and typecheck action workspace
         run: npm run action:package
+  release_guard:
+    name: Evaluate release trigger
+    runs-on: ubuntu-latest
+    outputs:
+      should_release: ${{ steps.decision.outputs.should_release }}
+      pve_version: ${{ steps.metadata.outputs.version }}
+      pve_updated_at: ${{ steps.metadata.outputs.updated_at }}
+      pve_metadata: ${{ steps.metadata.outputs.metadata }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Discover Proxmox docs metadata
+        id: metadata
+        run: |
+          set -euo pipefail
+          python tools/scripts/fetch_pve_docs_metadata.py --output pve-metadata.json
+          cat pve-metadata.json
+          VERSION="$(jq -r '.version // empty' pve-metadata.json)"
+          UPDATED="$(jq -r '.updated_at // empty' pve-metadata.json)"
+          ERROR_MESSAGE="$(jq -r '.error // empty' pve-metadata.json)"
+          if [ -z "$VERSION" ]; then
+            VERSION="unknown"
+          fi
+          if [ -z "$UPDATED" ]; then
+            UPDATED="unknown"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "updated_at=$UPDATED" >> "$GITHUB_OUTPUT"
+          echo "metadata=$(jq -c '.' pve-metadata.json)" >> "$GITHUB_OUTPUT"
+          {
+            echo "## Proxmox docs metadata"
+            echo "- Version: $VERSION"
+            echo "- Last updated: $UPDATED"
+            if [ -n "$ERROR_MESSAGE" ]; then
+              echo "- Fetch error: $ERROR_MESSAGE"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Evaluate release guard
+        id: decision
+        run: |
+          set -euo pipefail
+          SHOULD_RELEASE="true"
+          EVENT_NAME="$GITHUB_EVENT_NAME"
+          PVE_VERSION="${{ steps.metadata.outputs.version }}"
+          if [ "$PVE_VERSION" = "" ] || [ "$PVE_VERSION" = "unknown" ]; then
+            PVE_VERSION=""
+          fi
+          if [ "$EVENT_NAME" = "push" ] && [ -n "$PVE_VERSION" ]; then
+            git fetch --tags --force >/dev/null 2>&1 || true
+            if git tag --list "schema-*-pve-$PVE_VERSION" | grep -q .; then
+              SHOULD_RELEASE="false"
+              {
+                echo "## Release guard"
+                echo "- Skipping release: schema tag for PVE version $PVE_VERSION already exists."
+              } >> "$GITHUB_STEP_SUMMARY"
+            fi
+          fi
+          if [ "$SHOULD_RELEASE" = "true" ]; then
+            {
+              echo "## Release guard"
+              echo "- Proceeding with release automation."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo "should_release=$SHOULD_RELEASE" >> "$GITHUB_OUTPUT"
   release_action:
     name: Publish action release
-    needs: validate
-    if: ${{ success() }}
+    needs:
+      - validate
+      - release_guard
+    if: ${{ needs.validate.result == 'success' && needs.release_guard.outputs.should_release == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
     outputs:
       action_tag: ${{ steps.metadata.outputs.action_tag }}
-      schema_tag: ${{ steps.metadata.outputs.schema_tag }}
+      release_version: ${{ steps.metadata.outputs.release_version }}
       generate_notes: ${{ steps.metadata.outputs.generate_notes }}
       is_prerelease: ${{ steps.metadata.outputs.is_prerelease }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -74,20 +143,71 @@ jobs:
             REQUESTED_VERSION="$(jq -r '.inputs.version // ""' "$GITHUB_EVENT_PATH")"
             GENERATE_NOTES="$(jq -r '.inputs["generate-notes"] // "true"' "$GITHUB_EVENT_PATH")"
           fi
+
+          normalize_version() {
+            local raw="$1"
+            if [[ "$raw" =~ ^v[0-9]+\.[0-9]+\.[0-9A-Za-z.+-]+$ ]]; then
+              echo "$raw"
+              return 0
+            fi
+            echo "Error: version '$raw' must start with 'v' and follow semantic versioning (e.g., v0.3.1)." >&2
+            return 1
+          }
+
+          LAST_TAG=""
+          SOURCE_MODE="automatic"
+
           if [ -n "$REQUESTED_VERSION" ]; then
-            ACTION_TAG="$REQUESTED_VERSION"
-            SCHEMA_TAG="schema-$REQUESTED_VERSION"
-            IS_PRERELEASE="false"
+            RELEASE_VERSION="$(normalize_version "$REQUESTED_VERSION")"
+            ACTION_TAG="$RELEASE_VERSION"
+            SOURCE_MODE="manual"
           else
-            SHORT="${GITHUB_SHA::7}"
-            ACTION_TAG="action-$SHORT"
-            SCHEMA_TAG="schema-$SHORT"
-            IS_PRERELEASE="true"
+            LAST_TAG="$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-version:refname | head -n1)"
+            if [ -z "$LAST_TAG" ]; then
+              RELEASE_VERSION="v0.1.0"
+            else
+              RELEASE_VERSION="$(LAST_TAG="$LAST_TAG" python - <<'PY'
+import os
+import re
+tag = os.environ.get("LAST_TAG", "").strip()
+match = re.fullmatch(r"v(\d+)\.(\d+)\.(\d+)", tag)
+if not match:
+    raise SystemExit(f"Unsupported existing tag format: {tag!r}")
+major, minor, patch = map(int, match.groups())
+patch += 1
+print(f"v{major}.{minor}.{patch}")
+PY
+)"
+            fi
+            ACTION_TAG="$RELEASE_VERSION"
           fi
+
+          if git rev-parse "$ACTION_TAG" >/dev/null 2>&1; then
+            echo "Release tag '$ACTION_TAG' already exists. Specify a new version." >&2
+            exit 1
+          fi
+
+          if [[ "$ACTION_TAG" == *-* ]]; then
+            IS_PRERELEASE="true"
+          else
+            IS_PRERELEASE="false"
+          fi
+
           echo "action_tag=$ACTION_TAG" >> "$GITHUB_OUTPUT"
-          echo "schema_tag=$SCHEMA_TAG" >> "$GITHUB_OUTPUT"
+          echo "release_version=$ACTION_TAG" >> "$GITHUB_OUTPUT"
           echo "generate_notes=$GENERATE_NOTES" >> "$GITHUB_OUTPUT"
           echo "is_prerelease=$IS_PRERELEASE" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "## Release metadata"
+            echo "- Selected tag: $ACTION_TAG"
+            if [ -n "$LAST_TAG" ]; then
+              echo "- Previous stable tag: $LAST_TAG"
+            fi
+            echo "- Mode: $SOURCE_MODE"
+            echo "- Generate notes: $GENERATE_NOTES"
+            echo "- Prerelease: $IS_PRERELEASE"
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Package action directory
         run: |
           set -euo pipefail
@@ -129,7 +249,8 @@ jobs:
     needs:
       - validate
       - release_action
-    if: ${{ success() }}
+      - release_guard
+    if: ${{ needs.release_action.result == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -145,6 +266,37 @@ jobs:
         run: npm ci
       - name: Generate OpenAPI artifacts
         run: npm run automation:pipeline -- --mode=ci --report var/automation-summary.json
+      - name: Prepare Proxmox docs metadata
+        id: pve
+        env:
+          PVE_METADATA: ${{ needs.release_guard.outputs.pve_metadata }}
+        run: |
+          set -euo pipefail
+          if [ -n "$PVE_METADATA" ] && [ "$PVE_METADATA" != "null" ]; then
+            printf '%s' "$PVE_METADATA" | jq . > pve-metadata.json
+          else
+            python tools/scripts/fetch_pve_docs_metadata.py --output pve-metadata.json
+          fi
+          cat pve-metadata.json
+          VERSION="$(jq -r '.version // empty' pve-metadata.json)"
+          UPDATED="$(jq -r '.updated_at // empty' pve-metadata.json)"
+          ERROR_MESSAGE="$(jq -r '.error // empty' pve-metadata.json)"
+          if [ -z "$VERSION" ]; then
+            VERSION="unknown"
+          fi
+          if [ -z "$UPDATED" ]; then
+            UPDATED="unknown"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "updated_at=$UPDATED" >> "$GITHUB_OUTPUT"
+          {
+            echo "## Proxmox docs metadata"
+            echo "- Version: $VERSION"
+            echo "- Last updated: $UPDATED"
+            if [ -n "$ERROR_MESSAGE" ]; then
+              echo "- Fetch error: $ERROR_MESSAGE"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Package schema artifacts
         run: |
           set -euo pipefail
@@ -155,14 +307,25 @@ jobs:
       - name: Create schema release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_VERSION: ${{ needs.release_action.outputs.release_version }}
+          GENERATE_NOTES: ${{ needs.release_action.outputs.generate_notes }}
+          PRERELEASE: ${{ needs.release_action.outputs.is_prerelease }}
+          PVE_VERSION: ${{ steps.pve.outputs.version }}
+          PVE_UPDATED_AT: ${{ steps.pve.outputs.updated_at }}
         run: |
           set -euo pipefail
-          TAG="${{ needs.release_action.outputs.schema_tag }}"
-          GENERATE_NOTES="${{ needs.release_action.outputs.generate_notes }}"
-          PRERELEASE="${{ needs.release_action.outputs.is_prerelease }}"
+          if [ -z "$RELEASE_VERSION" ]; then
+            echo "Missing release version from action job." >&2
+            exit 1
+          fi
+          SCHEMA_TAG="schema-$RELEASE_VERSION"
+          if [ -n "$PVE_VERSION" ] && [ "$PVE_VERSION" != "unknown" ]; then
+            SCHEMA_TAG+="-pve-$PVE_VERSION"
+          fi
           ARGS=(
-            "$TAG"
+            "$SCHEMA_TAG"
             "proxmox-openapi-schema.zip"
+            "pve-metadata.json"
           )
           if [ "$GENERATE_NOTES" = "true" ]; then
             ARGS+=("--generate-notes")

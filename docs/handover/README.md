@@ -137,7 +137,10 @@ Follow this cadence before merging or releasing updated artifacts:
 3. **Update documentation**: Note the Proxmox API viewer date/build in commit messages or release
    notes if exposed by the upstream source.
 4. **Tag consumer-facing releases**: When publishing downstream packages or specs, follow semantic
-   versioning aligned with upstream Proxmox releases (e.g., `v8.3.0-openapi.1`).
+   versioning aligned with upstream Proxmox releases (e.g., `v8.3.0-openapi.1`). The
+   `private-action-release` workflow automatically increments the patch component when no explicit
+   version is supplied; provide the `version` input on manual runs to override the computed tag or to
+   cut prereleases (for example `v9.0.0-rc.1`).
 5. **Changelog capture**: Record the pipeline commands executed, validation results, and manual
    verification outcomes in the task-specific changelog under `versions/`.
 6. **QA sign-off**: Ensure the regression checklist items are checked (or deferred with rationale) in
@@ -146,19 +149,19 @@ Follow this cadence before merging or releasing updated artifacts:
 ### 6.1 Private GitHub Action releases
 
 - Trigger the `private-action-release` workflow via the GitHub UI when the action or automation
-  tooling changes. Provide a semantic tag (for example `v0.3.0`) to create a stable release; omit the
-  tag for prerelease builds tied to the current commit SHA.
-- The workflow validates linting/builds and now publishes two releases from separate jobs:
+  tooling changes. Provide a semantic tag (for example `v0.3.0`) to force a specific release number;
+  omit the input to let the workflow bump the previous `vX.Y.Z` tag automatically.
+- The workflow validates linting/builds and publishes two releases from separate jobs:
   - `release_action` packages the TypeScript action workspace (`action.yml`, `src/`, `tsconfig.json`,
-    `package.json`, `package-lock.json`) and creates the GitHub release tag (`v0.x.y` or the auto-generated
-    `action-<sha>` when no tag is provided) with the `proxmox-openapi-action.zip` asset.
-  - `release_schema` regenerates the OpenAPI artifacts in CI mode and publishes a companion release
-    tagged `schema-<version>` (or `schema-<sha>` for prereleases) containing a `proxmox-openapi-schema.zip`
-    archive with the JSON and YAML specs for consumers focused on the schema alone.
+    `package.json`, `package-lock.json`) and tags the release with the resolved semantic version.
+  - `release_schema` regenerates the OpenAPI artifacts in CI mode, detects the upstream Proxmox docs
+    version from `https://pve.proxmox.com/pve-docs/`, and publishes a companion release tagged
+    `schema-<version>-pve-<docsVersion>`. The job uploads both the zipped OpenAPI artifacts and a
+    `pve-metadata.json` file capturing the upstream version and "Last updated" timestamp so consumers can
+    audit the source state.
   The action archive ships the TypeScript sources and lockfile so runners install dependencies on demand
   before executing `src/main.ts` with `tsx`.
-- Downstream repositories can pin to specific tags or prereleases depending on stability
-  requirements.
+- Downstream repositories can pin to specific tags or prereleases depending on stability requirements.
 
 ## 7. Troubleshooting guide
 
