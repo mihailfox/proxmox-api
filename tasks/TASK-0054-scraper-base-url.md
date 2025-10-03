@@ -25,12 +25,12 @@ Preconditions
 - Ensure Playwright browsers are provisioned if running smoke tests (`npx playwright install --with-deps`).
 
 Plan checklist
-- [ ] Audit CLI usage in tooling and automation scripts to confirm expectation alignment.
-- [ ] Implement environment + flag support for base URL resolution (with sensible precedence).
-- [ ] Extend tests (unit or integration) covering CLI option parsing and propagation.
-- [ ] Update README.md, docs/handover/README.md, and tools/api-scraper/README.md with accurate override instructions.
-- [ ] Run lint, build, and affected test suites (Playwright smoke if feasible) before submission.
-- [ ] Prepare PR with Conventional Commit message and link back to this task; document results in versions/ changelog entry.
+- [x] Audit CLI usage in tooling and automation scripts to confirm expectation alignment.
+- [x] Implement environment + flag support for base URL resolution (with sensible precedence).
+- [x] Extend tests (unit or integration) covering CLI option parsing and propagation.
+- [x] Update README.md, docs/handover/README.md, and tools/api-scraper/README.md with accurate override instructions.
+- [x] Run lint, build, and affected test suites (Playwright smoke if feasible) before submission.
+- [x] Prepare PR with Conventional Commit message and link back to this task; document results in versions/ changelog entry.
 
 Acceptance criteria
 - Running `npm run scraper:scrape` honours `SCRAPER_BASE_URL` without code edits.

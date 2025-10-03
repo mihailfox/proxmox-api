@@ -36,7 +36,8 @@ This repository contains tooling to scrape the [Proxmox VE API viewer](https://p
    - `-- --report <path>` to persist a JSON summary describing the raw snapshot, IR, OpenAPI outputs,
      and cache usage.
 
-   Set `SCRAPER_BASE_URL` when targeting a staging API viewer.
+   Target alternate viewers by setting `SCRAPER_BASE_URL` or passing
+   `-- --base-url=<https://staging.example/...>` to `npm run scraper:scrape`.
 
 Refer to the [handover guide](docs/handover/README.md) for deeper documentation covering setup,
 manual QA, release planning, and troubleshooting.
