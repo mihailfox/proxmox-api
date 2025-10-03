@@ -166,18 +166,7 @@ jobs:
             if [ -z "$LAST_TAG" ]; then
               RELEASE_VERSION="v0.1.0"
             else
-              RELEASE_VERSION="$(LAST_TAG="$LAST_TAG" python - <<'PY'
-import os
-import re
-tag = os.environ.get("LAST_TAG", "").strip()
-match = re.fullmatch(r"v(\d+)\.(\d+)\.(\d+)", tag)
-if not match:
-    raise SystemExit(f"Unsupported existing tag format: {tag!r}")
-major, minor, patch = map(int, match.groups())
-patch += 1
-print(f"v{major}.{minor}.{patch}")
-PY
-)"
+              RELEASE_VERSION="$(python tools/scripts/compute_next_version.py --last-tag "$LAST_TAG")"
             fi
             ACTION_TAG="$RELEASE_VERSION"
           fi
