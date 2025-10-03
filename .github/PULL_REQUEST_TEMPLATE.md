@@ -16,6 +16,7 @@
 - [ ] Tests, lint, build passed
 - [ ] QA completed for key flows
 - [ ] Changelog created
+- [ ] Automation summary captured and referenced (if pipeline artifacts changed)
 - [ ] Deferrals documented if any
 
 ## Notes
