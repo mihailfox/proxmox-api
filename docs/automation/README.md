@@ -55,6 +55,9 @@ step.
 - Run `npm run automation:summary -- --input var/reports/automation-summary.json`
   to convert the JSON payload into the Markdown block required for `versions/`
   changelog entries and release notes.
+- Preview the aggregated release notes with `npm run release:notes` and optional
+  `-- --items TASK-0050,ISSUE-0002` arguments to ensure the `versions/`
+  summaries render as expected before cutting a release.
 - The reusable `runAutomationPipeline` helper (exported from
   `tools/automation/src/pipeline.ts`) powers both the CLI and the private GitHub
   Action, ensuring all execution paths share the same option resolution and QA

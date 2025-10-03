@@ -158,7 +158,15 @@ Follow this cadence before merging or releasing updated artifacts:
 
 - Trigger the `private-action-release` workflow via the GitHub UI when the action or automation
   tooling changes. Provide a semantic tag (for example `v0.3.0`) to force a specific release number;
-  omit the input to let the workflow bump the previous `vX.Y.Z` tag automatically.
+  omit the input to let the workflow bump the previous `vX.Y.Z` tag automatically. Supply the
+  optional **Release items** field (comma or semicolon delimited, e.g. `TASK-0050;ISSUE-0002`) to
+  explicitly control which `versions/CHANGELOG-*` entries appear in the GitHub release body when
+  running the workflow manually.
+- The workflow assembles the "Summary" sections from the resolved changelog entries and publishes
+  them as the only release body content (replacing GitHub's default "What's changed"/"Full
+  Changelog" blocks). When no release items are supplied—such as the automatic `push` trigger on
+  `main` or future `release/` branches—the helper selects every `versions/CHANGELOG-*` file touched
+  since the previous semantic tag so release notes stay aligned with the shipped commits.
 - The workflow validates linting/builds and publishes two releases from separate jobs:
   - `release_action` packages the TypeScript action workspace (`action.yml`, `src/`, `tsconfig.json`,
     `package.json`, `package-lock.json`) and tags the release with the resolved semantic version.
