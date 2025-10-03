@@ -26,4 +26,4 @@ Perform the following validations whenever baselines are intentionally regenerat
 
 - Unexpected checksum failures usually indicate upstream documentation changes. Review the automation pipeline logs for failing artifacts and regenerate baselines only after manual confirmation.
 - If the OpenAPI validator fails, prioritize resolving structural issues in the generator before updating baselines.
-- Record investigation details and outcomes in the task-specific changelog (`versions/CHANGELOG-TASK-0007-*.md`).
+- Record investigation details and outcomes in the task-specific changelog under `versions/`.

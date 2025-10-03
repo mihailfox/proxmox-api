@@ -54,7 +54,11 @@ manual QA, release planning, and troubleshooting.
   `npm run automation:pipeline` CLI plus regression logging helpers.
 - `tools/shared/` and `tools/analysis/` host cross-cutting utilities (path resolution, regression
   summaries) and research scripts for parity validation against upstream Perl modules.
+- `tools/scripts/` provides supporting automation (for example, release version bumps and Proxmox
+  metadata fetchers) consumed by GitHub workflows.
 - `tests/regression/` implements checksum and parity assertions for generated artifacts.
+- `.github/actions/proxmox-openapi-artifacts/` contains the private TypeScript action that wraps the
+  automation pipeline for downstream repositories.
 - `app/` contains a Remix + Vite sandbox for rapid UI prototyping and component experimentation.
   - `npm run ui:dev` starts the Remix-enhanced Vite development server.
   - `npm run ui:build` compiles the Remix client and server bundles into `build/`.
