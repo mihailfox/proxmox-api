@@ -15,11 +15,16 @@ step.
     viewer. Use this when you need to update the committed artifacts after the
     upstream documentation changes.
 - Additional options:
-  - `-- --base-url <url>` — target an alternate API viewer instance.
+  - `-- --base-url <url>` — target an alternate API viewer instance (or set `SCRAPER_BASE_URL`).
   - `-- --raw-output <path>` — override the persisted raw snapshot location.
   - `-- --ir-output <path>` — change the normalized IR output file.
   - `-- --openapi-dir <dir>` — redirect generated OpenAPI files (default `var/openapi/`).
   - `-- --basename <name>` — adjust the OpenAPI filename prefix.
+  - `-- --offline` — skip the live scrape and reuse the cached snapshot.
+  - `-- --fallback-to-cache=false` — propagate scrape failures instead of silently reusing the cache
+    (helpful when diagnosing upstream outages).
+  - `-- --report <path>` — write a JSON summary describing inputs, outputs, and cache usage for
+    downstream automations.
 
 ## Fallback behaviour
 
@@ -33,7 +38,8 @@ step.
 ## Verifying outputs
 
 1. Run `npm run automation:pipeline -- --mode=full` locally to fetch the latest
-   upstream data.
+   upstream data. Include `-- --report var/automation-summary.json` when you need
+   a machine-readable audit trail of the run.
 2. Inspect `tools/api-scraper/data/raw/proxmox-api-schema.json`,
    `tools/api-normalizer/data/ir/proxmox-api-ir.json`, and
    `var/openapi/proxmox-ve.(json|yaml)` for changes.
@@ -42,7 +48,7 @@ step.
 
 ## JSON summaries and automation entry point
 
-- The CLI accepts `--report <path>` to write a JSON summary describing the raw
+- The CLI accepts `-- --report <path>` to write a JSON summary describing the raw
   snapshot, normalized IR, OpenAPI outputs, and cache usage. GitHub Actions and
   other automations consume this file to surface artifact paths as workflow
   outputs.

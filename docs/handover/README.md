@@ -68,8 +68,7 @@ npm run scraper:scrape
 ```
 
 - Writes a timestamped snapshot under `tools/api-scraper/data/raw/`.
-- Use the `SCRAPER_BASE_URL` environment variable or the `-- --base-url <url>` flag to target a
-  staging or air-gapped API viewer.
+- Use the `SCRAPER_BASE_URL` environment variable to target a staging or air-gapped API viewer.
 - Logs endpoint counts so you can quickly detect large upstream shifts.
 
 ### 4.2 Normalize scraped data
@@ -101,7 +100,8 @@ npm run automation:pipeline
 ```
 
 - Default **CI mode** (`--mode=ci`) reuses cached artifacts, runs normalization + generation, and
-  validates OpenAPI output with Swagger Parser.
+  validates OpenAPI output with Swagger Parser. CI mode automatically sets `--offline` and
+  `--fallback-to-cache` so the pipeline succeeds when the upstream viewer is unreachable.
 - Use **full mode** for release refreshes:
 
   ```bash
@@ -109,10 +109,14 @@ npm run automation:pipeline
   ```
 
   - Forces a fresh Playwright scrape.
-  - Honors additional flags such as `--base-url`, `--raw-output`, `--ir-output`, and
-    `--openapi-dir` for staging scenarios.
-- When `--mode=ci` is combined with flaky connectivity, pass `--fallback-to-cache` (default) to
-  gracefully reuse the last committed snapshot.
+  - Honors additional flags such as `-- --base-url`, `-- --raw-output`, `-- --ir-output`, and
+    `-- --openapi-dir` for staging scenarios.
+  - Toggle `-- --offline` explicitly when you need the full pipeline without hitting the network in
+    full mode (for example, reviewing historic artifacts offline).
+  - Use `-- --fallback-to-cache=false` in full mode to surface scrape failures immediately instead of
+    silently reusing the previous snapshot.
+  - Append `-- --report <path>` to emit a JSON summary documenting input/output paths and cache usage
+    for audit trails or downstream automation.
 - Review the tail of the pipeline log for the regression report summary (checksums, counts, parity).
 - Generated OpenAPI files live in `var/openapi/`. Upload `proxmox-ve.json` (and optional YAML) to the
   GitHub release assets so downstream consumers can download the spec without cloning the repo.
