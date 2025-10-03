@@ -29,7 +29,9 @@
     "test:automation": "vitest run --config tools/automation/vitest.config.ts",
     "test:regression": "vitest run --config tests/regression/vitest.config.ts",
     "action:install": "npm ci --prefix .github/actions/proxmox-openapi-artifacts",
-    "action:package": "npm run lint --prefix .github/actions/proxmox-openapi-artifacts && npm run typecheck --prefix .github/actions/proxmox-openapi-artifacts"
+    "action:package": "npm run lint --prefix .github/actions/proxmox-openapi-artifacts && npm run typecheck --prefix .github/actions/proxmox-openapi-artifacts",
+    "release:notes": "tsx tools/scripts/compose-release-notes.ts",
+    "test:release-notes": "vitest run --config tools/release-notes/vitest.config.ts"
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "^12.0.0",
