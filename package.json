@@ -18,6 +18,7 @@
     "openapi:generate": "tsx tools/openapi-generator/src/cli.ts",
     "openapi:validate": "tsx tools/openapi-generator/src/validate.ts",
     "automation:pipeline": "tsx tools/automation/src/cli.ts",
+    "automation:summary": "tsx tools/automation/scripts/format-summary.ts",
     "build": "tsc --noEmit && tsc --noEmit -p app/tsconfig.json && tsc --noEmit -p tools/automation/tsconfig.json",
     "ui:dev": "remix vite:dev",
     "ui:build": "remix vite:build",
@@ -25,6 +26,7 @@
     "test:ui": "vitest",
     "test:normalizer": "vitest run --config tools/api-normalizer/vitest.config.ts",
     "test:openapi": "vitest run --config tools/openapi-generator/vitest.config.ts",
+    "test:automation": "vitest run --config tools/automation/vitest.config.ts",
     "test:regression": "vitest run --config tests/regression/vitest.config.ts",
     "action:install": "npm ci --prefix .github/actions/proxmox-openapi-artifacts",
     "action:package": "npm run lint --prefix .github/actions/proxmox-openapi-artifacts && npm run typecheck --prefix .github/actions/proxmox-openapi-artifacts"

@@ -115,8 +115,8 @@ npm run automation:pipeline
     full mode (for example, reviewing historic artifacts offline).
   - Use `-- --fallback-to-cache=false` in full mode to surface scrape failures immediately instead of
     silently reusing the previous snapshot.
-  - Append `-- --report <path>` to emit a JSON summary documenting input/output paths and cache usage
-    for audit trails or downstream automation.
+  - Append `-- --report var/reports/automation-summary.json` to emit a JSON summary documenting
+    input/output paths and cache usage for audit trails or downstream automation.
 - Review the tail of the pipeline log for the regression report summary (checksums, counts, parity).
 - Generated OpenAPI files live in `var/openapi/`. Upload `proxmox-ve.json` (and optional YAML) to the
   GitHub release assets so downstream consumers can download the spec without cloning the repo.
@@ -128,8 +128,9 @@ Follow this cadence before merging or releasing updated artifacts:
 1. `npm run lint`
 2. `npm run build`
 3. `npm run test:regression`
-4. `npm run automation:pipeline` (CI mode) or `npm run automation:pipeline -- --mode=full`
-5. Manual checks from the [regression checklist](../qa/regression-checklist.md):
+4. `npm run automation:pipeline` (CI mode) or `npm run automation:pipeline -- --mode=full -- --report var/reports/automation-summary.json`
+5. Generate the Markdown changelog snippet with `npm run automation:summary -- --input var/reports/automation-summary.json` and store the JSON file for release assets.
+6. Manual checks from the [regression checklist](../qa/regression-checklist.md):
    - Visual diff of raw snapshot, IR, and OpenAPI outputs.
    - Spot-check Playwright scrape coverage.
    - Run `npm run openapi:validate` for detailed schema diagnostics when needed.
@@ -146,7 +147,10 @@ Follow this cadence before merging or releasing updated artifacts:
    version is supplied; provide the `version` input on manual runs to override the computed tag or to
    cut prereleases (for example `v9.0.0-rc.1`).
 5. **Changelog capture**: Record the pipeline commands executed, validation results, and manual
-   verification outcomes in the task-specific changelog under `versions/`.
+   verification outcomes in the task-specific changelog under `versions/`, including an "Automation
+   summary" section generated via `npm run automation:summary -- --input var/reports/automation-summary.json`. Start from
+   `versions/CHANGELOG-template.md` and link to the stored JSON summary or uploaded release asset
+   for auditors.
 6. **QA sign-off**: Ensure the regression checklist items are checked (or deferred with rationale) in
    the pull request template before requesting review.
 
