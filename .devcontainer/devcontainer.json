@@ -21,7 +21,8 @@
         "christian-kohler.npm-intellisense",
         "github.vscode-github-actions",
         "donjayamanne.githistory",
-        "biomejs.biome"
+        "biomejs.biome",
+        "redhat.vscode-yaml"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "bash",
