@@ -16,7 +16,7 @@
     --name issue-<number>-<slug> \
     --checkout
   ```
-  The command creates `issue-<number>-<slug>` from `origin/dev`, checks out the new branch locally, pushes it to the remote, and surfaces the association in GitHub’s *Development* panel. Use `gh issue develop <number> --list` if you ever need to confirm the linked branch(es).
+  The command creates `issue-<number>-<slug>` from `origin/dev`, checks out the new branch locally, pushes it to the remote, and surfaces the association in GitHub’s *Development* panel.
 - To manage sub-issues with the CLI, use GraphQL: `gh api graphql -f query='mutation($issue:ID!,$sub:ID!){ addSubIssue(input:{issueId:$issue, subIssueId:$sub}){ clientMutationId } }' -f issue=<parent-id> -f sub=<child-id>`. List children with `gh api graphql -f query='query($owner:String!,$repo:String!,$number:Int!){ repository(owner:$owner,name:$repo){ issue(number:$number){ subIssues(first:50){ nodes{ number title url } } } } }'`.
 - For each branch, open a PR against `dev`, leave a self-review summarizing tests run, and add the PR to the project board. Reference every linked issue in the PR body with `Closes #<number>` (or `Related to #<number>` if it should stay open) so GitHub keeps the issue ↔️ PR graph accurate.
 - Standard merge strategy: `gh pr merge <url> --squash --delete-branch`. Promote `dev` → `main` via a release PR that summarizes the work and test matrix.
