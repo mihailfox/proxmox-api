@@ -3,12 +3,33 @@ set -euo pipefail
 
 BASHRC="$HOME/.bashrc"
 ALIASES="$HOME/.bash_aliases"
+INPUTC="$HOME/.inputrc"
 
+cat <<'EOF' >"$ALIASES"
+alias fd=fdfind
+alias ls="lsd --color auto"
+alias ll="lsd -alF --color auto"
+alias la="lsd -A --color auto"
+alias cat="bat --color always --style plain"
+EOF
+
+cat <<'EOF' >"$INPUTRC"
+$include /etc/inputrc
+
+set blink-matching-paren on
+set colored-completion-prefix on
+set completion-ignore-case on
+set completion-map-case on
+set show-all-if-unmodified on
+set show-all-if-ambiguous on
+TAB: menu-complete
+"\e[Z": menu-complete-backward
+EOF
 
 cat <<'EOF' >"$BASHRC"
 case $- in
-*i*) ;;
-*) return ;;
+    *i*) ;;
+      *) return;;
 esac
 
 HISTCONTROL=ignoreboth
@@ -165,19 +186,11 @@ curl -L --fail --show-error --progress-bar -o /tmp/zoxide.deb \
 
 
 cd "${ROOT_DIR}/.."
-  
+
 npm ci
 
-npx --yes playwright install --only-shell --with-deps chromium 
+npx --yes playwright install --only-shell --with-deps chromium
 
 #npm install --location=global @openai/codex
 
 uv tool install --force specify-cli --from git+https://github.com/github/spec-kit.git
-
-cat <<'EOF' >"$ALIASES"
-alias fd=fdfind
-alias ls="lsd --color auto"
-alias ll="lsd -alF --color auto"
-alias la="lsd -A --color auto"
-alias cat="bat --color always --style plain"
-EOF
