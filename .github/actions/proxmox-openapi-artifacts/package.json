@@ -10,6 +10,7 @@
     "build": "tsup"
   },
   "dependencies": {
+    "@proxmox-api/automation": "file:../../../tools/automation",
     "@actions/core": "^1.11.1",
     "@actions/exec": "^1.1.1"
   },
