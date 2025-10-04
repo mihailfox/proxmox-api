@@ -13,5 +13,11 @@
       "import": "./src/*.ts",
       "types": "./src/*.ts"
     }
+  },
+  "dependencies": {
+    "@proxmox-api/api-normalizer": "0.1.0",
+    "@proxmox-api/api-scraper": "0.1.0",
+    "@proxmox-api/openapi-generator": "0.1.0",
+    "@proxmox-api/shared": "0.1.0"
   }
 }

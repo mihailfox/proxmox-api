@@ -2,7 +2,7 @@ import path from 'node:path';
 import { parseArgs } from 'node:util';
 import SwaggerParser from '@apidevtools/swagger-parser';
 
-import { OPENAPI_JSON_PATH } from '../../shared/paths.ts';
+import { OPENAPI_JSON_PATH } from '@proxmox-api/shared/paths.ts';
 
 async function main(): Promise<void> {
   const { values } = parseArgs({

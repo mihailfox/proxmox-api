@@ -4,8 +4,8 @@ import { parseArgs } from 'node:util';
 import { stringify as stringifyYaml } from 'yaml';
 
 import { generateOpenApiDocument } from './generator.ts';
-import type { NormalizedApiDocument } from '../../api-normalizer/src/types.ts';
-import { OPENAPI_ARTIFACT_DIR, OPENAPI_BASENAME } from '../../shared/paths.ts';
+import type { NormalizedApiDocument } from '@proxmox-api/api-normalizer/types.ts';
+import { OPENAPI_ARTIFACT_DIR, OPENAPI_BASENAME } from '@proxmox-api/shared/paths.ts';
 
 type SupportedFormat = 'json' | 'yaml';
 

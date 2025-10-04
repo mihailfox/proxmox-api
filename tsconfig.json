@@ -9,6 +9,21 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "allowImportingTsExtensions": true,
+    "baseUrl": ".",
+    "paths": {
+      "@proxmox-api/shared": ["tools/shared"],
+      "@proxmox-api/shared/*": ["tools/shared/*"],
+      "@proxmox-api/api-scraper": ["tools/api-scraper"],
+      "@proxmox-api/api-scraper/*": ["tools/api-scraper/src/*"],
+      "@proxmox-api/api-normalizer": ["tools/api-normalizer"],
+      "@proxmox-api/api-normalizer/*": ["tools/api-normalizer/src/*"],
+      "@proxmox-api/openapi-generator": ["tools/openapi-generator"],
+      "@proxmox-api/openapi-generator/*": ["tools/openapi-generator/src/*"],
+      "@proxmox-api/automation": ["tools/automation/src/index.ts"],
+      "@proxmox-api/automation/*": ["tools/automation/src/*"],
+      "@proxmox-api/release-notes": ["tools/release-notes"],
+      "@proxmox-api/release-notes/*": ["tools/release-notes/src/*"]
+    },
     "types": [
       "node",
       "@playwright/test",
@@ -20,6 +35,7 @@
     "tools/api-scraper/**/*.ts",
     "tools/api-normalizer/**/*.ts",
     "tools/openapi-generator/**/*.ts",
+    "tools/automation/**/*.ts",
     "tools/shared/**/*.ts",
     "tools/release-notes/**/*.ts",
     "tools/scripts/**/*.ts"

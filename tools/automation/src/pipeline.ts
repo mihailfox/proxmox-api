@@ -7,13 +7,13 @@ import { stringify as stringifyYaml } from 'yaml';
 import {
   DEFAULT_BASE_URL,
   scrapeApiDocumentation
-} from '../../api-scraper/src/scraper.ts';
-import type { RawApiSnapshot } from '../../api-scraper/src/types.ts';
-import { normalizeSnapshot } from '../../api-normalizer/src/normalizer.ts';
-import type { NormalizedApiDocument } from '../../api-normalizer/src/types.ts';
-import { generateOpenApiDocument } from '../../openapi-generator/src/generator.ts';
+} from '@proxmox-api/api-scraper/scraper.ts';
+import type { RawApiSnapshot } from '@proxmox-api/api-scraper/types.ts';
+import { normalizeSnapshot } from '@proxmox-api/api-normalizer/normalizer.ts';
+import type { NormalizedApiDocument } from '@proxmox-api/api-normalizer/types.ts';
+import { generateOpenApiDocument } from '@proxmox-api/openapi-generator/generator.ts';
 import { logRegressionReport } from './regression/report.ts';
-import { OPENAPI_ARTIFACT_DIR, OPENAPI_BASENAME } from '../../shared/paths.ts';
+import { OPENAPI_ARTIFACT_DIR, OPENAPI_BASENAME } from '@proxmox-api/shared/paths.ts';
 
 export interface AutomationPipelineRunOptions {
   mode?: 'ci' | 'full';

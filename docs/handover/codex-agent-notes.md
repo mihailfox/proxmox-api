@@ -6,11 +6,14 @@
 - GitHub Actions runtime target for the custom action: **Node 24** (use `runs.using: node24`).
 - Keep edits ASCII-only unless existing files require otherwise.
 - Use the shared automation pipeline via `@proxmox-api/automation` instead of deep relative imports.
+- NPM workspaces link the tooling packages (`tools/*`) and private action. Use `npm run <script> --workspace <name>` for package-specific tasks (e.g., `npm run build --workspace .github/actions/proxmox-openapi-artifacts`).
 
 ## Branching workflow
 - Create a fresh feature branch for every issue: `git checkout -b issue-<number>-<slug> dev`.
 - Commit changes on the feature branch and open a PR targeting `dev`.
-- After review/validation, merge the PR into `dev`. Releases are handled via follow-up PRs from `dev` to `main`.
+- Perform a self-review comment summarizing tests that ran and notable risks.
+- Add the PR to the project board (`gh project item-add 3 --owner @me --url <PR URL>`) and move it through `In Progress` → `Done` when merged.
+- Merge via **Squash and merge** into `dev` using `gh pr merge <url> --squash --delete-branch`. Promote `dev` to `main` via a dedicated release PR.
 - Avoid pushing directly to `dev` or `main`; always go through PRs.
 
 ## GitHub CLI authentication

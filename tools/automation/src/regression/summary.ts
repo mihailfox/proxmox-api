@@ -4,10 +4,10 @@ import { readFileSync } from 'node:fs';
 import type { OpenAPIV3_1 } from 'openapi-types';
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 
-import type { RawApiSnapshot } from '../../../api-scraper/src/types.ts';
-import type { NormalizedApiDocument } from '../../../api-normalizer/src/types.ts';
+import type { RawApiSnapshot } from '@proxmox-api/api-scraper/types.ts';
+import type { NormalizedApiDocument } from '@proxmox-api/api-normalizer/types.ts';
 import { ARTIFACT_BASELINES, type ArtifactBaseline } from './baselines.ts';
-import { generateOpenApiDocument } from '../../../openapi-generator/src/generator.ts';
+import { generateOpenApiDocument } from '@proxmox-api/openapi-generator/generator.ts';
 
 export interface ArtifactState {
   baseline: ArtifactBaseline;
