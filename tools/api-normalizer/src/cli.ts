@@ -1,8 +1,8 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
-import type { RawApiSnapshot } from '../../api-scraper/src/types.js';
-import { normalizeSnapshot } from './normalizer.js';
+import type { RawApiSnapshot } from '../../api-scraper/src/types.ts';
+import { normalizeSnapshot } from './normalizer.ts';
 
 interface CliOptions {
   inputPath: string;

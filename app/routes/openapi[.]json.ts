@@ -4,7 +4,7 @@ import { dirname } from 'node:path';
 import type { LoaderFunctionArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
 
-import { OPENAPI_JSON_PATH } from '../../tools/shared/paths.js';
+import { OPENAPI_JSON_PATH } from '../../tools/shared/paths.ts';
 
 const SPEC_PATH = OPENAPI_JSON_PATH;
 

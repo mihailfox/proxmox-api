@@ -1,9 +1,9 @@
 import { chromium } from 'playwright';
 
-import { countEndpoints, fetchApiScript, parseApiSchema, toRawTree } from './extractor.js';
-import { registerCodexMock } from './codex-mock.js';
-import { persistSnapshot, type PersistOptions } from './persistence.js';
-import type { RawApiSnapshot } from './types.js';
+import { countEndpoints, fetchApiScript, parseApiSchema, toRawTree } from './extractor.ts';
+import { registerCodexMock } from './codex-mock.ts';
+import { persistSnapshot, type PersistOptions } from './persistence.ts';
+import type { RawApiSnapshot } from './types.ts';
 
 export interface ScrapeOptions {
   baseUrl?: string;

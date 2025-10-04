@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { parseCliOptions } from '../src/cli.js';
+import { parseCliOptions } from '../src/cli.ts';
 
 function extract(options: ReturnType<typeof parseCliOptions>) {
   return {

@@ -4,8 +4,8 @@ import { parseArgs } from 'node:util';
 import {
   runAutomationPipeline,
   type AutomationPipelineRunOptions
-} from './pipeline.js';
-import { normalizeBooleanFlagArguments } from './cli-arg-utils.js';
+} from './pipeline.ts';
+import { normalizeBooleanFlagArguments } from './cli-arg-utils.ts';
 
 function parseCliOptions(argv: readonly string[] = process.argv.slice(2)): AutomationPipelineRunOptions {
   const { argv: sanitizedArgv, value: fallbackValue } = normalizeBooleanFlagArguments(

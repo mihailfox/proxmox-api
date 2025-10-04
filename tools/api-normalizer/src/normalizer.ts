@@ -8,7 +8,7 @@ import type {
   RawApiMethod,
   RawApiSnapshot,
   RawApiTreeNode
-} from '../../api-scraper/src/types.js';
+} from '../../api-scraper/src/types.ts';
 import {
   IR_VERSION,
   type HttpMethod,
@@ -23,7 +23,7 @@ import {
   type NormalizedResponse,
   type NormalizedSchema,
   type NormalizedSecurity
-} from './types.js';
+} from './types.ts';
 
 const HTTP_METHOD_WHITELIST = new Set<HttpMethod>([
   'GET',
