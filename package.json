@@ -36,6 +36,7 @@
     "test:release-notes": "vitest run --config tools/release-notes/vitest.config.ts"
   },
   "devDependencies": {
+    "@proxmox-api/automation": "file:tools/automation",
     "@apidevtools/swagger-parser": "^12.0.0",
     "@biomejs/biome": "^2.2.5",
     "@playwright/test": "^1.55.1",

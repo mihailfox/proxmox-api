@@ -5,6 +5,7 @@
 - Preferred Node version for local builds/tests: `22.x`
 - GitHub Actions runtime target for the custom action: **Node 24** (use `runs.using: node24`).
 - Keep edits ASCII-only unless existing files require otherwise.
+- Use the shared automation pipeline via `@proxmox-api/automation` instead of deep relative imports.
 
 ## Branching workflow
 - Create a fresh feature branch for every issue: `git checkout -b issue-<number>-<slug> dev`.
