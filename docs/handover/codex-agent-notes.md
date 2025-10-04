@@ -9,7 +9,10 @@
 ## Branching workflow
 - Create a fresh feature branch for every issue: `git checkout -b issue-<number>-<slug> dev`.
 - Commit changes on the feature branch and open a PR targeting `dev`.
-- After review/validation, merge the PR into `dev`. Releases are handled via follow-up PRs from `dev` to `main`.
+- Perform PR self-review: verify diff summaries, tests, and checklist before requesting review.
+- Add the PR to the roadmap project (`gh project item-add 3 --owner @me --url <PR URL>`) and set its status (e.g., `In Progress`).
+- After review/validation, merge the PR into `dev` using **Squash and merge** (`gh pr merge <url> --squash --delete-branch`). This keeps one commit per issue while preserving `dev` history.
+- Promote `dev` to `main` via a dedicated release PR when ready.
 - Avoid pushing directly to `dev` or `main`; always go through PRs.
 
 ## GitHub CLI authentication
