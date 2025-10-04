@@ -11,7 +11,7 @@
     "ghcr.io/eitsupi/devcontainer-features/jq-likes:2": {},
     "ghcr.io/facebook/devcontainers/features/dotslash:latest": {}
   },
-  "forwardPorts": [ 5173, 4173 ],
+  "forwardPorts": [5173, 4173],
   "updateContentCommand": ".devcontainer/scripts/update-content.sh",
   "postCreateCommand": ".devcontainer/scripts/post-create.sh",
   "customizations": {

@@ -1,30 +1,29 @@
-import type { LinksFunction, MetaFunction } from '@remix-run/node';
+import type { LinksFunction, MetaFunction } from "react-router";
 import {
   Links,
-  LiveReload,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
   isRouteErrorResponse,
-  useRouteError
-} from '@remix-run/react';
+  useRouteError,
+} from "react-router";
 
-import globalStylesheetUrl from './styles/root.css?url';
-import swaggerStylesheetUrl from 'swagger-ui-react/swagger-ui.css?url';
+import globalStylesheetUrl from "./styles/root.css?url";
+import swaggerStylesheetUrl from "swagger-ui-react/swagger-ui.css?url";
 
 export const links: LinksFunction = () => [
-  { rel: 'stylesheet', href: globalStylesheetUrl },
-  { rel: 'stylesheet', href: swaggerStylesheetUrl },
-  { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' }
+  { rel: "stylesheet", href: globalStylesheetUrl },
+  { rel: "stylesheet", href: swaggerStylesheetUrl },
+  { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
 ];
 
 export const meta: MetaFunction = () => [
-  { title: 'Proxmox API Remix Sandbox' },
+  { title: "Proxmox API Viewer" },
   {
-    name: 'description',
-    content: 'Interactive playground for experimenting with Proxmox API tooling UI flows.'
-  }
+    name: "description",
+    content: "Interactive playground for experimenting with Proxmox API tooling UI flows.",
+  },
 ];
 
 export default function App() {
@@ -38,7 +37,6 @@ export default function App() {
         <Outlet />
         <ScrollRestoration />
         <Scripts />
-        <LiveReload />
       </body>
     </html>
   );
@@ -76,7 +74,7 @@ export function ErrorBoundary() {
       <body className="error">
         <main>
           <h1>Something went wrong</h1>
-          <p>{error instanceof Error ? error.message : 'Unknown error'}</p>
+          <p>{error instanceof Error ? error.message : "Unknown error"}</p>
         </main>
         <Scripts />
       </body>

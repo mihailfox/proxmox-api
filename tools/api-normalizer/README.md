@@ -25,7 +25,7 @@ npm run normalizer:generate -- --input /path/to/raw.json --output /tmp/ir.json
 Run the Vitest suite to verify normalization behaviour:
 
 ```bash
-npm run test:normalizer
+npm run normalizer:test
 ```
 
 The tests exercise representative endpoints to ensure permissions, schema

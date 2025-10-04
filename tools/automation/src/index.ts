@@ -1,9 +1,9 @@
 export {
   runAutomationPipeline,
-  resolveAutomationPipelineOptions
-} from './pipeline.ts';
+  resolveAutomationPipelineOptions,
+} from "./pipeline.ts";
 
 export type {
   AutomationPipelineResult,
-  AutomationPipelineRunOptions
-} from './pipeline.ts';
+  AutomationPipelineRunOptions,
+} from "./pipeline.ts";

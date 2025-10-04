@@ -50,12 +50,12 @@ jobs:
 
       - name: Run unit suites
         run: |
-          npm run test:normalizer
-          npm run test:openapi
-          npm run test:ui
+          npm run normalizer:test
+          npm run openapi:test
+          npm run ui:test
 
       - name: Run regression QA suite
-        run: npm run test:regression
+        run: npm run regression:test
 
       - name: Upload OpenAPI artifacts
         uses: actions/upload-artifact@v4

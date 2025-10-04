@@ -2,9 +2,9 @@ import type {
   NormalizedApiDocument,
   NormalizedEndpoint,
   NormalizedGroup,
-  NormalizedSchema
-} from '@proxmox-api/api-normalizer/types.ts';
-import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
+  NormalizedSchema,
+} from "@proxmox-api/api-normalizer/types.ts";
+import type { OpenAPIV3, OpenAPIV3_1 } from "openapi-types";
 
 type Document = OpenAPIV3_1.Document;
 type Operation = OpenAPIV3_1.OperationObject;
@@ -27,34 +27,34 @@ export interface GenerateOpenApiOptions {
   serverUrl?: string;
 }
 
-const DEFAULT_SERVER_URL = 'https://{host}:{port}/api2/json';
+const DEFAULT_SERVER_URL = "https://{host}:{port}/api2/json";
 
 const DEFAULT_SERVER: OpenAPIV3_1.ServerObject = {
   url: DEFAULT_SERVER_URL,
-  description: 'Proxmox VE API base URL',
+  description: "Proxmox VE API base URL",
   variables: {
     host: {
-      default: 'localhost'
+      default: "localhost",
     },
     port: {
-      default: '8006'
-    }
-  }
+      default: "8006",
+    },
+  },
 };
 
-const SECURITY_SCHEMES: NonNullable<OpenAPIV3_1.ComponentsObject['securitySchemes']> = {
+const SECURITY_SCHEMES: NonNullable<OpenAPIV3_1.ComponentsObject["securitySchemes"]> = {
   PVEAuthCookie: {
-    type: 'apiKey',
-    in: 'cookie',
-    name: 'PVEAuthCookie',
-    description: 'Proxmox VE authentication cookie. Obtained via the access ticket endpoint.'
+    type: "apiKey",
+    in: "cookie",
+    name: "PVEAuthCookie",
+    description: "Proxmox VE authentication cookie. Obtained via the access ticket endpoint.",
   },
   PVEAPIToken: {
-    type: 'apiKey',
-    in: 'header',
-    name: 'Authorization',
-    description: 'API token authentication using the `Authorization: PVEAPIToken=TOKEN` header.'
-  }
+    type: "apiKey",
+    in: "header",
+    name: "Authorization",
+    description: "API token authentication using the `Authorization: PVEAPIToken=TOKEN` header.",
+  },
 };
 
 function setExtension<T>(target: T, key: string, value: unknown): void {
@@ -75,7 +75,7 @@ export function generateOpenApiDocument(
     return a.endpoint.path.localeCompare(b.endpoint.path);
   });
 
-  const paths: Document['paths'] = {};
+  const paths: Document["paths"] = {};
 
   for (const context of contexts) {
     if (!tagMap.has(context.tagName)) {
@@ -90,44 +90,50 @@ export function generateOpenApiDocument(
   }
 
   const info: OpenAPIV3_1.InfoObject = {
-    title: ir.source.documentTitle ?? 'Proxmox VE API',
+    title: ir.source.documentTitle ?? "Proxmox VE API",
     version: ir.source.scrapedAt ?? ir.irVersion,
-    description: buildTopLevelDescription(ir)
+    description: buildTopLevelDescription(ir),
   };
 
   const document: Document = {
-    openapi: '3.1.0',
+    openapi: "3.1.0",
     info,
     servers: [options.serverUrl ? { ...DEFAULT_SERVER, url: options.serverUrl } : DEFAULT_SERVER],
-    tags: Array.from(tagMap.entries()).map(([name, value]) => ({ name, description: value.description })),
+    tags: Array.from(tagMap.entries()).map(([name, value]) => ({
+      name,
+      description: value.description,
+    })),
     paths,
     components: {
-      securitySchemes: SECURITY_SCHEMES
-    }
+      securitySchemes: SECURITY_SCHEMES,
+    },
   };
 
-  setExtension(document, 'x-proxmox', {
+  setExtension(document, "x-proxmox", {
     irVersion: ir.irVersion,
     normalizedAt: ir.normalizedAt,
     source: ir.source,
-    summary: ir.summary
+    summary: ir.summary,
   });
 
   return document;
 }
 
-function collectEndpointContexts(groups: NormalizedGroup[], trail: string[] = []): EndpointContext[] {
+function collectEndpointContexts(
+  groups: NormalizedGroup[],
+  trail: string[] = []
+): EndpointContext[] {
   const contexts: EndpointContext[] = [];
 
   for (const group of groups) {
     const nextTrail = [...trail, group.label];
-    const tagDescription = nextTrail.join(' › ');
+    const tagDescription = nextTrail.join(" › ");
 
     for (const endpoint of group.endpoints) {
       contexts.push({
         endpoint,
         tagName: group.path,
-        tagDescription
+        tagDescription,
       });
     }
 
@@ -146,14 +152,14 @@ function convertEndpointToOperation(context: EndpointContext): Operation {
     summary: endpoint.name,
     description: endpoint.description,
     tags: [tagName],
-    responses: convertResponses(endpoint.responses)
+    responses: convertResponses(endpoint.responses),
   };
 
-  setExtension(operation, 'x-proxmox-endpoint-id', endpoint.id);
-  setExtension(operation, 'x-proxmox-features', endpoint.features);
+  setExtension(operation, "x-proxmox-endpoint-id", endpoint.id);
+  setExtension(operation, "x-proxmox-features", endpoint.features);
 
   if (endpoint.status) {
-    setExtension(operation, 'x-proxmox-status', endpoint.status);
+    setExtension(operation, "x-proxmox-status", endpoint.status);
   }
 
   const { parameters, requestBody } = convertRequest(endpoint);
@@ -173,7 +179,7 @@ function convertEndpointToOperation(context: EndpointContext): Operation {
   }
 
   if (endpoint.security.permissions) {
-    setExtension(operation, 'x-proxmox-permissions', endpoint.security.permissions);
+    setExtension(operation, "x-proxmox-permissions", endpoint.security.permissions);
   }
 
   return operation;
@@ -209,12 +215,12 @@ function convertRequest(endpoint: NormalizedEndpoint): {
 
     for (const [name, propertySchema] of Object.entries(rawSchema.properties)) {
       if (pathParamNames.has(name)) {
-        parameters.push(createParameter(name, propertySchema, 'path'));
+        parameters.push(createParameter(name, propertySchema, "path"));
         continue;
       }
 
-      if (method === 'GET' || method === 'DELETE') {
-        parameters.push(createParameter(name, propertySchema, 'query'));
+      if (method === "GET" || method === "DELETE") {
+        parameters.push(createParameter(name, propertySchema, "query"));
         continue;
       }
 
@@ -237,7 +243,7 @@ function buildRequestBody(
     return undefined;
   }
 
-  if (method === 'GET' || method === 'DELETE') {
+  if (method === "GET" || method === "DELETE") {
     return undefined;
   }
 
@@ -246,11 +252,11 @@ function buildRequestBody(
   }
 
   const mediaType: MediaTypeObject = {
-    schema: convertSchema(schema)
+    schema: convertSchema(schema),
   };
 
   let required = true;
-  if ((schema.type ?? 'object') === 'object') {
+  if ((schema.type ?? "object") === "object") {
     const properties = schema.properties ?? {};
     const hasRequired = Object.values(properties).some((property) => !property.optional);
     required = hasRequired;
@@ -259,34 +265,34 @@ function buildRequestBody(
   return {
     required,
     content: {
-      'application/json': mediaType
-    }
+      "application/json": mediaType,
+    },
   };
 }
 
-function convertResponses(responses: NormalizedEndpoint['responses']): OpenAPIV3_1.ResponsesObject {
+function convertResponses(responses: NormalizedEndpoint["responses"]): OpenAPIV3_1.ResponsesObject {
   const result: OpenAPIV3_1.ResponsesObject = {};
 
   if (responses.length === 0) {
     result[200] = {
-      description: 'Successful response'
+      description: "Successful response",
     };
     return result;
   }
 
   responses.forEach((response, index) => {
-    const statusCode = index === 0 ? '200' : 'default';
-    const description = response.description ?? 'Successful response';
+    const statusCode = index === 0 ? "200" : "default";
+    const description = response.description ?? "Successful response";
     const schema = response.schema ? convertSchema(response.schema) : undefined;
 
     if (schema) {
       result[statusCode] = {
         description,
         content: {
-          'application/json': {
-            schema
-          }
-        }
+          "application/json": {
+            schema,
+          },
+        },
       };
     } else {
       result[statusCode] = { description };
@@ -299,23 +305,23 @@ function convertResponses(responses: NormalizedEndpoint['responses']): OpenAPIV3
 function createParameter(
   name: string,
   schema: NormalizedSchema,
-  location: Parameter['in']
+  location: Parameter["in"]
 ): Parameter {
   const description = joinDescription(schema.description, schema.verboseDescription);
 
   return {
     name,
     in: location,
-    required: location === 'path' ? true : !schema.optional,
+    required: location === "path" ? true : !schema.optional,
     description: description || undefined,
-    schema: convertSchema(schema) as unknown as OpenAPIV3.SchemaObject
+    schema: convertSchema(schema) as unknown as OpenAPIV3.SchemaObject,
   };
 }
 
 function convertSchema(schema: NormalizedSchema): SchemaObject {
   const result: SchemaObject = {} as SchemaObject;
 
-  if (schema.type && schema.type !== 'any') {
+  if (schema.type && schema.type !== "any") {
     (result as unknown as Record<string, unknown>).type = schema.type;
   }
 
@@ -354,7 +360,7 @@ function convertSchema(schema: NormalizedSchema): SchemaObject {
   }
 
   if (schema.additionalProperties !== undefined) {
-    if (typeof schema.additionalProperties === 'boolean') {
+    if (typeof schema.additionalProperties === "boolean") {
       result.additionalProperties = schema.additionalProperties;
     } else {
       result.additionalProperties = convertSchema(schema.additionalProperties);
@@ -389,24 +395,24 @@ function convertSchema(schema: NormalizedSchema): SchemaObject {
     }
 
     if (constraints.formatDescription) {
-      setExtension(result, 'x-proxmox-format-description', constraints.formatDescription);
+      setExtension(result, "x-proxmox-format-description", constraints.formatDescription);
     }
 
     if (constraints.requires && constraints.requires.length > 0) {
-      setExtension(result, 'x-proxmox-requires', constraints.requires);
+      setExtension(result, "x-proxmox-requires", constraints.requires);
     }
   }
 
   if (schema.typetext) {
-    setExtension(result, 'x-proxmox-typetext', schema.typetext);
+    setExtension(result, "x-proxmox-typetext", schema.typetext);
   }
 
   if (schema.optional !== undefined) {
-    setExtension(result, 'x-proxmox-optional', schema.optional);
+    setExtension(result, "x-proxmox-optional", schema.optional);
   }
 
   if (schema.metadata) {
-    setExtension(result, 'x-proxmox-metadata', schema.metadata);
+    setExtension(result, "x-proxmox-metadata", schema.metadata);
   }
 
   return result;
@@ -417,7 +423,7 @@ function coerceDefault(schema: NormalizedSchema): unknown {
     return undefined;
   }
 
-  if (schema.type === 'boolean' && typeof schema.defaultValue === 'number') {
+  if (schema.type === "boolean" && typeof schema.defaultValue === "number") {
     return schema.defaultValue === 1;
   }
 
@@ -430,11 +436,11 @@ function extractPathParamNames(path: string): Set<string> {
 }
 
 function joinDescription(...parts: Array<string | undefined>): string {
-  return parts.filter((part): part is string => Boolean(part?.trim())).join('\n\n');
+  return parts.filter((part): part is string => Boolean(part?.trim())).join("\n\n");
 }
 
 function schemaHasContent(schema: NormalizedSchema): boolean {
-  if (schema.type && schema.type !== 'object' && schema.type !== 'any') {
+  if (schema.type && schema.type !== "object" && schema.type !== "any") {
     return true;
   }
 
@@ -454,7 +460,7 @@ function schemaHasContent(schema: NormalizedSchema): boolean {
     return true;
   }
 
-  if (typeof schema.additionalProperties === 'object') {
+  if (typeof schema.additionalProperties === "object") {
     return true;
   }
 
@@ -467,12 +473,12 @@ function cloneSchema(schema: NormalizedSchema): NormalizedSchema {
 
 function buildTopLevelDescription(ir: NormalizedApiDocument): string {
   const lines = [
-    'Generated from the normalized Proxmox VE API intermediate representation.',
+    "Generated from the normalized Proxmox VE API intermediate representation.",
     `Source: ${ir.source.sourceUrl}`,
     `Scraped at: ${ir.source.scrapedAt}`,
     `Normalized at: ${ir.normalizedAt}`,
-    `Operations: ${ir.summary.methodCount}`
+    `Operations: ${ir.summary.methodCount}`,
   ];
 
-  return lines.join('\n');
+  return lines.join("\n");
 }

@@ -1,11 +1,11 @@
-import { promises as fs } from 'node:fs';
-import path from 'node:path';
-import process from 'node:process';
-import { pathToFileURL } from 'node:url';
+import { promises as fs } from "node:fs";
+import path from "node:path";
+import process from "node:process";
+import { pathToFileURL } from "node:url";
 
-import type { AutomationPipelineResult } from '@proxmox-api/automation';
+import type { AutomationPipelineResult } from "@proxmox-api/automation";
 
-const DEFAULT_SUMMARY_PATH = 'var/reports/automation-summary.json';
+const DEFAULT_SUMMARY_PATH = "var/reports/automation-summary.json";
 
 interface CliParseResult {
   inputPath: string;
@@ -16,8 +16,8 @@ interface CliParseResult {
 
 export function toRelativePath(targetPath: string, baseDir: string): string {
   const relativePath = path.relative(baseDir, targetPath);
-  const normalized = relativePath === '' ? '.' : relativePath;
-  return normalized.split(path.sep).join('/');
+  const normalized = relativePath === "" ? "." : relativePath;
+  return normalized.split(path.sep).join("/");
 }
 
 export function formatAutomationSummary(
@@ -26,10 +26,10 @@ export function formatAutomationSummary(
 ): string {
   const baseDir = path.resolve(options.relativeTo ?? process.cwd());
   const rows: Array<[string, string]> = [
-    ['Raw snapshot', summary.rawSnapshotPath],
-    ['Normalized IR', summary.normalizedDocumentPath],
-    ['OpenAPI JSON', summary.openApiJsonPath],
-    ['OpenAPI YAML', summary.openApiYamlPath]
+    ["Raw snapshot", summary.rawSnapshotPath],
+    ["Normalized IR", summary.normalizedDocumentPath],
+    ["OpenAPI JSON", summary.openApiJsonPath],
+    ["OpenAPI YAML", summary.openApiYamlPath],
   ];
 
   const formattedRows = rows.map(([label, absolutePath]) => {
@@ -42,36 +42,38 @@ export function formatAutomationSummary(
     ? toRelativePath(path.resolve(options.summaryPath), baseDir)
     : undefined;
 
-  const cacheLine = summary.usedCache
-    ? '♻️ Reused cached snapshot'
-    : '✨ Fresh scrape';
+  const cacheLine = summary.usedCache ? "♻️ Reused cached snapshot" : "✨ Fresh scrape";
 
-  const sections = [
-    '## Automation summary',
-    ''
-  ];
+  const sections = ["## Automation summary", ""];
 
   if (summaryPath) {
     sections.push(`- Summary JSON: \`${summaryPath}\``);
   }
 
-  sections.push(`- Cache usage: ${cacheLine}`, '', '| Artifact | Path |', '| --- | --- |', ...formattedRows, '');
+  sections.push(
+    `- Cache usage: ${cacheLine}`,
+    "",
+    "| Artifact | Path |",
+    "| --- | --- |",
+    ...formattedRows,
+    ""
+  );
 
-  return sections.join('\n');
+  return sections.join("\n");
 }
 
 function assertValidSummary(payload: unknown): asserts payload is AutomationPipelineResult {
-  if (typeof payload !== 'object' || payload === null) {
-    throw new Error('Summary payload must be an object.');
+  if (typeof payload !== "object" || payload === null) {
+    throw new Error("Summary payload must be an object.");
   }
 
   const candidate = payload as Partial<AutomationPipelineResult>;
   const requiredKeys: Array<keyof AutomationPipelineResult> = [
-    'rawSnapshotPath',
-    'normalizedDocumentPath',
-    'openApiJsonPath',
-    'openApiYamlPath',
-    'usedCache'
+    "rawSnapshotPath",
+    "normalizedDocumentPath",
+    "openApiJsonPath",
+    "openApiYamlPath",
+    "usedCache",
   ];
 
   for (const key of requiredKeys) {
@@ -81,68 +83,68 @@ function assertValidSummary(payload: unknown): asserts payload is AutomationPipe
   }
 
   const stringKeys: Array<keyof AutomationPipelineResult> = [
-    'rawSnapshotPath',
-    'normalizedDocumentPath',
-    'openApiJsonPath',
-    'openApiYamlPath'
+    "rawSnapshotPath",
+    "normalizedDocumentPath",
+    "openApiJsonPath",
+    "openApiYamlPath",
   ];
 
   for (const key of stringKeys) {
-    if (typeof candidate[key] !== 'string') {
+    if (typeof candidate[key] !== "string") {
       throw new Error(`Summary payload field ${key} must be a string.`);
     }
   }
 
-  if (typeof candidate.usedCache !== 'boolean') {
-    throw new Error('Summary payload field usedCache must be a boolean.');
+  if (typeof candidate.usedCache !== "boolean") {
+    throw new Error("Summary payload field usedCache must be a boolean.");
   }
 }
 
 export function parseCliArguments(argv: readonly string[]): CliParseResult {
   const result: CliParseResult = {
     inputPath: DEFAULT_SUMMARY_PATH,
-    showHelp: false
+    showHelp: false,
   };
 
   for (let index = 0; index < argv.length; index += 1) {
     const token = argv[index];
 
     switch (token) {
-      case '--help':
-      case '-h': {
+      case "--help":
+      case "-h": {
         return { ...result, showHelp: true };
       }
-      case '--input':
-      case '-i': {
+      case "--input":
+      case "-i": {
         const next = argv[index + 1];
         if (!next) {
-          throw new Error('Missing value for --input.');
+          throw new Error("Missing value for --input.");
         }
         result.inputPath = next;
         index += 1;
         break;
       }
-      case '--output':
-      case '-o': {
+      case "--output":
+      case "-o": {
         const next = argv[index + 1];
         if (!next) {
-          throw new Error('Missing value for --output.');
+          throw new Error("Missing value for --output.");
         }
         result.outputPath = next;
         index += 1;
         break;
       }
-      case '--relative-to': {
+      case "--relative-to": {
         const next = argv[index + 1];
         if (!next) {
-          throw new Error('Missing value for --relative-to.');
+          throw new Error("Missing value for --relative-to.");
         }
         result.relativeTo = next;
         index += 1;
         break;
       }
       default: {
-        if (token.startsWith('-')) {
+        if (token.startsWith("-")) {
           throw new Error(`Unrecognized option: ${token}`);
         }
         result.inputPath = token;
@@ -175,19 +177,19 @@ async function runCli(): Promise<void> {
 
     const inputPath = path.resolve(parsed.inputPath);
     const relativeTo = parsed.relativeTo ? path.resolve(parsed.relativeTo) : process.cwd();
-    const raw = await fs.readFile(inputPath, 'utf8');
+    const raw = await fs.readFile(inputPath, "utf8");
     const payload = JSON.parse(raw) as unknown;
     assertValidSummary(payload);
 
     const markdown = formatAutomationSummary(payload, {
       summaryPath: inputPath,
-      relativeTo
+      relativeTo,
     });
 
     if (parsed.outputPath) {
       const outputPath = path.resolve(parsed.outputPath);
       await fs.mkdir(path.dirname(outputPath), { recursive: true });
-      await fs.writeFile(outputPath, markdown, 'utf8');
+      await fs.writeFile(outputPath, markdown, "utf8");
     } else {
       process.stdout.write(markdown);
     }
@@ -198,6 +200,6 @@ async function runCli(): Promise<void> {
   }
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
+if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
   void runCli();
 }

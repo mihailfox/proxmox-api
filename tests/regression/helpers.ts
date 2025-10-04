@@ -1,8 +1,8 @@
-import { access } from 'node:fs/promises';
-import { constants } from 'node:fs';
+import { access } from "node:fs/promises";
+import { constants } from "node:fs";
 
-import { runAutomationPipeline } from '@proxmox-api/automation';
-import { OPENAPI_JSON_PATH, OPENAPI_YAML_PATH } from '@proxmox-api/shared/paths.ts';
+import { runAutomationPipeline } from "@proxmox-api/automation";
+import { OPENAPI_JSON_PATH, OPENAPI_YAML_PATH } from "@proxmox-api/shared/paths.ts";
 
 let ensurePromise: Promise<void> | null = null;
 
@@ -23,14 +23,14 @@ export async function ensureOpenApiArtifacts(): Promise<void> {
   ensurePromise = (async () => {
     const [jsonExists, yamlExists] = await Promise.all([
       fileExists(OPENAPI_JSON_PATH),
-      fileExists(OPENAPI_YAML_PATH)
+      fileExists(OPENAPI_YAML_PATH),
     ]);
 
     if (jsonExists && yamlExists) {
       return;
     }
 
-    await runAutomationPipeline({ mode: 'ci' });
+    await runAutomationPipeline({ mode: "ci" });
   })();
 
   await ensurePromise;

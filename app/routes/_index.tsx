@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import type { ComponentType } from "react";
+import { useEffect, useState } from "react";
 
-type SwaggerUIProps = import('swagger-ui-react').SwaggerUIProps;
-type SwaggerUIComponent = import('react').ComponentType<SwaggerUIProps>;
+type SwaggerUIComponent = ComponentType<Record<string, unknown>>;
 
 export default function Index() {
   const [SwaggerUI, setSwaggerUI] = useState<SwaggerUIComponent | null>(null);
@@ -9,7 +9,7 @@ export default function Index() {
   useEffect(() => {
     let isActive = true;
 
-    void import('swagger-ui-react').then((module) => {
+    void import("swagger-ui-react").then((module) => {
       if (isActive) {
         setSwaggerUI(() => module.default as SwaggerUIComponent);
       }

@@ -6,13 +6,18 @@
 - Keep edits ASCII-only unless existing files require otherwise.
 - Shared tooling is published via npm workspaces (`@proxmox-api/*`). Use `npm run <script> --workspace <pkg>` when invoking package-specific commands (for example, `npm run action:package --workspace .github/actions/proxmox-openapi-artifacts`).
 - Treat `.github/actions/proxmox-openapi-artifacts/action.yml` as the source of truth for the action runtime (`runs.using`). Align workflows and docs with it whenever it changes.
+- The Swagger UI under `app/` runs on React Router 7 + Vite:
+  - `npm run ui:dev` starts the dev server.
+  - `npm run ui:sync-openapi` copies generated specs from `var/openapi/` into `public/`.
+  - `npm run ui:build` runs the sync step and invokes `vite build` to emit a static bundle in `build/client/`.
+  - `npm run ui:preview` rebuilds and serves the bundle via `vite preview`.
 
 ## Working with issues & branches
 - Create a high-level issue, then break work into sub-issues and link them (either via the project “Parent issue” field or `Tracked by #<parent>` comments).
 - Create one development branch per main issue directly from the CLI so GitHub records the linkage in the *Development* sidebar:
   ```bash
   gh issue develop <number> \
-    --base dev \
+    --base <main-issue-branch> \
     --name issue-<number>-<slug> \
     --checkout
   ```

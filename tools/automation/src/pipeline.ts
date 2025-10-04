@@ -1,22 +1,19 @@
-import { promises as fs } from 'node:fs';
-import path from 'node:path';
-import process from 'node:process';
-import SwaggerParser from '@apidevtools/swagger-parser';
-import { stringify as stringifyYaml } from 'yaml';
+import { promises as fs } from "node:fs";
+import path from "node:path";
+import process from "node:process";
+import SwaggerParser from "@apidevtools/swagger-parser";
+import { stringify as stringifyYaml } from "yaml";
 
-import {
-  DEFAULT_BASE_URL,
-  scrapeApiDocumentation
-} from '@proxmox-api/api-scraper/scraper.ts';
-import type { RawApiSnapshot } from '@proxmox-api/api-scraper/types.ts';
-import { normalizeSnapshot } from '@proxmox-api/api-normalizer/normalizer.ts';
-import type { NormalizedApiDocument } from '@proxmox-api/api-normalizer/types.ts';
-import { generateOpenApiDocument } from '@proxmox-api/openapi-generator/generator.ts';
-import { logRegressionReport } from './regression/report.ts';
-import { OPENAPI_ARTIFACT_DIR, OPENAPI_BASENAME } from '@proxmox-api/shared/paths.ts';
+import { DEFAULT_BASE_URL, scrapeApiDocumentation } from "@proxmox-api/api-scraper/scraper.ts";
+import type { RawApiSnapshot } from "@proxmox-api/api-scraper/types.ts";
+import { normalizeSnapshot } from "@proxmox-api/api-normalizer/normalizer.ts";
+import type { NormalizedApiDocument } from "@proxmox-api/api-normalizer/types.ts";
+import { generateOpenApiDocument } from "@proxmox-api/openapi-generator/generator.ts";
+import { logRegressionReport } from "./regression/report.ts";
+import { OPENAPI_ARTIFACT_DIR, OPENAPI_BASENAME } from "@proxmox-api/shared/paths.ts";
 
 export interface AutomationPipelineRunOptions {
-  mode?: 'ci' | 'full';
+  mode?: "ci" | "full";
   baseUrl?: string;
   rawSnapshotPath?: string;
   irOutputPath?: string;
@@ -28,7 +25,7 @@ export interface AutomationPipelineRunOptions {
 }
 
 interface PipelineOptions {
-  mode: 'ci' | 'full';
+  mode: "ci" | "full";
   baseUrl: string;
   rawSnapshotPath: string;
   irOutputPath: string;
@@ -60,29 +57,20 @@ interface PipelineRuntimeContext {
 export function resolveAutomationPipelineOptions(
   options: AutomationPipelineRunOptions = {}
 ): PipelineOptions {
-  const mode = options.mode === 'full' ? 'full' : 'ci';
+  const mode = options.mode === "full" ? "full" : "ci";
   const rawSnapshotPath = path.resolve(
-    options.rawSnapshotPath ?? 'tools/api-scraper/data/raw/proxmox-api-schema.json'
+    options.rawSnapshotPath ?? "tools/api-scraper/data/raw/proxmox-api-schema.json"
   );
   const irOutputPath = path.resolve(
-    options.irOutputPath ?? 'tools/api-normalizer/data/ir/proxmox-api-ir.json'
+    options.irOutputPath ?? "tools/api-normalizer/data/ir/proxmox-api-ir.json"
   );
   const openApiOutputDir = path.resolve(options.openApiOutputDir ?? OPENAPI_ARTIFACT_DIR);
   const openApiBasename = options.openApiBasename ?? OPENAPI_BASENAME;
 
-  const offline =
-    mode === 'ci'
-      ? true
-      : options.offline === undefined
-        ? false
-        : options.offline;
+  const offline = mode === "ci" ? true : options.offline === undefined ? false : options.offline;
 
   const fallbackToCache =
-    mode === 'ci'
-      ? true
-      : options.fallbackToCache === undefined
-        ? false
-        : options.fallbackToCache;
+    mode === "ci" ? true : options.fallbackToCache === undefined ? false : options.fallbackToCache;
 
   return {
     mode,
@@ -95,7 +83,7 @@ export function resolveAutomationPipelineOptions(
     fallbackToCache,
     summaryOutputPath: options.summaryOutputPath
       ? path.resolve(options.summaryOutputPath)
-      : undefined
+      : undefined,
   };
 }
 
@@ -106,13 +94,13 @@ export async function runAutomationPipeline(
   const logger = context.logger ?? defaultLogger;
   const resolved = resolveAutomationPipelineOptions(options);
 
-  logHeading(logger, 'Starting automation pipeline');
+  logHeading(logger, "Starting automation pipeline");
 
   const scrapeOutcome = await obtainRawSnapshot(resolved, logger);
   if (scrapeOutcome.sourcePath) {
     logger(`Raw snapshot source: ${relative(scrapeOutcome.sourcePath)}`);
   }
-  logger(`Snapshot ready (${scrapeOutcome.fromCache ? 'cache' : 'fresh scrape'})`);
+  logger(`Snapshot ready (${scrapeOutcome.fromCache ? "cache" : "fresh scrape"})`);
 
   const normalized = await buildNormalizedDocument(
     scrapeOutcome.snapshot,
@@ -136,7 +124,7 @@ export async function runAutomationPipeline(
     normalizedDocumentPath: resolved.irOutputPath,
     openApiJsonPath: documentPaths.json,
     openApiYamlPath: documentPaths.yaml,
-    usedCache: scrapeOutcome.fromCache
+    usedCache: scrapeOutcome.fromCache,
   };
 
   if (resolved.summaryOutputPath) {
@@ -144,7 +132,7 @@ export async function runAutomationPipeline(
     logger(`Pipeline summary written to ${relative(resolved.summaryOutputPath)}`);
   }
 
-  logHeading(logger, 'Pipeline complete');
+  logHeading(logger, "Pipeline complete");
 
   return summary;
 }
@@ -168,13 +156,13 @@ async function obtainRawSnapshot(
       baseUrl,
       persist: {
         outputDir: path.dirname(rawSnapshotPath),
-        fileName: path.basename(rawSnapshotPath)
-      }
+        fileName: path.basename(rawSnapshotPath),
+      },
     });
     return {
       snapshot: result.snapshot,
       sourcePath: result.filePath,
-      fromCache: false
+      fromCache: false,
     };
   } catch (error) {
     if (!fallbackToCache) {
@@ -191,7 +179,7 @@ async function obtainRawSnapshot(
 
 async function readSnapshot(filePath: string): Promise<RawApiSnapshot> {
   try {
-    const payload = await fs.readFile(filePath, 'utf8');
+    const payload = await fs.readFile(filePath, "utf8");
     return JSON.parse(payload) as RawApiSnapshot;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -204,15 +192,13 @@ async function buildNormalizedDocument(
   outputPath: string,
   reuseExistingMetadata: boolean
 ): Promise<NormalizedApiDocument> {
-  const previous = reuseExistingMetadata
-    ? await readNormalizedDocument(outputPath)
-    : undefined;
+  const previous = reuseExistingMetadata ? await readNormalizedDocument(outputPath) : undefined;
   const normalized = normalizeSnapshot(snapshot, {
     normalizedAt: previous?.normalizedAt,
-    checksum: previous?.source.snapshotChecksum
+    checksum: previous?.source.snapshotChecksum,
   });
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
-  await fs.writeFile(outputPath, `${JSON.stringify(normalized, null, 2)}\n`, 'utf8');
+  await fs.writeFile(outputPath, `${JSON.stringify(normalized, null, 2)}\n`, "utf8");
   return normalized;
 }
 
@@ -220,10 +206,10 @@ async function readNormalizedDocument(
   filePath: string
 ): Promise<NormalizedApiDocument | undefined> {
   try {
-    const payload = await fs.readFile(filePath, 'utf8');
+    const payload = await fs.readFile(filePath, "utf8");
     return JSON.parse(payload) as NormalizedApiDocument;
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
       return undefined;
     }
     const message = error instanceof Error ? error.message : String(error);
@@ -240,8 +226,8 @@ async function writeOpenApiDocuments(
   const yamlPath = path.join(options.openApiOutputDir, `${options.openApiBasename}.yaml`);
 
   await fs.mkdir(options.openApiOutputDir, { recursive: true });
-  await fs.writeFile(jsonPath, `${JSON.stringify(document, null, 2)}\n`, 'utf8');
-  await fs.writeFile(yamlPath, `${stringifyYaml(document)}\n`, 'utf8');
+  await fs.writeFile(jsonPath, `${JSON.stringify(document, null, 2)}\n`, "utf8");
+  await fs.writeFile(yamlPath, `${stringifyYaml(document)}\n`, "utf8");
 
   return { json: jsonPath, yaml: yamlPath };
 }
@@ -255,13 +241,10 @@ function logHeading(logger: (message: string) => void, message: string): void {
 }
 
 function relative(filePath: string): string {
-  return path.relative(process.cwd(), filePath) || '.';
+  return path.relative(process.cwd(), filePath) || ".";
 }
 
-async function writeSummary(
-  filePath: string,
-  summary: AutomationPipelineResult
-): Promise<void> {
+async function writeSummary(filePath: string, summary: AutomationPipelineResult): Promise<void> {
   await fs.mkdir(path.dirname(filePath), { recursive: true });
-  await fs.writeFile(filePath, `${JSON.stringify(summary, null, 2)}\n`, 'utf8');
+  await fs.writeFile(filePath, `${JSON.stringify(summary, null, 2)}\n`, "utf8");
 }
