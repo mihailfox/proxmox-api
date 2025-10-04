@@ -1,0 +1,58 @@
+name: deploy-pages
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - dev
+    paths:
+      - '.github/workflows/pages.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tools/projects/publish-pages.ts'
+      - 'tools/automation/**'
+      - 'tools/openapi-generator/**'
+      - 'tools/api-scraper/**'
+      - 'tools/api-normalizer/**'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install dependencies
+        run: npm install
+      - name: Generate OpenAPI artifacts
+        run: npm run automation:pipeline -- --mode=ci --report var/automation-summary.json
+      - name: Prepare pages bundle
+        run: npm run pages:prepare
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: var/pages
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4

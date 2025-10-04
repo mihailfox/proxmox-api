@@ -28,6 +28,7 @@
     "openapi:validate": "tsx tools/openapi-generator/src/validate.ts",
     "automation:pipeline": "tsx tools/automation/src/cli.ts",
     "automation:summary": "tsx tools/automation/scripts/format-summary.ts",
+    "pages:prepare": "tsx tools/projects/publish-pages.ts",
     "build": "tsc --noEmit && tsc --noEmit -p app/tsconfig.json && tsc --noEmit -p tools/automation/tsconfig.json",
     "ui:dev": "remix vite:dev",
     "ui:build": "remix vite:build",
