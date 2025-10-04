@@ -28,9 +28,9 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
@@ -50,12 +50,12 @@ jobs:
 
       - name: Run unit suites
         run: |
-          npm run test:normalizer
-          npm run test:openapi
-          npm run test:ui
+          npm run normalizer:test
+          npm run openapi:test
+          npm run ui:test
 
       - name: Run regression QA suite
-        run: npm run test:regression
+        run: npm run regression:test
 
       - name: Upload OpenAPI artifacts
         uses: actions/upload-artifact@v4

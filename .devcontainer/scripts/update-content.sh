@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
+#set -x
 
 BASHRC="$HOME/.bashrc"
 ALIASES="$HOME/.bash_aliases"
-INPUTC="$HOME/.inputrc"
+INPUTRC="$HOME/.inputrc"
 
 cat <<'EOF' >"$ALIASES"
 alias fd=fdfind
 alias ls="lsd --color auto"
 alias ll="lsd -alF --color auto"
 alias la="lsd -A --color auto"
-alias cat="bat --color always --style plain"
+alias cat="bat --color auto --style plain"
 EOF
 
 cat <<'EOF' >"$INPUTRC"
@@ -140,8 +141,8 @@ if [[ "$TERM" == "xterm" ]]; then
 fi
 
 eval "$(bat --completion bash)"
-#FZF_COMPLETION_AUTO_COMMON_PREFIX=true
-#FZF_COMPLETION_AUTO_COMMON_PREFIX_PART=true
+FZF_COMPLETION_AUTO_COMMON_PREFIX=true
+FZF_COMPLETION_AUTO_COMMON_PREFIX_PART=true
 eval "$(fzf --bash)"
 eval "$(zoxide init --cmd cd --hook pwd bash)"
 
@@ -191,6 +192,3 @@ npm ci
 
 npx --yes playwright install --only-shell --with-deps chromium
 
-#npm install --location=global @openai/codex
-
-uv tool install --force specify-cli --from git+https://github.com/github/spec-kit.git

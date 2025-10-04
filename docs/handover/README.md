@@ -21,7 +21,7 @@ the delivery tasks completed to date so new contributors can take ownership with
 | Normalize | `tools/api-normalizer/` | `npm run normalizer:generate` | `tools/api-normalizer/data/ir/proxmox-api-ir.json` |
 | OpenAPI emit | `tools/openapi-generator/` | `npm run openapi:generate` | `var/openapi/proxmox-ve.{json,yaml}` |
 | End-to-end pipeline | `tools/automation/` | `npm run automation:pipeline` | Updates all artifacts and logs QA summary |
-| Regression QA | `tests/regression/` | `npm run test:regression` | Checksums + parity assertions |
+| Regression QA | `tests/regression/` | `npm run regression:test` | Checksums + parity assertions |
 
 Additional reference documents:
 
@@ -53,7 +53,7 @@ Additional reference documents:
 4. **Run the regression QA suite**
 
    ```bash
-   npm run test:regression
+   npm run regression:test
    ```
 
 These steps confirm the local environment matches CI expectations before you touch pipeline code or
@@ -127,7 +127,7 @@ Follow this cadence before merging or releasing updated artifacts:
 
 1. `npm run lint`
 2. `npm run build`
-3. `npm run test:regression`
+3. `npm run regression:test`
 4. `npm run automation:pipeline` (CI mode) or `npm run automation:pipeline -- --mode=full -- --report var/reports/automation-summary.json`
 5. Generate the Markdown changelog snippet with `npm run automation:summary -- --input var/reports/automation-summary.json` and store the JSON file for release assets.
 6. Manual checks from the [regression checklist](../qa/regression-checklist.md):

@@ -4,7 +4,7 @@ This checklist enumerates the automated and manual verifications required before
 
 ## Automated coverage
 
-1. **QA Regression Vitest suite** (`npm run test:regression`)
+1. **QA Regression Vitest suite** (`npm run regression:test`)
    - Verifies the SHA-256 checksum of cached raw snapshots, normalized IR, and OpenAPI artifacts.
    - Confirms normalized counts align with the raw snapshot metadata.
    - Asserts that JSON and YAML OpenAPI documents remain structurally identical.

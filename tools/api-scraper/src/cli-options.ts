@@ -1,4 +1,4 @@
-import { parseArgs } from 'node:util';
+import { parseArgs } from "node:util";
 
 export interface ScraperCliOptions {
   baseUrl?: string;
@@ -11,18 +11,18 @@ export function parseScraperCliArgs(
   const { values } = parseArgs({
     args: Array.from(argv),
     options: {
-      'base-url': { type: 'string', short: 'b' }
+      "base-url": { type: "string", short: "b" },
     },
-    allowPositionals: false
+    allowPositionals: false,
   });
 
-  const rawBaseUrl = Array.isArray(values['base-url'])
-    ? values['base-url'][values['base-url'].length - 1]
-    : values['base-url'];
+  const rawBaseUrl = Array.isArray(values["base-url"])
+    ? values["base-url"][values["base-url"].length - 1]
+    : values["base-url"];
 
-  if (typeof rawBaseUrl === 'string') {
+  if (typeof rawBaseUrl === "string") {
     const trimmed = rawBaseUrl.trim();
-    if (trimmed === '') {
+    if (trimmed === "") {
       throw new Error('Option "--base-url" requires a non-empty value.');
     }
     return { baseUrl: trimmed };

@@ -1,23 +1,23 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
-  testDir: './tests',
+  testDir: "./tests",
   fullyParallel: true,
-  reporter: [['list']],
+  reporter: [["list"]],
   timeout: 60_000,
   expect: {
-    timeout: 15_000
+    timeout: 15_000,
   },
   use: {
-    baseURL: 'https://pve.proxmox.com/pve-docs/api-viewer/',
+    baseURL: "https://pve.proxmox.com/pve-docs/api-viewer/",
     headless: true,
     ignoreHTTPSErrors: true,
-    trace: 'on-first-retry'
+    trace: "on-first-retry",
   },
   projects: [
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] }
-    }
-  ]
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
+    },
+  ],
 });

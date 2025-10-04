@@ -1,7 +1,7 @@
-declare module 'swagger-ui-react' {
-  import type { ComponentType } from 'react';
+declare module "swagger-ui-react" {
+  import type { ComponentType } from "react";
 
-  export type DocExpansionMode = 'list' | 'full' | 'none';
+  export type DocExpansionMode = "list" | "full" | "none";
 
   export interface SwaggerUIProps {
     url?: string;

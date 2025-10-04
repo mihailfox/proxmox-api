@@ -1,9 +1,9 @@
-import { chromium } from 'playwright';
+import { chromium } from "playwright";
 
-import { countEndpoints, fetchApiScript, parseApiSchema, toRawTree } from './extractor.ts';
-import { registerCodexMock } from './codex-mock.ts';
-import { persistSnapshot, type PersistOptions } from './persistence.ts';
-import type { RawApiSnapshot } from './types.ts';
+import { countEndpoints, fetchApiScript, parseApiSchema, toRawTree } from "./extractor.ts";
+import { registerCodexMock } from "./codex-mock.ts";
+import { persistSnapshot, type PersistOptions } from "./persistence.ts";
+import type { RawApiSnapshot } from "./types.ts";
 
 export interface ScrapeOptions {
   baseUrl?: string;
@@ -11,7 +11,7 @@ export interface ScrapeOptions {
   persist?: PersistOptions | false;
 }
 
-export const DEFAULT_BASE_URL = 'https://pve.proxmox.com/pve-docs/api-viewer/';
+export const DEFAULT_BASE_URL = "https://pve.proxmox.com/pve-docs/api-viewer/";
 
 export async function scrapeApiDocumentation(options: ScrapeOptions = {}): Promise<{
   snapshot: RawApiSnapshot;
@@ -24,7 +24,7 @@ export async function scrapeApiDocumentation(options: ScrapeOptions = {}): Promi
   const page = await context.newPage();
 
   try {
-    await page.goto(baseUrl, { waitUntil: 'networkidle' });
+    await page.goto(baseUrl, { waitUntil: "networkidle" });
     const scriptSource = await fetchApiScript(page);
     const schemaNodes = parseApiSchema(scriptSource);
     const tree = toRawTree(schemaNodes);
@@ -36,9 +36,9 @@ export async function scrapeApiDocumentation(options: ScrapeOptions = {}): Promi
       documentTitle,
       stats: {
         rootGroupCount: tree.length,
-        endpointCount
+        endpointCount,
       },
-      schema: tree
+      schema: tree,
     };
 
     const persistOptions = options.persist === false ? undefined : options.persist;

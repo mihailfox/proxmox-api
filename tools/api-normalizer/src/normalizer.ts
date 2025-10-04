@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash } from "node:crypto";
 
 import type {
   ApiSchemaParameters,
@@ -7,8 +7,8 @@ import type {
   ApiSchemaReturn,
   RawApiMethod,
   RawApiSnapshot,
-  RawApiTreeNode
-} from '@proxmox-api/api-scraper/types.ts';
+  RawApiTreeNode,
+} from "@proxmox-api/api-scraper/types.ts";
 import {
   IR_VERSION,
   type HttpMethod,
@@ -22,18 +22,18 @@ import {
   type NormalizedRequest,
   type NormalizedResponse,
   type NormalizedSchema,
-  type NormalizedSecurity
-} from './types.ts';
+  type NormalizedSecurity,
+} from "./types.ts";
 
 const HTTP_METHOD_WHITELIST = new Set<HttpMethod>([
-  'GET',
-  'POST',
-  'PUT',
-  'DELETE',
-  'PATCH',
-  'OPTIONS',
-  'HEAD',
-  'TRACE'
+  "GET",
+  "POST",
+  "PUT",
+  "DELETE",
+  "PATCH",
+  "OPTIONS",
+  "HEAD",
+  "TRACE",
 ]);
 
 export interface NormalizeSnapshotOptions {
@@ -61,14 +61,14 @@ export function normalizeSnapshot(
       scrapedAt: snapshot.scrapedAt,
       sourceUrl: snapshot.sourceUrl,
       documentTitle: snapshot.documentTitle,
-      rawStats: snapshot.stats
+      rawStats: snapshot.stats,
     },
     summary: {
       groupCount: summary.groupCount,
       endpointCount: snapshot.stats.endpointCount,
-      methodCount: summary.methodCount
+      methodCount: summary.methodCount,
     },
-    groups
+    groups,
   };
 }
 
@@ -80,7 +80,7 @@ function normalizeGroup(node: RawApiTreeNode): NormalizedGroup {
     slug,
     label: node.text,
     endpoints: node.methods.map((method) => normalizeEndpoint(node.path, method)),
-    children: node.children.map((child) => normalizeGroup(child))
+    children: node.children.map((child) => normalizeGroup(child)),
   };
 }
 
@@ -101,7 +101,7 @@ function normalizeEndpoint(path: string, method: RawApiMethod): NormalizedEndpoi
     security: normalizeSecurity(method),
     features: normalizeFeatures(method),
     request,
-    responses
+    responses,
   };
 }
 
@@ -110,7 +110,7 @@ function normalizeSecurity(method: RawApiMethod): NormalizedSecurity {
   return {
     allowToken: Boolean(method.allowToken),
     requiresAuthentication: Boolean(method.protected),
-    permissions: permissions ?? undefined
+    permissions: permissions ?? undefined,
   };
 }
 
@@ -118,12 +118,12 @@ function normalizeFeatures(method: RawApiMethod): NormalizedFeatureFlags {
   return {
     proxy: Boolean(method.proxy),
     download: Boolean(method.download),
-    upload: Boolean(method.upload)
+    upload: Boolean(method.upload),
   };
 }
 
 function normalizePermissions(
-  permissions: RawApiMethod['permissions']
+  permissions: RawApiMethod["permissions"]
 ): NormalizedPermissionSet | undefined {
   if (!permissions) {
     return undefined;
@@ -141,7 +141,9 @@ function normalizePermissions(
   return normalized ? { all: [normalized] } : undefined;
 }
 
-function normalizePermission(permission: ApiSchemaPermission | undefined): NormalizedPermission | undefined {
+function normalizePermission(
+  permission: ApiSchemaPermission | undefined
+): NormalizedPermission | undefined {
   if (!permission) {
     return undefined;
   }
@@ -158,7 +160,9 @@ function normalizePermission(permission: ApiSchemaPermission | undefined): Norma
   return Object.keys(normalized).length > 0 ? normalized : undefined;
 }
 
-function normalizeRequest(parameters: ApiSchemaParameters | undefined): NormalizedRequest | undefined {
+function normalizeRequest(
+  parameters: ApiSchemaParameters | undefined
+): NormalizedRequest | undefined {
   const schema = normalizeSchema(parameters);
   if (!schema) {
     return undefined;
@@ -166,7 +170,7 @@ function normalizeRequest(parameters: ApiSchemaParameters | undefined): Normaliz
   const description = parameters?.description;
   return {
     description: description?.trim() ? description : undefined,
-    schema
+    schema,
   };
 }
 
@@ -179,8 +183,8 @@ function normalizeResponses(returns: ApiSchemaReturn | undefined): NormalizedRes
   return [
     {
       description,
-      schema: schema ?? undefined
-    }
+      schema: schema ?? undefined,
+    },
   ];
 }
 
@@ -191,26 +195,26 @@ function normalizeSchema(input: SchemaInput | undefined): NormalizedSchema | und
 
   const schema: NormalizedSchema = {};
 
-  if ('type' in input && input.type) {
+  if ("type" in input && input.type) {
     schema.type = input.type;
   }
-  if ('typetext' in input && input.typetext) {
+  if ("typetext" in input && input.typetext) {
     schema.typetext = input.typetext;
   }
-  if ('description' in input && input.description) {
+  if ("description" in input && input.description) {
     schema.description = input.description;
   }
-  if ('verbose_description' in input && input.verbose_description) {
+  if ("verbose_description" in input && input.verbose_description) {
     schema.verboseDescription = input.verbose_description;
   }
 
-  if ('optional' in input && input.optional !== undefined) {
+  if ("optional" in input && input.optional !== undefined) {
     schema.optional = Boolean(input.optional);
   }
-  if ('default' in input && input.default !== undefined) {
+  if ("default" in input && input.default !== undefined) {
     schema.defaultValue = input.default;
   }
-  if ('enum' in input && input.enum) {
+  if ("enum" in input && input.enum) {
     schema.enum = [...input.enum];
   }
 
@@ -219,7 +223,7 @@ function normalizeSchema(input: SchemaInput | undefined): NormalizedSchema | und
     schema.constraints = constraints;
   }
 
-  if ('properties' in input && input.properties) {
+  if ("properties" in input && input.properties) {
     const properties: Record<string, NormalizedSchema> = {};
     for (const [key, value] of Object.entries(input.properties)) {
       const child = normalizeSchema(value);
@@ -232,14 +236,14 @@ function normalizeSchema(input: SchemaInput | undefined): NormalizedSchema | und
     }
   }
 
-  if ('items' in input && input.items) {
+  if ("items" in input && input.items) {
     const items = normalizeSchema(input.items as SchemaInput);
     if (items) {
       schema.items = items;
     }
   }
 
-  if ('additionalProperties' in input && input.additionalProperties !== undefined) {
+  if ("additionalProperties" in input && input.additionalProperties !== undefined) {
     schema.additionalProperties = normalizeAdditionalProperties(input.additionalProperties);
   }
 
@@ -251,14 +255,16 @@ function normalizeSchema(input: SchemaInput | undefined): NormalizedSchema | und
   return Object.keys(schema).length > 0 ? schema : undefined;
 }
 
-function normalizeAdditionalProperties(additional: AdditionalProperties | undefined): boolean | NormalizedSchema | undefined {
+function normalizeAdditionalProperties(
+  additional: AdditionalProperties | undefined
+): boolean | NormalizedSchema | undefined {
   if (additional === undefined) {
     return undefined;
   }
-  if (typeof additional === 'boolean') {
+  if (typeof additional === "boolean") {
     return additional;
   }
-  if (typeof additional === 'number') {
+  if (typeof additional === "number") {
     return Boolean(additional);
   }
   const schema = normalizeSchema(additional as SchemaInput);
@@ -267,28 +273,28 @@ function normalizeAdditionalProperties(additional: AdditionalProperties | undefi
 
 function extractConstraints(input: SchemaInput): NormalizedConstraints | undefined {
   const constraints: NormalizedConstraints = {};
-  if ('minimum' in input && typeof input.minimum === 'number') {
+  if ("minimum" in input && typeof input.minimum === "number") {
     constraints.minimum = input.minimum;
   }
-  if ('maximum' in input && typeof input.maximum === 'number') {
+  if ("maximum" in input && typeof input.maximum === "number") {
     constraints.maximum = input.maximum;
   }
-  if ('minLength' in input && typeof input.minLength === 'number') {
+  if ("minLength" in input && typeof input.minLength === "number") {
     constraints.minLength = input.minLength;
   }
-  if ('maxLength' in input && typeof input.maxLength === 'number') {
+  if ("maxLength" in input && typeof input.maxLength === "number") {
     constraints.maxLength = input.maxLength;
   }
-  if ('pattern' in input && typeof input.pattern === 'string') {
+  if ("pattern" in input && typeof input.pattern === "string") {
     constraints.pattern = input.pattern;
   }
-  if ('format' in input && typeof input.format === 'string') {
+  if ("format" in input && typeof input.format === "string") {
     constraints.format = input.format;
   }
-  if ('format_description' in input && typeof input.format_description === 'string') {
+  if ("format_description" in input && typeof input.format_description === "string") {
     constraints.formatDescription = input.format_description;
   }
-  if ('requires' in input && input.requires) {
+  if ("requires" in input && input.requires) {
     const requires = Array.isArray(input.requires) ? input.requires : [input.requires];
     constraints.requires = requires.map((item) => String(item));
   }
@@ -298,32 +304,32 @@ function extractConstraints(input: SchemaInput): NormalizedConstraints | undefin
 
 function extractMetadata(input: SchemaInput): Record<string, unknown> | undefined {
   const metadata: Record<string, unknown> = {};
-  if ('title' in input && input.title) {
+  if ("title" in input && input.title) {
     metadata.title = input.title;
   }
-  if ('renderer' in input && input.renderer) {
+  if ("renderer" in input && input.renderer) {
     metadata.renderer = input.renderer;
   }
-  if ('alias' in input && input.alias) {
+  if ("alias" in input && input.alias) {
     metadata.alias = input.alias;
   }
-  if ('subdir' in input && input.subdir) {
+  if ("subdir" in input && input.subdir) {
     metadata.subdir = input.subdir;
   }
-  if ('default_key' in input && input.default_key !== undefined) {
+  if ("default_key" in input && input.default_key !== undefined) {
     metadata.defaultKey = input.default_key;
   }
-  if ('disallow' in input && input.disallow) {
+  if ("disallow" in input && input.disallow) {
     metadata.disallow = input.disallow;
   }
-  if ('extends' in input && input.extends !== undefined) {
+  if ("extends" in input && input.extends !== undefined) {
     metadata.extends = input.extends;
   }
-  if ('links' in input && input.links !== undefined) {
+  if ("links" in input && input.links !== undefined) {
     metadata.links = input.links;
   }
-  if ('instance-types' in input && input['instance-types'] !== undefined) {
-    metadata.instanceTypes = input['instance-types'];
+  if ("instance-types" in input && input["instance-types"] !== undefined) {
+    metadata.instanceTypes = input["instance-types"];
   }
 
   return Object.keys(metadata).length > 0 ? metadata : undefined;
@@ -331,7 +337,7 @@ function extractMetadata(input: SchemaInput): Record<string, unknown> | undefine
 
 function hashSnapshot(snapshot: RawApiSnapshot): string {
   const serialized = JSON.stringify(snapshot);
-  return createHash('sha256').update(serialized).digest('hex');
+  return createHash("sha256").update(serialized).digest("hex");
 }
 
 function summarize(groups: NormalizedGroup[]): { groupCount: number; methodCount: number } {
@@ -354,16 +360,19 @@ function summarize(groups: NormalizedGroup[]): { groupCount: number; methodCount
 
 function toHttpMethod(method: string): HttpMethod {
   const upper = method.toUpperCase() as HttpMethod;
-  return HTTP_METHOD_WHITELIST.has(upper) ? upper : 'UNKNOWN';
+  return HTTP_METHOD_WHITELIST.has(upper) ? upper : "UNKNOWN";
 }
 
 function toSlug(path: string): string {
   if (!path) {
-    return 'root';
+    return "root";
   }
-  const normalized = path.replace(/^\/+/, '');
-  const slug = normalized.replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-+|-+$/g, '').toLowerCase();
-  return slug || 'root';
+  const normalized = path.replace(/^\/+/, "");
+  const slug = normalized
+    .replace(/[^a-zA-Z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .toLowerCase();
+  return slug || "root";
 }
 
 function buildOperationId(method: HttpMethod, path: string): string {

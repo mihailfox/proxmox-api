@@ -29,5 +29,5 @@ produced by the normalizer and emits deterministic JSON and YAML documents in
 Run the Vitest suite to validate the transformation logic:
 
 ```bash
-npm run test:openapi
+npm run openapi:test
 ```

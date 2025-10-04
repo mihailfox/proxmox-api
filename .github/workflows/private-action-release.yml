@@ -21,11 +21,11 @@ jobs:
     name: Validate action tooling
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
           cache-dependency-path: package-lock.json
       - name: Install dependencies
@@ -50,7 +50,7 @@ jobs:
       pve_updated_at: ${{ steps.metadata.outputs.updated_at }}
       pve_metadata: ${{ steps.metadata.outputs.metadata }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Discover Proxmox docs metadata
@@ -123,13 +123,13 @@ jobs:
       release_items: ${{ steps.metadata.outputs.release_items }}
       release_notes_b64: ${{ steps.compose.outputs.notes_b64 }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
           cache-dependency-path: package-lock.json
       - name: Install dependencies
@@ -291,11 +291,11 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
           cache-dependency-path: package-lock.json
       - name: Install dependencies

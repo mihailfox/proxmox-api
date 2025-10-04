@@ -65,7 +65,7 @@ outputs:
     description: 'Path to the JSON summary describing the pipeline run.'
 runs:
   using: 'node24'
-  main: 'dist/index.js'
+  main: 'dist/index.cjs'
 branding:
   icon: 'server'
   color: 'green'

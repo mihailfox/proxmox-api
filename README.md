@@ -4,7 +4,7 @@ This repository contains tooling to scrape the [Proxmox VE API viewer](https://p
 
 ## Quickstart
 
-1. Install dependencies (Node.js 22 or newer is required):
+1. Install dependencies (Node.js 24 or newer is required):
 
    ```bash
    npm install
@@ -16,7 +16,7 @@ This repository contains tooling to scrape the [Proxmox VE API viewer](https://p
    ```bash
    npm run lint
    npm run build
-   npm run test:regression
+   npm run regression:test
    ```
 
 3. Regenerate artifacts end to end:
@@ -62,11 +62,12 @@ manual QA, release planning, and troubleshooting.
   committed `dist/` payload).
 - These packages participate in an npm workspace; shared modules are imported via
   `@proxmox-api/<package>/…` aliases defined in `tsconfig.json`.
-- `app/` contains a Remix + Vite sandbox for rapid UI prototyping and component experimentation.
-  - `npm run ui:dev` starts the Remix-enhanced Vite development server.
-  - `npm run ui:build` compiles the Remix client and server bundles into `build/`.
-  - `npm run ui:preview` starts the Remix preview server backed by the production build output.
-  - `npm run test:ui` executes Vitest unit tests with jsdom.
+- `app/` hosts a React Router 7 + Vite SPA for browsing the generated OpenAPI document.
+  - `npm run ui:dev` starts the development server.
+  - `npm run ui:sync-openapi` copies the latest `var/openapi/` artifacts into `public/` for local serving.
+  - `npm run ui:build` syncs OpenAPI artifacts and emits a static bundle under `build/client/`.
+  - `npm run ui:preview` rebuilds the bundle and serves it from `build/client/`.
+  - `npm run ui:test` executes Vitest unit tests with jsdom.
 
 ## Linting
 

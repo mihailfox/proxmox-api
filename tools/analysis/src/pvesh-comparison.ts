@@ -1,5 +1,5 @@
-import { promises as fs } from 'node:fs';
-import path from 'node:path';
+import { promises as fs } from "node:fs";
+import path from "node:path";
 
 interface CliOptions {
   officialRoots: string[];
@@ -50,8 +50,14 @@ interface ComparisonResult {
   scrapedByMethod: Record<string, number>;
 }
 
-const DEFAULT_OFFICIAL_ROOT = path.resolve('vendor', 'pve-manager');
-const DEFAULT_IR_PATH = path.resolve('tools', 'api-normalizer', 'data', 'ir', 'proxmox-api-ir.json');
+const DEFAULT_OFFICIAL_ROOT = path.resolve("vendor", "pve-manager");
+const DEFAULT_IR_PATH = path.resolve(
+  "tools",
+  "api-normalizer",
+  "data",
+  "ir",
+  "proxmox-api-ir.json"
+);
 
 function parseArgs(argv: string[]): CliOptions {
   const options: CliOptions = {
@@ -61,10 +67,10 @@ function parseArgs(argv: string[]): CliOptions {
 
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
-    if (arg === '--official' || arg === '--official-root') {
+    if (arg === "--official" || arg === "--official-root") {
       const value = argv[i + 1];
       if (value) {
-        for (const entry of value.split(',')) {
+        for (const entry of value.split(",")) {
           const trimmed = entry.trim();
           if (trimmed.length === 0) {
             continue;
@@ -73,16 +79,16 @@ function parseArgs(argv: string[]): CliOptions {
         }
       }
       i += 1;
-    } else if (arg === '--ir') {
-      options.irPath = path.resolve(argv[i + 1] ?? '');
+    } else if (arg === "--ir") {
+      options.irPath = path.resolve(argv[i + 1] ?? "");
       i += 1;
-    } else if (arg === '--output') {
-      options.output = path.resolve(argv[i + 1] ?? '');
+    } else if (arg === "--output") {
+      options.output = path.resolve(argv[i + 1] ?? "");
       i += 1;
-    } else if (arg === '--limit') {
-      options.limit = Number.parseInt(argv[i + 1] ?? '', 10);
+    } else if (arg === "--limit") {
+      options.limit = Number.parseInt(argv[i + 1] ?? "", 10);
       i += 1;
-    } else if (arg === '--help' || arg === '-h') {
+    } else if (arg === "--help" || arg === "-h") {
       printUsageAndExit();
     }
   }
@@ -91,7 +97,8 @@ function parseArgs(argv: string[]): CliOptions {
 }
 
 function printUsageAndExit(): never {
-  const usage = `Usage: tsx pvesh-comparison.ts [options]\n\n` +
+  const usage =
+    `Usage: tsx pvesh-comparison.ts [options]\n\n` +
     `Options:\n` +
     `  --official <path>   Add a search root for Perl modules (repeatable, comma-separated values supported).\n` +
     `                      Defaults to vendor/pve-manager.\n` +
@@ -110,9 +117,9 @@ const NAME_REGEX = /name\s*=>\s*(['"])(.*?)\1/;
 
 async function readFileIfExists(filePath: string): Promise<string | undefined> {
   try {
-    return await fs.readFile(filePath, 'utf8');
+    return await fs.readFile(filePath, "utf8");
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
       return undefined;
     }
     throw error;
@@ -121,11 +128,11 @@ async function readFileIfExists(filePath: string): Promise<string | undefined> {
 
 function extractMethodBlocks(content: string): MethodBlock[] {
   const blocks: MethodBlock[] = [];
-  const needle = 'register_method';
+  const needle = "register_method";
   let index = content.indexOf(needle);
 
   while (index !== -1) {
-    const braceStart = content.indexOf('{', index);
+    const braceStart = content.indexOf("{", index);
     if (braceStart === -1) {
       break;
     }
@@ -139,20 +146,20 @@ function extractMethodBlocks(content: string): MethodBlock[] {
       const prevChar = content[i - 1];
 
       if (inString) {
-        if (char === inString && prevChar !== '\\') {
+        if (char === inString && prevChar !== "\\") {
           inString = null;
         }
         continue;
       }
 
-      if (char === '\'' || char === '"') {
+      if (char === "'" || char === '"') {
         inString = char;
         continue;
       }
 
-      if (char === '{') {
+      if (char === "{") {
         depth += 1;
-      } else if (char === '}') {
+      } else if (char === "}") {
         depth -= 1;
         if (depth === 0) {
           blockEnd = i;
@@ -214,12 +221,16 @@ function extractPackageSections(content: string): PackageSection[] {
   return sections;
 }
 
-async function walkForPerlModules(base: string, moduleMap: Map<string, ModuleEntry>, visitedFiles: Set<string>) {
+async function walkForPerlModules(
+  base: string,
+  moduleMap: Map<string, ModuleEntry>,
+  visitedFiles: Set<string>
+) {
   let stats: Awaited<ReturnType<typeof fs.stat>>;
   try {
     stats = await fs.stat(base);
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
       return;
     }
     throw error;
@@ -243,11 +254,16 @@ async function walkForPerlModules(base: string, moduleMap: Map<string, ModuleEnt
       const fullPath = path.join(current, entry.name);
 
       if (entry.isDirectory()) {
-        if (entry.name === '.git' || entry.name === 'debian' || entry.name === 't' || entry.name === 'tests') {
+        if (
+          entry.name === ".git" ||
+          entry.name === "debian" ||
+          entry.name === "t" ||
+          entry.name === "tests"
+        ) {
           continue;
         }
         stack.push(fullPath);
-      } else if (entry.isFile() && entry.name.endsWith('.pm')) {
+      } else if (entry.isFile() && entry.name.endsWith(".pm")) {
         if (visitedFiles.has(fullPath)) {
           continue;
         }
@@ -258,7 +274,7 @@ async function walkForPerlModules(base: string, moduleMap: Map<string, ModuleEnt
         }
         const sections = extractPackageSections(content);
         for (const section of sections) {
-          if (!(section.name === 'PVE::API2' || section.name.startsWith('PVE::API2::'))) {
+          if (!(section.name === "PVE::API2" || section.name.startsWith("PVE::API2::"))) {
             continue;
           }
           const blocks = extractMethodBlocks(section.content);
@@ -275,18 +291,18 @@ async function buildModuleIndex(officialRoots: string[]): Promise<Map<string, Mo
 
   for (const root of officialRoots) {
     await walkForPerlModules(root, moduleMap, visitedFiles);
-    await walkForPerlModules(path.join(root, 'src'), moduleMap, visitedFiles);
+    await walkForPerlModules(path.join(root, "src"), moduleMap, visitedFiles);
   }
 
   return moduleMap;
 }
 
 function joinSegments(prefix: string[], segment: string | undefined): string[] {
-  if (!segment || segment.trim() === '') {
+  if (!segment || segment.trim() === "") {
     return prefix;
   }
 
-  const parts = segment.split('/').filter((part) => part.length > 0);
+  const parts = segment.split("/").filter((part) => part.length > 0);
   return [...prefix, ...parts];
 }
 
@@ -295,7 +311,7 @@ function collectOfficialEndpoints(
   moduleName: string,
   prefix: string[] = [],
   missingModules: Set<string> = new Set(),
-  callStack: string[] = [],
+  callStack: string[] = []
 ): { endpoints: OfficialEndpoint[]; missing: Set<string> } {
   if (callStack.includes(moduleName)) {
     return { endpoints: [], missing: missingModules };
@@ -318,12 +334,12 @@ function collectOfficialEndpoints(
         block.subclass,
         nextSegments,
         missingModules,
-        [...callStack, moduleName],
+        [...callStack, moduleName]
       );
       missingModules = child.missing;
       endpoints.push(...child.endpoints);
     } else if (block.method) {
-      const fullPath = nextSegments.length > 0 ? `/${nextSegments.join('/')}` : '/';
+      const fullPath = nextSegments.length > 0 ? `/${nextSegments.join("/")}` : "/";
       endpoints.push({
         path: fullPath,
         method: block.method,
@@ -350,7 +366,7 @@ interface IrEndpoint {
 }
 
 async function loadScrapedEndpoints(irPath: string): Promise<ScrapedEndpoint[]> {
-  const content = await fs.readFile(irPath, 'utf8');
+  const content = await fs.readFile(irPath, "utf8");
   const data = JSON.parse(content) as { groups: IrGroup[] };
   const results: ScrapedEndpoint[] = [];
 
@@ -392,7 +408,7 @@ function buildMethodCounts(endpoints: { method: string }[]): Record<string, numb
 
 function compareEndpoints(
   official: OfficialEndpoint[],
-  scraped: ScrapedEndpoint[],
+  scraped: ScrapedEndpoint[]
 ): ComparisonResult {
   const scrapedMap = new Map<string, ScrapedEndpoint>();
   for (const endpoint of scraped) {
@@ -437,10 +453,10 @@ function compareEndpoints(
 
 function formatDiffEntries<T extends { method: string; path: string }>(
   entries: T[],
-  limit?: number,
+  limit?: number
 ): string {
   if (entries.length === 0) {
-    return '  (none)';
+    return "  (none)";
   }
 
   const slice = limit ? entries.slice(0, limit) : entries;
@@ -448,13 +464,13 @@ function formatDiffEntries<T extends { method: string; path: string }>(
   if (limit && entries.length > limit) {
     lines.push(`  ... ${entries.length - limit} more`);
   }
-  return lines.join('\n');
+  return lines.join("\n");
 }
 
 function buildTopLevelCounts<T extends { path: string }>(entries: T[]): Record<string, number> {
   return entries.reduce<Record<string, number>>((acc, entry) => {
-    const [, firstSegment = ''] = entry.path.split('/');
-    const key = firstSegment || '/';
+    const [, firstSegment = ""] = entry.path.split("/");
+    const key = firstSegment || "/";
     acc[key] = (acc[key] ?? 0) + 1;
     return acc;
   }, {});
@@ -467,7 +483,7 @@ async function main() {
   const irPath = options.irPath;
 
   const moduleIndex = await buildModuleIndex(officialRoots);
-  const officialResult = collectOfficialEndpoints(moduleIndex, 'PVE::API2');
+  const officialResult = collectOfficialEndpoints(moduleIndex, "PVE::API2");
   const official = officialResult.endpoints;
   const missingModules = officialResult.missing;
 
@@ -497,52 +513,52 @@ async function main() {
   };
 
   if (missingModules.size > 0) {
-    console.log('=== Missing module definitions ===');
+    console.log("=== Missing module definitions ===");
     for (const moduleName of summary.missingModules) {
       console.log(`  - ${moduleName}`);
     }
-    console.log('');
+    console.log("");
   }
 
-  console.log('=== Endpoint counts ===');
+  console.log("=== Endpoint counts ===");
   console.log(`Official API definitions: ${summary.counts.official}`);
   console.log(`Scraped API viewer entries: ${summary.counts.scraped}`);
   console.log(`Shared endpoints: ${summary.counts.shared}`);
   console.log(`Only in official sources: ${summary.counts.officialOnly}`);
   console.log(`Only in scraped viewer: ${summary.counts.scrapedOnly}`);
-  console.log('');
+  console.log("");
 
-  console.log('=== HTTP method distribution (official) ===');
+  console.log("=== HTTP method distribution (official) ===");
   for (const [method, count] of Object.entries(summary.methods.official)) {
     console.log(`  ${method.padEnd(6)} ${count}`);
   }
-  console.log('');
+  console.log("");
 
-  console.log('=== HTTP method distribution (scraped) ===');
+  console.log("=== HTTP method distribution (scraped) ===");
   for (const [method, count] of Object.entries(summary.methods.scraped)) {
     console.log(`  ${method.padEnd(6)} ${count}`);
   }
-  console.log('');
+  console.log("");
 
-  console.log('=== Top-level path coverage (official) ===');
+  console.log("=== Top-level path coverage (official) ===");
   for (const [segment, count] of Object.entries(summary.topLevel.official)) {
     console.log(`  /${segment} -> ${count}`);
   }
-  console.log('');
+  console.log("");
 
-  console.log('=== Top-level path coverage (scraped) ===');
+  console.log("=== Top-level path coverage (scraped) ===");
   for (const [segment, count] of Object.entries(summary.topLevel.scraped)) {
     console.log(`  /${segment} -> ${count}`);
   }
-  console.log('');
+  console.log("");
 
-  console.log('=== Endpoints only present in official sources ===');
+  console.log("=== Endpoints only present in official sources ===");
   console.log(formatDiffEntries(comparison.officialOnly, options.limit ?? 20));
-  console.log('');
+  console.log("");
 
-  console.log('=== Endpoints only present in scraped viewer ===');
+  console.log("=== Endpoints only present in scraped viewer ===");
   console.log(formatDiffEntries(comparison.scrapedOnly, options.limit ?? 20));
-  console.log('');
+  console.log("");
 
   if (options.output) {
     const outputPayload = {

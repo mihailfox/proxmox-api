@@ -1,15 +1,10 @@
-import type { Page } from 'playwright';
+import type { Page } from "playwright";
 
-import type {
-  ApiSchemaMethod,
-  ApiSchemaNode,
-  RawApiMethod,
-  RawApiTreeNode
-} from './types.ts';
+import type { ApiSchemaMethod, ApiSchemaNode, RawApiMethod, RawApiTreeNode } from "./types.ts";
 
 const API_SCRIPT_REGEX = /const apiSchema = (\[.*?\])\s*;\s*let method2cmd/s;
 
-export async function fetchApiScript(page: Page, scriptPath = 'apidoc.js'): Promise<string> {
+export async function fetchApiScript(page: Page, scriptPath = "apidoc.js"): Promise<string> {
   return await page.evaluate(async (path: string) => {
     const response = await fetch(path);
     if (!response.ok) {
@@ -22,7 +17,7 @@ export async function fetchApiScript(page: Page, scriptPath = 'apidoc.js'): Prom
 export function parseApiSchema(scriptSource: string): ApiSchemaNode[] {
   const match = scriptSource.match(API_SCRIPT_REGEX);
   if (!match) {
-    throw new Error('Unable to locate `apiSchema` payload inside apidoc.js');
+    throw new Error("Unable to locate `apiSchema` payload inside apidoc.js");
   }
   return JSON.parse(match[1]) as ApiSchemaNode[];
 }
@@ -38,7 +33,7 @@ function normalizeNode(node: ApiSchemaNode): RawApiTreeNode {
     path: node.path,
     text: node.text,
     methods: mapMethods(node.info),
-    children: (node.children ?? []).map(normalizeNode)
+    children: (node.children ?? []).map(normalizeNode),
   };
 }
 
@@ -58,7 +53,7 @@ function mapMethods(info?: Record<string, ApiSchemaMethod>): RawApiMethod[] {
     proxy: method.proxy === 1,
     download: method.download === 1,
     upload: method.upload === 1,
-    status: method.status
+    status: method.status,
   }));
   methods.sort((a, b) => a.httpMethod.localeCompare(b.httpMethod));
   return methods;
