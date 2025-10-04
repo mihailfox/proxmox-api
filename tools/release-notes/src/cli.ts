@@ -1,6 +1,6 @@
 import { execSync } from 'node:child_process';
 import process from 'node:process';
-import { composeReleaseNotes, parseReleaseItems, type ComposeReleaseNotesOptions, isChangelogFilePath } from './compose-release-notes.js';
+import { composeReleaseNotes, parseReleaseItems, type ComposeReleaseNotesOptions, isChangelogFilePath } from './compose-release-notes.ts';
 
 interface CliOptions {
   items?: string[];

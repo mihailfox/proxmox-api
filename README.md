@@ -57,8 +57,11 @@ manual QA, release planning, and troubleshooting.
 - `tools/scripts/` provides supporting automation (for example, release version bumps and Proxmox
   metadata fetchers) consumed by GitHub workflows.
 - `tests/regression/` implements checksum and parity assertions for generated artifacts.
-- `.github/actions/proxmox-openapi-artifacts/` contains the private TypeScript action that wraps the
-  automation pipeline for downstream repositories.
+- `.github/actions/proxmox-openapi-artifacts/` contains the bundled Node 24 GitHub Action that wraps
+  the automation pipeline for downstream repositories (`npm run action:build` regenerates the
+  committed `dist/` payload).
+- These packages participate in an npm workspace; shared modules are imported via
+  `@proxmox-api/<package>/…` aliases defined in `tsconfig.json`.
 - `app/` contains a Remix + Vite sandbox for rapid UI prototyping and component experimentation.
   - `npm run ui:dev` starts the Remix-enhanced Vite development server.
   - `npm run ui:build` compiles the Remix client and server bundles into `build/`.

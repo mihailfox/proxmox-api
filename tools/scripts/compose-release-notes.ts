@@ -1,4 +1,4 @@
 #!/usr/bin/env node
-import { main } from '../release-notes/src/cli.js';
+import { main } from '@proxmox-api/release-notes/cli.ts';
 
 main();

@@ -8,7 +8,7 @@ import {
   formatReleaseNotes,
   parseReleaseItems,
   type ComposeReleaseNotesOptions
-} from '../src/compose-release-notes.js';
+} from '@proxmox-api/release-notes/compose-release-notes.ts';
 
 const createdDirectories: string[] = [];
 

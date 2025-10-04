@@ -3,7 +3,7 @@ import {
   OPENAPI_JSON_PATH,
   OPENAPI_YAML_PATH,
   resolveFromRoot
-} from '../../../shared/paths.js';
+} from '@proxmox-api/shared/paths.ts';
 
 export interface ArtifactBaseline {
   id: 'raw-snapshot' | 'normalized-ir' | 'openapi-json' | 'openapi-yaml';

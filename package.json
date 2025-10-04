@@ -3,6 +3,15 @@
   "version": "0.1.0",
   "type": "module",
   "private": true,
+  "workspaces": [
+    ".github/actions/proxmox-openapi-artifacts",
+    "tools/api-scraper",
+    "tools/api-normalizer",
+    "tools/openapi-generator",
+    "tools/automation",
+    "tools/release-notes",
+    "tools/shared"
+  ],
   "description": "Tooling to scrape the Proxmox API viewer and generate OpenAPI specifications.",
   "license": "MIT",
   "engines": {
@@ -19,6 +28,7 @@
     "openapi:validate": "tsx tools/openapi-generator/src/validate.ts",
     "automation:pipeline": "tsx tools/automation/src/cli.ts",
     "automation:summary": "tsx tools/automation/scripts/format-summary.ts",
+    "pages:prepare": "tsx tools/projects/publish-pages.ts",
     "build": "tsc --noEmit && tsc --noEmit -p app/tsconfig.json && tsc --noEmit -p tools/automation/tsconfig.json",
     "ui:dev": "remix vite:dev",
     "ui:build": "remix vite:build",
@@ -29,8 +39,9 @@
     "test:openapi": "vitest run --config tools/openapi-generator/vitest.config.ts",
     "test:automation": "vitest run --config tools/automation/vitest.config.ts",
     "test:regression": "vitest run --config tests/regression/vitest.config.ts",
-    "action:install": "npm ci --prefix .github/actions/proxmox-openapi-artifacts",
-    "action:package": "npm run lint --prefix .github/actions/proxmox-openapi-artifacts && npm run typecheck --prefix .github/actions/proxmox-openapi-artifacts",
+    "action:install": "npm install --workspace .github/actions/proxmox-openapi-artifacts",
+    "action:build": "npm run build --workspace .github/actions/proxmox-openapi-artifacts",
+    "action:package": "npm run lint --workspace .github/actions/proxmox-openapi-artifacts && npm run typecheck --workspace .github/actions/proxmox-openapi-artifacts && npm run build --workspace .github/actions/proxmox-openapi-artifacts",
     "release:notes": "tsx tools/scripts/compose-release-notes.ts",
     "test:release-notes": "vitest run --config tools/release-notes/vitest.config.ts"
   },

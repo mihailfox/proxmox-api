@@ -1,7 +1,7 @@
 import path from 'node:path';
 import process from 'node:process';
 
-import { toModuleDirname } from './module-paths.js';
+import { toModuleDirname } from './module-paths.ts';
 
 let moduleDirname: string | undefined;
 
