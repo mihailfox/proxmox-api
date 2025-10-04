@@ -3,7 +3,7 @@ import type {
   NormalizedEndpoint,
   NormalizedGroup,
   NormalizedSchema
-} from '../../api-normalizer/src/types.js';
+} from '../../api-normalizer/src/types.ts';
 import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
 
 type Document = OpenAPIV3_1.Document;

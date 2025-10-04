@@ -1,8 +1,8 @@
 import process from 'node:process';
 
-import { isExecutedFromCli, resolveFromModule } from '../../shared/module-paths.js';
-import { parseScraperCliArgs } from './cli-options.js';
-import { DEFAULT_BASE_URL, scrapeApiDocumentation } from './scraper.js';
+import { isExecutedFromCli, resolveFromModule } from '../../shared/module-paths.ts';
+import { parseScraperCliArgs } from './cli-options.ts';
+import { DEFAULT_BASE_URL, scrapeApiDocumentation } from './scraper.ts';
 
 async function runScraper(): Promise<void> {
   const options = parseScraperCliArgs(process.argv.slice(2), process.env);

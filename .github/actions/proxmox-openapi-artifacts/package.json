@@ -6,15 +6,16 @@
   "type": "module",
   "scripts": {
     "lint": "biome lint src",
-    "typecheck": "tsc --project tsconfig.json --noEmit"
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "build": "tsup"
   },
   "dependencies": {
     "@actions/core": "^1.11.1",
-    "@actions/exec": "^1.1.1",
-    "tsx": "^4.19.2"
+    "@actions/exec": "^1.1.1"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "tsup": "^8.1.0",
     "typescript": "^5.7.3"
   }
 }

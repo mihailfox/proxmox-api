@@ -2,8 +2,8 @@ import path from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-import { formatAutomationSummary, toRelativePath } from '../scripts/format-summary.js';
-import type { AutomationPipelineResult } from '../src/pipeline.js';
+import { formatAutomationSummary, toRelativePath } from '../scripts/format-summary.ts';
+import type { AutomationPipelineResult } from '../src/pipeline.ts';
 
 const repoRoot = process.cwd();
 

@@ -8,7 +8,7 @@ import {
   formatReleaseNotes,
   parseReleaseItems,
   type ComposeReleaseNotesOptions
-} from '../src/compose-release-notes.js';
+} from '../src/compose-release-notes.ts';
 
 const createdDirectories: string[] = [];
 
