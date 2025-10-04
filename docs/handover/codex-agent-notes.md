@@ -1,24 +1,24 @@
 # Codex Agent Session Playbook
 
 ## Environment basics
-- Repository root: `/workspaces/proxmox-api`
-- Preferred Node version for local builds/tests: `22.x`
-- GitHub Actions runtime target for the custom action: **Node 24** (use `runs.using: node24`).
+- Repository root: `/workspaces/proxmox-api`.
+- Use the Node version declared in `package.json` → `engines.node`; update that value before changing runtime expectations elsewhere.
 - Keep edits ASCII-only unless existing files require otherwise.
-- Use the shared automation pipeline via `@proxmox-api/automation` instead of deep relative imports.
-- NPM workspaces link the tooling packages (`tools/*`) and private action. Use `npm run <script> --workspace <name>` for package-specific tasks (e.g., `npm run build --workspace .github/actions/proxmox-openapi-artifacts`).
+- Shared tooling is published via npm workspaces (`@proxmox-api/*`). Use `npm run <script> --workspace <pkg>` when invoking package-specific commands (for example, `npm run action:package --workspace .github/actions/proxmox-openapi-artifacts`).
+- Treat `.github/actions/proxmox-openapi-artifacts/action.yml` as the source of truth for the action runtime (`runs.using`). Align workflows and docs with it whenever it changes.
 
-## Branching workflow
-- Create a fresh feature branch for every issue: `git checkout -b issue-<number>-<slug> dev`.
-- Commit changes on the feature branch and open a PR targeting `dev`.
-- Perform a self-review comment summarizing tests that ran and notable risks.
-- Add the PR to the project board (`gh project item-add 3 --owner @me --url <PR URL>`) and move it through `In Progress` → `Done` when merged.
-- Merge via **Squash and merge** into `dev` using `gh pr merge <url> --squash --delete-branch`. Promote `dev` to `main` via a dedicated release PR.
-- Avoid pushing directly to `dev` or `main`; always go through PRs.
+## Working with issues & branches
+- Create a dedicated feature branch per issue: `git checkout -b issue-<number>-<slug> dev`.
+- Create a high-level issue, then break work into sub-issues and link them (either via the project “Parent issue” field or `Tracked by #<parent>` comments).
+- To manage sub-issues with the CLI, use GraphQL: `gh api graphql -f query='mutation($issue:ID!,$sub:ID!){ addSubIssue(input:{issueId:$issue, subIssueId:$sub}){ clientMutationId } }' -f issue=<parent-id> -f sub=<child-id>`. List children with `gh api graphql -f query='query($owner:String!,$repo:String!,$number:Int!){ repository(owner:$owner,name:$repo){ issue(number:$number){ subIssues(first:50){ nodes{ number title url } } } } }'`.
+- For each branch, open a PR against `dev`, leave a self-review summarizing tests run, and add the PR to the project board.
+- Standard merge strategy: `gh pr merge <url> --squash --delete-branch`. Promote `dev` → `main` via a release PR that summarizes the work and test matrix.
 
-## Release workflow notes
-- `.github/workflows/private-action-release.yml` builds the action bundle, zips `dist/` plus metadata, and smoke-tests the archive before publishing.
-- Smoke test environment exports minimal `INPUT_*` variables (mode `ci`, offline) and runs `node dist/index.js`; keep supporting scripts in sync with action inputs if they change.
+## Release & validation workflows
+- `automation-pipeline.yml` validates the core toolchain (lint/build/tests). Extend it when new checks are required.
+- `action-validation.yml` keeps the bundled action honest: it rebuilds `dist/` and smoke-tests the archive on Linux, macOS, and Windows. Update aliases if workspace paths change.
+- `private-action-release.yml` handles packaged releases. The bundle step copies `dist/`, `action.yml`, and package metadata; keep the smoke test environment variables in sync with action inputs.
+- `pages.yml` regenerates OpenAPI artifacts with the automation pipeline and publishes Swagger UI to GitHub Pages.
 
 ## GitHub CLI authentication
 1. Ensure `gh` is installed in the Codespace (already available).
@@ -71,18 +71,8 @@ gh project item-edit --id "$ITEM_ID" --field-id "$FIELD_ID" --single-select-opti
 ```
 (Adjust project number or column names as needed.)
 
-## Work completed so far
-- Created the **Node24 Action Modernization** project board.
-- Logged six roadmap issues and added them to the board:
-  1. #71 — Bundle action for Node 24 runtime
-  2. #72 — Extract automation pipeline into reusable workspace package
-  3. #75 — Adopt npm workspaces layout
-  4. #73 — Overhaul private action release packaging
-  5. #74 — Add Node 24 validation workflows
-  6. #76 — Publish OpenAPI docs to GitHub Pages
-- All cards currently sit in the `To Do` column; move them through `In Progress` and `Done` as work proceeds.
-
-## Next session checklist
-- Confirm `gh auth status` before creating or editing issues.
-- Update board status for any issues touched during the session.
-- Reference issues when committing or writing summaries to keep context linked to the roadmap.
+## Project hygiene checklist
+- Confirm `gh auth status` before using CLI commands.
+- When opening issues/PRs, link them in the project board and move through `Todo → In Progress → Done → Deployed` as work progresses.
+- Capture test runs in PR self-reviews so release PRs can reference them quickly.
+- Keep release notes and documentation up to date when processes change (runtime bumps, new workflows, etc.).

@@ -15,7 +15,7 @@
   "description": "Tooling to scrape the Proxmox API viewer and generate OpenAPI specifications.",
   "license": "MIT",
   "engines": {
-    "node": "^22.0.0"
+    "node": ">=24.0.0"
   },
   "scripts": {
     "lint": "biome lint .",

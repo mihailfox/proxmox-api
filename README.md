@@ -4,7 +4,7 @@ This repository contains tooling to scrape the [Proxmox VE API viewer](https://p
 
 ## Quickstart
 
-1. Install dependencies (Node.js 22 or newer is required):
+1. Install dependencies (Node.js 24 or newer is required):
 
    ```bash
    npm install
