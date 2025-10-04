@@ -31,12 +31,12 @@ This repository contains tooling to scrape the [Proxmox VE API viewer](https://p
 
    - `-- --offline` to skip the live scrape and reuse the cached snapshot when reviewing historical
      artifacts.
-   - `-- --fallback-to-cache=false` to surface scrape failures immediately in full mode instead of
-     silently reusing the cache.
+   - `-- --fallback-to-cache=false` (or `-- --no-fallback-to-cache`) to surface scrape failures immediately in full mode instead of silently reusing the cache.
    - `-- --report <path>` to persist a JSON summary describing the raw snapshot, IR, OpenAPI outputs,
      and cache usage.
 
-   Set `SCRAPER_BASE_URL` when targeting a staging API viewer.
+   Target alternate viewers by setting `SCRAPER_BASE_URL` or passing
+   `-- --base-url=<https://staging.example/...>` to `npm run scraper:scrape`.
 
 Refer to the [handover guide](docs/handover/README.md) for deeper documentation covering setup,
 manual QA, release planning, and troubleshooting.
@@ -45,7 +45,7 @@ manual QA, release planning, and troubleshooting.
 
 - `tools/api-scraper/` contains the Playwright-based scraping toolkit.
   - `playwright.config.ts` defines the Playwright test runner configuration.
-  - `tests/` holds smoke and regression tests for the scraper.
+  - `tests/` currently includes the end-to-end smoke spec and a CLI option parser check; deeper regression coverage is deferred.
   - `src/cli.ts` provides the `npm run scraper:scrape` entry point.
 - `tools/api-normalizer/` houses the IR builder that transforms raw snapshots into a deterministic
   intermediate representation consumed by the generator.

@@ -1,10 +1,10 @@
 # Private action review for TASK-0020–TASK-0028
 
 ## Summary
-- The planning docs describe the private action migration but still reference the composite implementation, so the requirements brief for TASK-0020 needs to be updated for the TypeScript action layout. 【F:plan/private-github-action-plan.md†L139-L158】
-- TASK-0022's requirement to bundle production dependencies has not been met because the action continues to rely on `npm ci` in the caller repository, leaving Playwright and pipeline dependencies outside the published package. 【F:tasks/TASK-0022-github-action-package.md†L10-L16】【F:.github/actions/proxmox-openapi-artifacts/src/main.ts†L45-L116】
-- The release workflow in TASK-0023 installs only the action workspace dependencies before bundling, so a fresh runner fails to resolve automation modules such as `playwright`, `yaml`, and `swagger-parser`. 【F:.github/workflows/private-action-release.yml†L91-L101】【F:tools/automation/src/pipeline.ts†L1-L188】
-- Documentation created for TASK-0024 still guides consumers to invoke the action from the `.github/actions/...` path instead of the template-style repository root, signalling that the migration plan in TASK-0027/TASK-0028 remains unfinished. 【F:docs/automation/private-action-adoption.md†L17-L92】
+- The requirements brief for TASK-0020 still references the composite implementation, but the TypeScript action is now the canonical contract and the document should be refreshed accordingly. 【F:plan/private-github-action-plan.md†L139-L158】
+- The TypeScript action continues to rely on the caller running `npm ci`, so packaging production dependencies remains an open follow-up for TASK-0022, even though CI and release automation now install the workspace successfully. 【F:tasks/TASK-0022-github-action-package.md†L10-L16】【F:.github/actions/proxmox-openapi-artifacts/src/main.ts†L45-L116】
+- The `private-action-release` workflow now runs `npm ci` at the repository root before packaging, resolving the missing module failures noted during TASK-0023. Remaining improvements focus on dependency bundling rather than installer coverage. 【F:.github/workflows/private-action-release.yml†L125-L200】【F:tools/automation/src/pipeline.ts†L1-L188】
+- Documentation from TASK-0024 should be updated to reflect the TypeScript layout and clarify that downstream consumers must either run the install step or adopt a future bundled distribution. 【F:docs/automation/private-action-adoption.md†L17-L92】
 
 ## Findings by task
 ### TASK-0020 – GitHub Action requirements
@@ -14,10 +14,10 @@ The requirements plan captured the original composite action contract, but it no
 `runAutomationPipeline` exposes a typed API that the TypeScript action imports, so the core refactor from this task is in place. No additional issues surfaced while reviewing this layer. 【F:tools/automation/src/pipeline.ts†L1-L188】【F:.github/actions/proxmox-openapi-artifacts/src/main.ts†L7-L128】
 
 ### TASK-0022 – TypeScript action package
-The package installs only the GitHub Action SDK modules and continues to execute `npm ci` in the repository workspace. This contradicts the requirement to bundle production dependencies for downstream users, and it is the root cause of the release workflow failure because the action cannot compile without the root toolchain dependencies on a clean checkout. 【F:tasks/TASK-0022-github-action-package.md†L10-L16】【F:.github/actions/proxmox-openapi-artifacts/package.json†L1-L22】【F:.github/actions/proxmox-openapi-artifacts/src/main.ts†L45-L120】
+The package still depends on the caller executing `npm ci`, so bundling the pipeline runtime remains outstanding. Accept that limitation is documented for now, but future work should either vendor dependencies or publish a prebuilt artifact. 【F:tasks/TASK-0022-github-action-package.md†L10-L16】【F:.github/actions/proxmox-openapi-artifacts/package.json†L1-L22】【F:.github/actions/proxmox-openapi-artifacts/src/main.ts†L45-L120】
 
 ### TASK-0023 – Release workflow
-The publishing job never runs `npm ci` at the repository root before invoking `npm run package --prefix ...`, so TypeScript cannot resolve modules imported from `tools/automation` when the runner lacks cached dependencies. This is why the workflow currently fails with missing module errors. Updating the job to install the root workspace (or vendoring the dependencies into the action) remains outstanding work. 【F:.github/workflows/private-action-release.yml†L91-L101】【F:tools/automation/src/pipeline.ts†L1-L188】
+The `release_action` job now installs the root workspace (`npm ci`) before packaging, so the previously reported missing module failures are resolved. Future improvements should focus on slimming the archive or bundling dependencies, not on installer parity. 【F:.github/workflows/private-action-release.yml†L125-L200】【F:tools/automation/src/pipeline.ts†L1-L188】
 
 ### TASK-0024 – Adoption documentation
 The onboarding guide still points consumers at the in-repo `.github/actions/...` path and instructs them to keep running `npm ci`, which is incompatible with the long-term goal of shipping a standalone TypeScript action. The document should be rewritten once the packaging gap above is resolved so it reflects the final usage pattern. 【F:docs/automation/private-action-adoption.md†L17-L92】
@@ -26,7 +26,7 @@ The onboarding guide still points consumers at the in-repo `.github/actions/...`
 The `automation-pipeline` workflow has scoped path filters and continues to enforce lint/build/test coverage. No additional changes are required for this task beyond keeping the triggers in sync if new automation folders are added. 【F:.github/workflows/automation-pipeline.yml†L1-L46】
 
 ### TASK-0026 – Action implementation
-Although the TypeScript action runs, it still depends on the caller running `npm ci` and lacks template parity features such as a dedicated test suite or `npm run all`. Completing those parity items and removing the runtime dependency installation should be tracked as follow-up work. 【F:.github/actions/proxmox-openapi-artifacts/package.json†L6-L20】【F:.github/actions/proxmox-openapi-artifacts/src/main.ts†L45-L129】
+The TypeScript action behaves as expected, but it still depends on the caller running `npm ci` and lacks template niceties such as bundled dependencies, aggregated scripts, and dedicated tests. These parity items remain follow-ups. 【F:.github/actions/proxmox-openapi-artifacts/package.json†L6-L20】【F:.github/actions/proxmox-openapi-artifacts/src/main.ts†L45-L129】
 
 ### TASK-0027 – Template alignment plan
 The migration plan lists the steps required to match the `actions/typescript-action` template, but none of the optional enhancements (workspace restructure, aggregated scripts, dedicated tests) have been implemented yet. The plan should remain open until those items are delivered. 【F:docs/automation/private-action-adoption.md†L76-L92】【F:.github/actions/proxmox-openapi-artifacts/package.json†L6-L20】

@@ -68,7 +68,7 @@ npm run scraper:scrape
 ```
 
 - Writes a timestamped snapshot under `tools/api-scraper/data/raw/`.
-- Use the `SCRAPER_BASE_URL` environment variable to target a staging or air-gapped API viewer.
+- Override the source by setting `SCRAPER_BASE_URL` or passing `--base-url <url>` to the CLI when running through npm (e.g., `npm run scraper:scrape -- --base-url https://staging.example/pve-docs/api-viewer/`).
 - Logs endpoint counts so you can quickly detect large upstream shifts.
 
 ### 4.2 Normalize scraped data

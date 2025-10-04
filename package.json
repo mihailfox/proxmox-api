@@ -24,6 +24,7 @@
     "ui:build": "remix vite:build",
     "ui:preview": "remix vite:preview",
     "test:ui": "vitest",
+    "test:scraper": "ts-node --esm tools/api-scraper/tests/cli-options.spec.ts",
     "test:normalizer": "vitest run --config tools/api-normalizer/vitest.config.ts",
     "test:openapi": "vitest run --config tools/openapi-generator/vitest.config.ts",
     "test:automation": "vitest run --config tools/automation/vitest.config.ts",

@@ -4,6 +4,8 @@ export default defineConfig({
   test: {
     environment: 'node',
     globals: true,
-    include: ['tools/automation/tests/**/*.test.ts']
+    include: ['tools/automation/tests/**/*.test.ts'],
+    threads: false,
+    pool: 'forks'
   }
 });

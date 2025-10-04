@@ -12,8 +12,8 @@ npm run scraper:scrape
 The command launches Chromium headlessly, retrieves the documentation bundle, parses the
 `apiSchema` payload, and writes a deterministic snapshot to
 `tools/api-scraper/data/raw/proxmox-api-schema.json`. Override the target by setting the
-`SCRAPER_BASE_URL` environment variable before running the command (for example, to scrape a staging
-viewer instance).
+`SCRAPER_BASE_URL` environment variable or by passing `--base-url <url>` through npm (for example,
+`npm run scraper:scrape -- --base-url https://staging.example/pve-docs/api-viewer/`).
 
 The snapshot includes:
 
