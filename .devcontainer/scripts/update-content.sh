@@ -56,12 +56,14 @@ esac
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
     alias ls='ls --color=auto'
-    #alias dir='dir --color=auto'
-    #alias vdir='vdir --color=auto'
+fi
 
-    #alias grep='grep --color=auto'
-    #alias fgrep='fgrep --color=auto'
-    #alias egrep='egrep --color=auto'
+if [ -f ~/.bash_aliases ]; then
+  . ~/.bash_aliases
+fi
+
+if [ -f ~/.bash_env ]; then
+  . ~/.bash_env
 fi
 
 if ! shopt -oq posix; then
@@ -168,7 +170,7 @@ npm ci
 
 npx --yes playwright install --only-shell --with-deps chromium 
 
-npm install --location=global @openai/codex
+#npm install --location=global @openai/codex
 
 uv tool install --force specify-cli --from git+https://github.com/github/spec-kit.git
 
