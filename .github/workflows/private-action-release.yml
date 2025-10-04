@@ -36,10 +36,11 @@ jobs:
         run: npm run build
       - name: Smoke automation pipeline
         run: npm run automation:pipeline -- --mode=ci --report tmp/action-summary.json
-      - name: Install action dependencies
-        run: npm run action:install
-      - name: Lint and typecheck action workspace
-        run: npm run action:package
+      - name: Prepare action workspace
+        run: |
+          set -euo pipefail
+          npm run action:install
+          npm run action:package
   release_guard:
     name: Evaluate release trigger
     runs-on: ubuntu-latest
@@ -132,7 +133,7 @@ jobs:
           cache: npm
           cache-dependency-path: package-lock.json
       - name: Install dependencies
-        run: npm ci
+        run: npm install
       - name: Gather release inputs
         id: metadata
         run: |
@@ -219,22 +220,43 @@ jobs:
             --input var/reports/release-notes.md \
             --key notes_b64 \
             --output "$GITHUB_OUTPUT"
+      - name: Build action bundle
+        run: |
+          set -euo pipefail
+          npm install
+          npm run action:package
       - name: Package action directory
         run: |
           set -euo pipefail
-          npm run action:install
-          npm run action:package
-          rm -rf .github/actions/proxmox-openapi-artifacts/node_modules
-          rm -f proxmox-openapi-action.zip
-          (
-            cd .github/actions/proxmox-openapi-artifacts
-            zip -r ../../../proxmox-openapi-action.zip \
-              action.yml \
-              package.json \
-              package-lock.json \
-              src \
-              tsconfig.json
-          )
+          rm -rf tmp/action-release proxmox-openapi-action.zip
+          mkdir -p tmp/action-release
+          cp .github/actions/proxmox-openapi-artifacts/action.yml tmp/action-release/
+          cp .github/actions/proxmox-openapi-artifacts/package.json tmp/action-release/
+          cp .github/actions/proxmox-openapi-artifacts/package-lock.json tmp/action-release/
+          cp -R .github/actions/proxmox-openapi-artifacts/dist tmp/action-release/
+          (cd tmp/action-release && zip -r ../../proxmox-openapi-action.zip .)
+      - name: Smoke test action bundle
+        run: |
+          set -euo pipefail
+          rm -rf tmp/action-smoke
+          mkdir -p tmp/action-smoke tmp/action-work
+          unzip -q proxmox-openapi-action.zip -d tmp/action-smoke
+          ACTION_DIR="$(realpath tmp/action-smoke)"
+          export GITHUB_ACTION_PATH="$ACTION_DIR"
+          export GITHUB_WORKSPACE="$(pwd)"
+          export RUNNER_TEMP="$(pwd)/tmp/action-work"
+          export RUNNER_TOOL_CACHE="$(pwd)/tmp/action-tools"
+          export GITHUB_OUTPUT="$RUNNER_TEMP/output"
+          export GITHUB_STEP_SUMMARY="$RUNNER_TEMP/summary"
+          export INPUT_MODE=ci
+          export INPUT_OFFLINE=true
+          export INPUT_FALLBACK_TO_CACHE=true
+          export INPUT_INSTALL_COMMAND=
+          export INPUT_INSTALL_PLAYWRIGHT_BROWSERS=false
+          export INPUT_WORKING_DIRECTORY=.
+          export INPUT_REPORT_PATH="$RUNNER_TEMP/summary.json"
+          mkdir -p "$RUNNER_TEMP" "$RUNNER_TOOL_CACHE"
+          node "$ACTION_DIR/dist/index.js"
       - name: Create action release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

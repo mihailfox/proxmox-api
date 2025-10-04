@@ -16,6 +16,10 @@
 - Merge via **Squash and merge** into `dev` using `gh pr merge <url> --squash --delete-branch`. Promote `dev` to `main` via a dedicated release PR.
 - Avoid pushing directly to `dev` or `main`; always go through PRs.
 
+## Release workflow notes
+- `.github/workflows/private-action-release.yml` builds the action bundle, zips `dist/` plus metadata, and smoke-tests the archive before publishing.
+- Smoke test environment exports minimal `INPUT_*` variables (mode `ci`, offline) and runs `node dist/index.js`; keep supporting scripts in sync with action inputs if they change.
+
 ## GitHub CLI authentication
 1. Ensure `gh` is installed in the Codespace (already available).
 2. Authenticate via token environment variables:
