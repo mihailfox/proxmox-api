@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
-import type { RawApiSnapshot } from '../../api-scraper/src/types.ts';
+import type { RawApiSnapshot } from '@proxmox-api/api-scraper/types.ts';
 import { normalizeSnapshot } from './normalizer.ts';
 
 interface CliOptions {

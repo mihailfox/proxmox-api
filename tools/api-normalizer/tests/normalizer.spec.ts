@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import rawSnapshot from '../../api-scraper/data/raw/proxmox-api-schema.json' with { type: 'json' };
-import type { RawApiSnapshot } from '../../api-scraper/src/types.ts';
+import type { RawApiSnapshot } from '@proxmox-api/api-scraper/types.ts';
 import { normalizeSnapshot } from '../src/normalizer.ts';
 import type { NormalizedGroup } from '../src/types.ts';
 

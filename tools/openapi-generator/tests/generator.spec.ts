@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 
 import { describe, expect, it } from 'vitest';
 
-import type { NormalizedApiDocument } from '../../api-normalizer/src/types.ts';
+import type { NormalizedApiDocument } from '@proxmox-api/api-normalizer/types.ts';
 import type { OpenAPIV3_1 } from 'openapi-types';
 import { generateOpenApiDocument } from '../src/generator.ts';
 

@@ -8,7 +8,7 @@ import type {
   RawApiMethod,
   RawApiSnapshot,
   RawApiTreeNode
-} from '../../api-scraper/src/types.ts';
+} from '@proxmox-api/api-scraper/types.ts';
 import {
   IR_VERSION,
   type HttpMethod,

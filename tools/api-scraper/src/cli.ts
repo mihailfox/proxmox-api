@@ -1,6 +1,6 @@
 import process from 'node:process';
 
-import { isExecutedFromCli, resolveFromModule } from '../../shared/module-paths.ts';
+import { isExecutedFromCli, resolveFromModule } from '@proxmox-api/shared/module-paths.ts';
 import { parseScraperCliArgs } from './cli-options.ts';
 import { DEFAULT_BASE_URL, scrapeApiDocumentation } from './scraper.ts';
 
