@@ -6,10 +6,19 @@ const repoRoot = process.cwd();
 const sourceJson = resolve(repoRoot, "var/openapi/proxmox-ve.json");
 const sourceYaml = resolve(repoRoot, "var/openapi/proxmox-ve.yaml");
 
+const requireArtifacts = process.argv.includes("--require-artifacts");
+
 if (!existsSync(sourceJson) || !existsSync(sourceYaml)) {
-  throw new Error(
-    "OpenAPI artifacts not found in var/openapi. Run `npm run automation:pipeline` (or the relevant generators) before syncing UI assets."
+  if (requireArtifacts || process.env.UI_SYNC_REQUIRE_ARTIFACTS === "true") {
+    throw new Error(
+      "OpenAPI artifacts not found in var/openapi. Run `npm run automation:pipeline` (or the relevant generators) before syncing UI assets."
+    );
+  }
+
+  console.warn(
+    "[ui:sync-openapi] Skipping copy because var/openapi artifacts are missing. Run `npm run automation:pipeline` to generate them."
   );
+  process.exit(0);
 }
 
 const destination = resolve(repoRoot, "public/openapi.json");
