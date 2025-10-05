@@ -7,10 +7,10 @@
 - Shared tooling is published via npm workspaces (`@proxmox-api/*`). Use `npm run <script> --workspace <pkg>` when invoking package-specific commands (for example, `npm run action:package --workspace .github/actions/proxmox-openapi-artifacts`).
 - Treat `.github/actions/proxmox-openapi-artifacts/action.yml` as the source of truth for the action runtime (`runs.using`). Align workflows and docs with it whenever it changes.
 - The Swagger UI under `app/` runs on React Router 7 + Vite:
-  - `npm run ui:dev` starts the dev server.
+  - `npm run ui:dev` starts the React Router dev server.
   - `npm run ui:sync-openapi` copies generated specs from `var/openapi/` into `public/`.
-  - `npm run ui:build` runs the sync step and invokes `vite build` to emit a static bundle in `build/client/`.
-  - `npm run ui:preview` rebuilds and serves the bundle via `vite preview`.
+  - `npm run ui:build` runs the sync step, regenerates types, and calls `react-router build` (SPA mode) to emit `build/client/index.html`.
+  - `npm run ui:preview` rebuilds and serves the static bundle via `serve -s build/client`.
 - Branch naming convention:
   - `feature/<feature-title>` for incremental feature work.
   - `release/<version-tag>` when preparing a release for `main`.
