@@ -14,7 +14,6 @@ export default defineConfig({
       "@proxmox-api/api-normalizer": resolveWorkspace("tools/api-normalizer/src"),
       "@proxmox-api/openapi-generator": resolveWorkspace("tools/openapi-generator/src"),
       "@proxmox-api/automation": resolveWorkspace("tools/automation/src"),
-      "@proxmox-api/release-notes": resolveWorkspace("tools/release-notes/src"),
     },
   },
   test: {

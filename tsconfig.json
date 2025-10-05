@@ -1,6 +1,7 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "target": "ES2022",
+    "target": "es2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
     "esModuleInterop": true,
@@ -10,25 +11,53 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
+    "noEmit": true,
     "allowImportingTsExtensions": true,
     "baseUrl": ".",
     "paths": {
-      "@proxmox-api/shared": ["tools/shared"],
-      "@proxmox-api/shared/*": ["tools/shared/*"],
-      "@proxmox-api/api-scraper": ["tools/api-scraper"],
-      "@proxmox-api/api-scraper/*": ["tools/api-scraper/src/*"],
-      "@proxmox-api/api-normalizer": ["tools/api-normalizer"],
-      "@proxmox-api/api-normalizer/*": ["tools/api-normalizer/src/*"],
-      "@proxmox-api/openapi-generator": ["tools/openapi-generator"],
-      "@proxmox-api/openapi-generator/*": ["tools/openapi-generator/src/*"],
-      "@proxmox-api/automation": ["tools/automation/src/index.ts"],
-      "@proxmox-api/automation/*": ["tools/automation/src/*"],
-      "@proxmox-api/release-notes": ["tools/release-notes"],
-      "@proxmox-api/release-notes/*": ["tools/release-notes/src/*"]
+      "@proxmox-api/shared": [
+        "tools/shared"
+      ],
+      "@proxmox-api/shared/*": [
+        "tools/shared/*"
+      ],
+      "@proxmox-api/api-scraper": [
+        "tools/api-scraper"
+      ],
+      "@proxmox-api/api-scraper/*": [
+        "tools/api-scraper/src/*"
+      ],
+      "@proxmox-api/api-normalizer": [
+        "tools/api-normalizer"
+      ],
+      "@proxmox-api/api-normalizer/*": [
+        "tools/api-normalizer/src/*"
+      ],
+      "@proxmox-api/openapi-generator": [
+        "tools/openapi-generator"
+      ],
+      "@proxmox-api/openapi-generator/*": [
+        "tools/openapi-generator/src/*"
+      ],
+      "@proxmox-api/automation": [
+        "tools/automation/src/index.ts"
+      ],
+      "@proxmox-api/automation/*": [
+        "tools/automation/src/*"
+      ],
     },
-    "rootDirs": [".", ".react-router/types"],
-    "types": ["node", "@react-router/node", "vite/client", "@playwright/test", "vitest/globals"],
-    "outDir": "dist"
+    "rootDirs": [
+      ".",
+      "app/",
+      "app/src/"
+    ],
+    "types": [
+      "node",
+      "vite/client",
+      "@playwright/test",
+      "vitest/globals"
+    ],
+    "outDir": "app/dist"
   },
   "include": [
     "tools/api-scraper/**/*.ts",
@@ -36,9 +65,11 @@
     "tools/openapi-generator/**/*.ts",
     "tools/automation/**/*.ts",
     "tools/shared/**/*.ts",
-    "tools/release-notes/**/*.ts",
-    "tools/scripts/**/*.ts",
-    ".react-router/types/**/*.ts"
+    "tools/scripts/**/*.ts"
   ],
-  "exclude": ["node_modules", "dist"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "app/dist"
+  ]
 }

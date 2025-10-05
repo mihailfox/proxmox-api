@@ -9,7 +9,6 @@ on:
       - '.github/workflows/pages.yml'
       - 'package.json'
       - 'package-lock.json'
-      - 'tools/projects/publish-pages.ts'
       - 'tools/automation/**'
       - 'tools/openapi-generator/**'
       - 'tools/api-scraper/**'
@@ -39,12 +38,6 @@ jobs:
         run: npm install
       - name: Generate OpenAPI artifacts
         run: npm run automation:pipeline -- --mode=ci --report var/automation-summary.json
-      - name: Sync OpenAPI assets for UI
-        run: npm run ui:sync-openapi
-      - name: Build Swagger UI bundle
-        run: npm run ui:build
-      - name: Prepare pages bundle
-        run: npm run pages:prepare
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
