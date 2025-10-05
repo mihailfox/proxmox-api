@@ -1,5 +1,13 @@
 #!/usr/bin/env node
-import { cpSync, existsSync, mkdirSync, rmSync, copyFileSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  rmSync,
+  copyFileSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import path from "node:path";
 
 const repoRoot = process.cwd();
@@ -41,21 +49,56 @@ const manifest = JSON.parse(readFileSync(manifestPath, "utf-8")) as Record<
 
 const manifestEntries = Object.entries(manifest);
 
-const entry = manifestEntries
-  .filter(([key]) => key.includes("entry.client"))
-  .map(([, value]) => value)
-  .find((value) => value)
-  ?? manifestEntries.map(([, value]) => value).find((value) => value.isEntry);
+const resolveEntry = (): (typeof manifest)[string] | undefined => {
+  for (const [key, value] of manifestEntries) {
+    if (value.isEntry && key.includes("entry.client")) {
+      return value;
+    }
+  }
+  for (const [, value] of manifestEntries) {
+    if (value.isEntry) return value;
+  }
+  return undefined;
+};
+
+const findByKey = (key: string): (typeof manifest)[string] | undefined => {
+  if (!key) return undefined;
+  const candidates = [key, `/${key}`, `./${key}`];
+  for (const candidate of candidates) {
+    if (manifest[candidate]) return manifest[candidate];
+  }
+  return manifestEntries.find(([, value]) => value.file === key)?.[1];
+};
+
+const entry = resolveEntry();
 
 if (!entry) {
   throw new Error("Unable to locate entry.client bundle in Vite manifest.");
 }
 
-const preloadImports = (entry.imports ?? [])
-  .map((key) => manifest[key]?.file ?? manifest[`/${key}`]?.file)
-  .filter((value): value is string => Boolean(value));
+const referencedEntries = new Set<(typeof manifest)[string]>([entry]);
 
-const stylesheets = entry.assets ?? [];
+for (const key of [...(entry.imports ?? []), ...(entry.dynamicImports ?? [])]) {
+  const resolved = findByKey(key);
+  if (resolved) referencedEntries.add(resolved);
+}
+
+const modulePreloads = Array.from(referencedEntries)
+  .map((value) => value.file)
+  .filter((value): value is string => Boolean(value) && value !== entry.file);
+
+const stylesheetSet = new Set<string>(entry.assets ?? []);
+for (const value of referencedEntries) {
+  for (const css of value?.css ?? []) {
+    stylesheetSet.add(css);
+  }
+}
+for (const [, value] of manifestEntries) {
+  if (value.file?.endsWith(".css")) {
+    stylesheetSet.add(value.file);
+  }
+}
+const stylesheets = Array.from(stylesheetSet);
 
 const html = `<!DOCTYPE html>
 <html lang="en">
@@ -63,11 +106,9 @@ const html = `<!DOCTYPE html>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Proxmox API Viewer</title>
-${stylesheets
-  .map((href) => `    <link rel="stylesheet" href="/${href}" />`)
-  .join("\n")}
-${preloadImports
-  .map((href) => `    <link rel="modulepreload" href="/${href}" />`)
+${stylesheets.map((href) => `    <link rel="stylesheet" crossorigin href="/${href}" />`).join("\n")}
+${modulePreloads
+  .map((href) => `    <link rel="modulepreload" crossorigin href="/${href}" />`)
   .join("\n")}
   </head>
   <body>
