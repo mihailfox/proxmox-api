@@ -9,17 +9,35 @@ on:
       release-items:
         description: 'Task or issue IDs to include in release notes (comma or semicolon separated)'
         required: false
+      job_mode:
+        description: 'Which jobs to run (action, schema, both, version-check)'
+        type: choice
+        default: both
+        options:
+          - both
+          - action
+          - schema
+          - version-check
+      enable_release_guard:
+        description: 'Enable release guard logic'
+        type: boolean
+        default: false
   push:
     branches:
       - main
     paths:
       - '.github/actions/proxmox-openapi-artifacts/**'
       - 'tools/automation/**'
-      
+
+env:
+  DEFAULT_JOB_MODE: both
+  RELEASE_GUARD_DEFAULT: false
+
 jobs:
   validate:
     name: Validate action tooling
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.job_mode == 'both' || inputs.job_mode == 'action' }}
     steps:
       - uses: actions/checkout@v5
       - name: Setup Node.js
@@ -45,16 +63,40 @@ jobs:
     name: Evaluate release trigger
     runs-on: ubuntu-latest
     outputs:
-      should_release: ${{ steps.decision.outputs.should_release }}
+      should_release: ${{ steps.decision.outputs.should_release || steps.skip_guard.outputs.should_release || 'true' }}
+      guard_enabled: ${{ steps.guard_mode.outputs.guard_enabled }}
       pve_version: ${{ steps.metadata.outputs.version }}
       pve_updated_at: ${{ steps.metadata.outputs.updated_at }}
       pve_metadata: ${{ steps.metadata.outputs.metadata }}
     steps:
+      - name: Determine guard mode
+        id: guard_mode
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_ENABLE: ${{ inputs.enable_release_guard }}
+          DEFAULT_ENABLE: ${{ env.RELEASE_GUARD_DEFAULT }}
+        run: |
+          ENABLE="$INPUT_ENABLE"
+          if [ "$EVENT_NAME" != "workflow_dispatch" ]; then
+            ENABLE="${DEFAULT_ENABLE:-false}"
+          fi
+          if [ -z "$ENABLE" ]; then
+            ENABLE=false
+          fi
+          echo "guard_enabled=$ENABLE" >> "$GITHUB_OUTPUT"
+
+      - name: Skip guard when disabled
+        id: skip_guard
+        if: ${{ steps.guard_mode.outputs.guard_enabled != 'true' }}
+        run: echo "should_release=true" >> "$GITHUB_OUTPUT"
+
       - uses: actions/checkout@v5
+        if: ${{ steps.guard_mode.outputs.guard_enabled == 'true' }}
         with:
           fetch-depth: 0
       - name: Discover Proxmox docs metadata
         id: metadata
+        if: ${{ steps.guard_mode.outputs.guard_enabled == 'true' }}
         run: |
           set -euo pipefail
           python tools/scripts/fetch_pve_docs_metadata.py --output pve-metadata.json
@@ -81,6 +123,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Evaluate release guard
         id: decision
+        if: ${{ steps.guard_mode.outputs.guard_enabled == 'true' }}
         run: |
           set -euo pipefail
           SHOULD_RELEASE="true"
@@ -111,7 +154,7 @@ jobs:
     needs:
       - validate
       - release_guard
-    if: ${{ needs.validate.result == 'success' && needs.release_guard.outputs.should_release == 'true' }}
+    if: ${{ (needs.validate.result == 'success' || needs.validate.result == 'skipped') && needs.release_guard.outputs.should_release == 'true' && (github.event_name != 'workflow_dispatch' || inputs.job_mode == 'both' || inputs.job_mode == 'action') }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -283,10 +326,9 @@ jobs:
   release_schema:
     name: Publish Proxmox API schema
     needs:
-      - validate
-      - release_action
       - release_guard
-    if: ${{ needs.release_action.result == 'success' }}
+      - release_action
+    if: ${{ needs.release_guard.outputs.should_release == 'true' && (github.event_name != 'workflow_dispatch' || inputs.job_mode == 'both' || inputs.job_mode == 'schema' || inputs.job_mode == 'version-check') }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -302,6 +344,58 @@ jobs:
         run: npm ci
       - name: Generate OpenAPI artifacts
         run: npm run automation:pipeline -- --mode=ci --report var/automation-summary.json
+      - name: Prepare schema release metadata
+        id: schema_meta
+        if: ${{ needs.release_action.result != 'success' }}
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_VERSION: ${{ inputs.version }}
+          DEFAULT_MODE: ${{ env.DEFAULT_JOB_MODE }}
+        run: |
+          set -euo pipefail
+          REQUESTED_VERSION="$INPUT_VERSION"
+          SOURCE_MODE="automatic"
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            SOURCE_MODE="manual"
+          fi
+
+          normalize_version() {
+            local raw="$1"
+            if [[ "$raw" =~ ^v[0-9]+\.[0-9]+\.[0-9A-Za-z.+-]+$ ]]; then
+              echo "$raw"
+              return 0
+            fi
+            echo "Error: version '$raw' must start with 'v' (e.g., v0.3.1)." >&2
+            return 1
+          }
+
+          LAST_TAG=$(git tag --list 'v[0-9]*.[0-9]*.[0-9A-Za-z.+-]*' --sort=-version:refname | head -n1)
+
+          if [ -n "$REQUESTED_VERSION" ]; then
+            RELEASE_VERSION=$(normalize_version "$REQUESTED_VERSION")
+          else
+            if [ -z "$LAST_TAG" ]; then
+              RELEASE_VERSION="v0.1.0"
+            else
+              RELEASE_VERSION=$(python tools/scripts/compute_next_version.py --last-tag "$LAST_TAG")
+            fi
+          fi
+
+          if git rev-parse "$RELEASE_VERSION" >/dev/null 2>&1; then
+            echo "Release tag '$RELEASE_VERSION' already exists." >&2
+            exit 1
+          fi
+
+          if [[ "$RELEASE_VERSION" == *-* ]]; then
+            IS_PRERELEASE=true
+          else
+            IS_PRERELEASE=false
+          fi
+
+          echo "release_version=$RELEASE_VERSION" >> "$GITHUB_OUTPUT"
+          echo "is_prerelease=$IS_PRERELEASE" >> "$GITHUB_OUTPUT"
+          echo "source_mode=$SOURCE_MODE" >> "$GITHUB_OUTPUT"
+          echo "previous_tag=$LAST_TAG" >> "$GITHUB_OUTPUT"
       - name: Prepare Proxmox docs metadata
         id: pve
         env:
@@ -333,6 +427,22 @@ jobs:
               echo "- Fetch error: $ERROR_MESSAGE"
             fi
           } >> "$GITHUB_STEP_SUMMARY"
+      - name: Compose schema release notes
+        if: ${{ needs.release_action.result != 'success' && (github.event_name != 'workflow_dispatch' || inputs.job_mode != 'version-check') }}
+        env:
+          RELEASE_ITEMS: ${{ inputs.release-items }}
+          PREVIOUS_TAG: ${{ steps.schema_meta.outputs.previous_tag }}
+        run: |
+          set -euo pipefail
+          mkdir -p var/reports
+          ARGS=("--output=var/reports/release-notes.md")
+          if [ -n "$RELEASE_ITEMS" ]; then
+            ARGS+=("--items=$RELEASE_ITEMS")
+          fi
+          if [ -n "$PREVIOUS_TAG" ]; then
+            ARGS+=("--base-ref=$PREVIOUS_TAG")
+          fi
+          npx tsx tools/scripts/compose-release-notes.ts "${ARGS[@]}"
       - name: Package schema artifacts
         run: |
           set -euo pipefail
@@ -341,6 +451,7 @@ jobs:
             var/openapi/proxmox-ve.json \
             var/openapi/proxmox-ve.yaml
       - name: Restore release notes
+        if: ${{ needs.release_action.result == 'success' }}
         env:
           NOTES_B64: ${{ needs.release_action.outputs.release_notes_b64 }}
         run: |
@@ -353,10 +464,11 @@ jobs:
             --env NOTES_B64 \
             --output var/reports/release-notes.md
       - name: Create schema release
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.job_mode == 'both' || inputs.job_mode == 'schema' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_VERSION: ${{ needs.release_action.outputs.release_version }}
-          PRERELEASE: ${{ needs.release_action.outputs.is_prerelease }}
+          RELEASE_VERSION: ${{ needs.release_action.outputs.release_version || steps.schema_meta.outputs.release_version }}
+          PRERELEASE: ${{ needs.release_action.outputs.is_prerelease || steps.schema_meta.outputs.is_prerelease || 'false' }}
           PVE_VERSION: ${{ steps.pve.outputs.version }}
           PVE_UPDATED_AT: ${{ steps.pve.outputs.updated_at }}
         run: |
