@@ -1,8 +1,8 @@
-import { promises as fs } from 'node:fs';
-import path from 'node:path';
+import { promises as fs } from "node:fs";
+import path from "node:path";
 
-import type { RawApiSnapshot } from '@proxmox-api/api-scraper/types.ts';
-import { normalizeSnapshot } from './normalizer.ts';
+import type { RawApiSnapshot } from "@proxmox-api/api-scraper/types.ts";
+import { normalizeSnapshot } from "./normalizer.ts";
 
 interface CliOptions {
   inputPath: string;
@@ -14,7 +14,7 @@ async function main(): Promise<void> {
   const resolvedInput = path.resolve(process.cwd(), options.inputPath);
   const resolvedOutput = path.resolve(process.cwd(), options.outputPath);
 
-  const payload = await fs.readFile(resolvedInput, 'utf8');
+  const payload = await fs.readFile(resolvedInput, "utf8");
   const snapshot = JSON.parse(payload) as RawApiSnapshot;
   const normalized = normalizeSnapshot(snapshot);
 
@@ -27,15 +27,15 @@ async function main(): Promise<void> {
 }
 
 function parseArgs(argv: string[]): CliOptions {
-  let inputPath = 'tools/api-scraper/data/raw/proxmox-api-schema.json';
-  let outputPath = 'tools/api-normalizer/data/ir/proxmox-api-ir.json';
+  let inputPath = "tools/api-scraper/data/raw/proxmox-api-schema.json";
+  let outputPath = "tools/api-normalizer/data/ir/proxmox-api-ir.json";
 
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
-    if (arg === '--input' || arg === '-i') {
+    if (arg === "--input" || arg === "-i") {
       inputPath = argv[index + 1] ?? inputPath;
       index += 1;
-    } else if (arg === '--output' || arg === '-o') {
+    } else if (arg === "--output" || arg === "-o") {
       outputPath = argv[index + 1] ?? outputPath;
       index += 1;
     }

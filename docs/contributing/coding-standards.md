@@ -71,7 +71,7 @@ and the scaffolding delivered in [TASK-0002](../../tasks/TASK-0002-tooling-found
   - `npm run lint`
   - `npm run test`
   - `npm run build`
-  - Module-specific test commands (`npm run test:normalizer`, `npm run test:openapi`, etc.) when the
+  - Module-specific test commands (`npm run normalizer:test`, `npm run openapi:test`, etc.) when the
     change touches that surface.
 
 ## Git and review workflow

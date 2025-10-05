@@ -1,15 +1,15 @@
-export const IR_VERSION = '1.0.0';
+export const IR_VERSION = "1.0.0";
 
 export type HttpMethod =
-  | 'GET'
-  | 'POST'
-  | 'PUT'
-  | 'DELETE'
-  | 'PATCH'
-  | 'OPTIONS'
-  | 'HEAD'
-  | 'TRACE'
-  | 'UNKNOWN';
+  | "GET"
+  | "POST"
+  | "PUT"
+  | "DELETE"
+  | "PATCH"
+  | "OPTIONS"
+  | "HEAD"
+  | "TRACE"
+  | "UNKNOWN";
 
 export interface NormalizedApiDocument {
   irVersion: string;

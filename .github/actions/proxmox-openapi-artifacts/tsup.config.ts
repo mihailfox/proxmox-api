@@ -1,18 +1,23 @@
-import { defineConfig } from 'tsup';
+import { defineConfig } from "tsup";
 
 export default defineConfig({
   entry: {
-    index: 'src/main.ts'
+    index: "src/main.ts",
   },
-  format: 'esm',
+  format: "cjs",
   sourcemap: true,
   clean: true,
   dts: false,
-  platform: 'node',
-  target: 'node20',
-  outDir: 'dist',
+  platform: "node",
+  target: "node24",
+  outDir: "dist",
   bundle: true,
   shims: false,
-  noExternal: ['@actions/core', '@actions/exec', '@proxmox-api/automation'],
-  external: ['playwright', 'playwright-core', 'chromium-bidi']
+  noExternal: ["@actions/core", "@actions/exec", "@proxmox-api/automation"],
+  external: ["playwright", "playwright-core", "chromium-bidi"],
+  outExtension() {
+    return {
+      js: ".cjs",
+    };
+  },
 });

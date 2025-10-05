@@ -1,18 +1,13 @@
-import { readFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
 
-import type { BrowserContext } from 'playwright';
+import type { BrowserContext } from "playwright";
 
-import type {
-  ApiSchemaMethod,
-  ApiSchemaNode,
-  RawApiMethod,
-  RawApiTreeNode
-} from './types.ts';
+import type { ApiSchemaMethod, ApiSchemaNode, RawApiMethod, RawApiTreeNode } from "./types.ts";
 
-const MOCK_ROOT = resolve('tools/api-scraper/mocks');
-const MOCK_INDEX_PATH = resolve(MOCK_ROOT, 'index.html');
-const MOCK_SNAPSHOT_PATH = resolve('tools/api-scraper/data/raw/proxmox-api-schema.json');
+const MOCK_ROOT = resolve("tools/api-scraper/mocks");
+const MOCK_INDEX_PATH = resolve(MOCK_ROOT, "index.html");
+const MOCK_SNAPSHOT_PATH = resolve("tools/api-scraper/data/raw/proxmox-api-schema.json");
 
 const MOCK_TARGET_PATTERN = /pve\.proxmox\.com\/pve-docs\/api-viewer/i;
 
@@ -35,7 +30,7 @@ function isTruthy(value: string | undefined): boolean {
     return false;
   }
   const normalized = value.trim().toLowerCase();
-  if (normalized === 'false' || normalized === '0' || normalized === 'off') {
+  if (normalized === "false" || normalized === "0" || normalized === "off") {
     return false;
   }
   return normalized.length > 0;
@@ -50,7 +45,7 @@ async function loadMockAssets(): Promise<MockAssets> {
     return cachedAssets;
   }
   if (!loadPromise) {
-    loadPromise = Promise.all([readFile(MOCK_INDEX_PATH, 'utf-8'), loadMockScript()]).then(
+    loadPromise = Promise.all([readFile(MOCK_INDEX_PATH, "utf-8"), loadMockScript()]).then(
       ([html, script]) => {
         cachedAssets = { html, script };
         return cachedAssets;
@@ -61,7 +56,7 @@ async function loadMockAssets(): Promise<MockAssets> {
 }
 
 function normalizeBasePath(pathname: string): string {
-  return pathname.endsWith('/') ? pathname : `${pathname}/`;
+  return pathname.endsWith("/") ? pathname : `${pathname}/`;
 }
 
 async function loadMockScript(): Promise<string> {
@@ -69,7 +64,7 @@ async function loadMockScript(): Promise<string> {
     return cachedScript;
   }
   if (!scriptPromise) {
-    scriptPromise = readFile(MOCK_SNAPSHOT_PATH, 'utf-8')
+    scriptPromise = readFile(MOCK_SNAPSHOT_PATH, "utf-8")
       .then((contents) => JSON.parse(contents) as RawSnapshot)
       .then((snapshot) => {
         const schemaNodes = Array.isArray(snapshot.schema) ? snapshot.schema : [];
@@ -87,7 +82,7 @@ function toApiSchemaNode(node: RawApiTreeNode): ApiSchemaNode {
   const children = node.children.map(toApiSchemaNode);
   const schemaNode: ApiSchemaNode = {
     text: node.text,
-    path: node.path
+    path: node.path,
   };
 
   if (info && Object.keys(info).length > 0) {
@@ -105,7 +100,7 @@ function toApiSchemaNode(node: RawApiTreeNode): ApiSchemaNode {
 
 function toApiSchemaMethod(method: RawApiMethod): ApiSchemaMethod {
   const schemaMethod: ApiSchemaMethod = {
-    method: method.httpMethod
+    method: method.httpMethod,
   };
 
   if (method.name !== undefined) {
@@ -172,7 +167,7 @@ export async function registerCodexMock(
   const basePath = normalizeBasePath(target.pathname);
   const basePathWithoutTrailingSlash = basePath.slice(0, -1);
 
-  await context.route('**/*', async (route) => {
+  await context.route("**/*", async (route) => {
     const requestUrl = route.request().url();
     let url: URL;
     try {
@@ -189,7 +184,7 @@ export async function registerCodexMock(
 
     let relativePath: string | undefined;
     if (url.pathname === basePathWithoutTrailingSlash) {
-      relativePath = '';
+      relativePath = "";
     } else if (url.pathname.startsWith(basePath)) {
       relativePath = url.pathname.slice(basePath.length);
     }
@@ -199,30 +194,30 @@ export async function registerCodexMock(
       return;
     }
 
-    const normalizedRelative = relativePath.replace(/^\/+/, '');
+    const normalizedRelative = relativePath.replace(/^\/+/, "");
 
-    if (normalizedRelative === '' || normalizedRelative === 'index.html') {
+    if (normalizedRelative === "" || normalizedRelative === "index.html") {
       await route.fulfill({
         status: 200,
-        contentType: 'text/html; charset=utf-8',
-        body: assets.html
+        contentType: "text/html; charset=utf-8",
+        body: assets.html,
       });
       return;
     }
 
-    if (normalizedRelative === 'apidoc.js') {
+    if (normalizedRelative === "apidoc.js") {
       await route.fulfill({
         status: 200,
-        contentType: 'application/javascript; charset=utf-8',
-        body: assets.script
+        contentType: "application/javascript; charset=utf-8",
+        body: assets.script,
       });
       return;
     }
 
     await route.fulfill({
       status: 404,
-      contentType: 'text/plain; charset=utf-8',
-      body: 'Mock asset not found'
+      contentType: "text/plain; charset=utf-8",
+      body: "Mock asset not found",
     });
   });
 

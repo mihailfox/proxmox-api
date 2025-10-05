@@ -1,17 +1,17 @@
-export type BooleanString = 'true' | 'false' | '1' | '0' | 'yes' | 'no' | 'on' | 'off';
+export type BooleanString = "true" | "false" | "1" | "0" | "yes" | "no" | "on" | "off";
 
 export function parseBoolean(value: string): boolean {
   const normalized = value.trim().toLowerCase();
   switch (normalized as BooleanString) {
-    case 'true':
-    case '1':
-    case 'yes':
-    case 'on':
+    case "true":
+    case "1":
+    case "yes":
+    case "on":
       return true;
-    case 'false':
-    case '0':
-    case 'no':
-    case 'off':
+    case "false":
+    case "0":
+    case "no":
+    case "off":
       return false;
     default:
       throw new Error(`Invalid boolean value: ${value}`);
@@ -32,7 +32,7 @@ export function normalizeBooleanFlagArguments(
 
     if (token === prefix) {
       const next = argv[index + 1];
-      if (next && !next.startsWith('-')) {
+      if (next && !next.startsWith("-")) {
         resolved = parseBoolean(next);
         index += 1;
       } else {

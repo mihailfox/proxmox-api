@@ -1,6 +1,6 @@
-import assert from 'node:assert/strict';
+import assert from "node:assert/strict";
 
-import { parseScraperCliArgs } from '../src/cli-options.ts';
+import { parseScraperCliArgs } from "../src/cli-options.ts";
 
 type TestCase = {
   name: string;
@@ -9,54 +9,54 @@ type TestCase = {
 
 const cases: TestCase[] = [
   {
-    name: 'returns empty options when no overrides provided',
+    name: "returns empty options when no overrides provided",
     run: () => {
       assert.deepEqual(parseScraperCliArgs([], {} as NodeJS.ProcessEnv), {});
-    }
+    },
   },
   {
-    name: 'prefers explicit --base-url flag over environment value',
+    name: "prefers explicit --base-url flag over environment value",
     run: () => {
-      const result = parseScraperCliArgs(['--base-url', 'https://example.test/api'], {
-        SCRAPER_BASE_URL: 'https://ignored.example'
+      const result = parseScraperCliArgs(["--base-url", "https://example.test/api"], {
+        SCRAPER_BASE_URL: "https://ignored.example",
       } as NodeJS.ProcessEnv);
-      assert.deepEqual(result, { baseUrl: 'https://example.test/api' });
-    }
+      assert.deepEqual(result, { baseUrl: "https://example.test/api" });
+    },
   },
   {
-    name: 'trims explicit base URL values',
+    name: "trims explicit base URL values",
     run: () => {
-      const result = parseScraperCliArgs(['--base-url', '  https://trimmed.test  '], process.env);
-      assert.deepEqual(result, { baseUrl: 'https://trimmed.test' });
-    }
+      const result = parseScraperCliArgs(["--base-url", "  https://trimmed.test  "], process.env);
+      assert.deepEqual(result, { baseUrl: "https://trimmed.test" });
+    },
   },
   {
-    name: 'reads SCRAPER_BASE_URL from the environment when flag absent',
+    name: "reads SCRAPER_BASE_URL from the environment when flag absent",
     run: () => {
       const result = parseScraperCliArgs([], {
-        SCRAPER_BASE_URL: 'https://env.test'
+        SCRAPER_BASE_URL: "https://env.test",
       } as NodeJS.ProcessEnv);
-      assert.deepEqual(result, { baseUrl: 'https://env.test' });
-    }
+      assert.deepEqual(result, { baseUrl: "https://env.test" });
+    },
   },
   {
-    name: 'ignores blank environment overrides',
+    name: "ignores blank environment overrides",
     run: () => {
       const result = parseScraperCliArgs([], {
-        SCRAPER_BASE_URL: '  '
+        SCRAPER_BASE_URL: "  ",
       } as NodeJS.ProcessEnv);
       assert.deepEqual(result, {});
-    }
+    },
   },
   {
-    name: 'throws when --base-url is provided without a value',
+    name: "throws when --base-url is provided without a value",
     run: () => {
       assert.throws(
-        () => parseScraperCliArgs(['--base-url', '   '], process.env),
+        () => parseScraperCliArgs(["--base-url", "   "], process.env),
         /Option "--base-url" requires a non-empty value\./
       );
-    }
-  }
+    },
+  },
 ];
 
 let failed = false;

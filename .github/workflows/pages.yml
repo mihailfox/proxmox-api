@@ -4,7 +4,7 @@ on:
   workflow_dispatch: {}
   push:
     branches:
-      - dev
+      - main
     paths:
       - '.github/workflows/pages.yml'
       - 'package.json'
@@ -28,21 +28,25 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
           cache-dependency-path: package-lock.json
       - name: Install dependencies
         run: npm install
       - name: Generate OpenAPI artifacts
         run: npm run automation:pipeline -- --mode=ci --report var/automation-summary.json
+      - name: Sync OpenAPI assets for UI
+        run: npm run ui:sync-openapi
+      - name: Build Swagger UI bundle
+        run: npm run ui:build
       - name: Prepare pages bundle
         run: npm run pages:prepare
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: var/pages
 

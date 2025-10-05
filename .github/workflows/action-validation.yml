@@ -29,11 +29,11 @@ jobs:
     name: Check committed dist
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
           cache-dependency-path: package-lock.json
       - name: Install dependencies
@@ -58,11 +58,11 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
           cache-dependency-path: package-lock.json
       - name: Install dependencies
@@ -92,4 +92,6 @@ jobs:
           export INPUT_INSTALL_PLAYWRIGHT_BROWSERS=false
           export INPUT_WORKING_DIRECTORY=.
           export INPUT_REPORT_PATH="$RUNNER_TEMP/summary.json"
-          node tmp/action-smoke/dist/index.js
+          mkdir -p "$(dirname "$GITHUB_OUTPUT")" "$(dirname "$GITHUB_STEP_SUMMARY")"
+          touch "$GITHUB_OUTPUT" "$GITHUB_STEP_SUMMARY"
+          node tmp/action-smoke/dist/index.cjs
