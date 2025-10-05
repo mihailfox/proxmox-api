@@ -299,6 +299,7 @@ jobs:
           export INPUT_WORKING_DIRECTORY=.
           export INPUT_REPORT_PATH="$RUNNER_TEMP/summary.json"
           mkdir -p "$RUNNER_TEMP" "$RUNNER_TOOL_CACHE"
+          touch "$GITHUB_OUTPUT" "$GITHUB_STEP_SUMMARY"
           ENTRY="$ACTION_DIR/dist/index.cjs"
           if [ ! -f "$ENTRY" ]; then
             ENTRY="$ACTION_DIR/dist/index.js"
