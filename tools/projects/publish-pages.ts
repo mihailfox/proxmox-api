@@ -49,43 +49,19 @@ const manifest = JSON.parse(readFileSync(manifestPath, "utf-8")) as Record<
 
 const manifestEntries = Object.entries(manifest);
 
-const resolveEntry = (): (typeof manifest)[string] | undefined => {
-  for (const [key, value] of manifestEntries) {
-    if (value.isEntry && key.includes("entry.client")) {
-      return value;
-    }
-  }
-  for (const [, value] of manifestEntries) {
-    if (value.isEntry) return value;
-  }
-  return undefined;
-};
-
-const findByKey = (key: string): (typeof manifest)[string] | undefined => {
-  if (!key) return undefined;
-  const candidates = [key, `/${key}`, `./${key}`];
-  for (const candidate of candidates) {
-    if (manifest[candidate]) return manifest[candidate];
-  }
-  return manifestEntries.find(([, value]) => value.file === key)?.[1];
-};
-
-const entry = resolveEntry();
+const entry = manifestEntries
+  .filter(([key]) => key.includes("entry.client"))
+  .map(([, value]) => value)
+  .find((value) => value)
+  ?? manifestEntries.map(([, value]) => value).find((value) => value.isEntry);
 
 if (!entry) {
   throw new Error("Unable to locate entry.client bundle in Vite manifest.");
 }
 
-const referencedEntries = new Set<(typeof manifest)[string]>([entry]);
-
-for (const key of [...(entry.imports ?? []), ...(entry.dynamicImports ?? [])]) {
-  const resolved = findByKey(key);
-  if (resolved) referencedEntries.add(resolved);
-}
-
-const modulePreloads = Array.from(referencedEntries)
-  .map((value) => value.file)
-  .filter((value): value is string => Boolean(value) && value !== entry.file);
+const preloadImports = (entry.imports ?? [])
+  .map((key) => manifest[key]?.file ?? manifest[`/${key}`]?.file)
+  .filter((value): value is string => Boolean(value));
 
 const stylesheetSet = new Set<string>(entry.assets ?? []);
 for (const value of referencedEntries) {
