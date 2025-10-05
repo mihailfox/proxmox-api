@@ -11,6 +11,11 @@
   - `npm run ui:sync-openapi` copies generated specs from `var/openapi/` into `public/`.
   - `npm run ui:build` runs the sync step and invokes `vite build` to emit a static bundle in `build/client/`.
   - `npm run ui:preview` rebuilds and serves the bundle via `vite preview`.
+- Branch naming convention:
+  - `feature/<feature-title>` for incremental feature work.
+  - `release/<version-tag>` when preparing a release for `main`.
+  - `hotfix/<hotfix-title>` for urgent fixes against `main`.
+  - Keep `dev` as the integration branch promoted into `main`.
 
 ## Working with issues & branches
 - Create a high-level issue, then break work into sub-issues and link them (either via the project “Parent issue” field or `Tracked by #<parent>` comments).
@@ -31,6 +36,7 @@
 - `action-validation.yml` keeps the bundled action honest: it rebuilds `dist/` and smoke-tests the archive on Linux, macOS, and Windows. Update aliases if workspace paths change.
 - `private-action-release.yml` handles packaged releases. The bundle step copies `dist/`, `action.yml`, and package metadata; keep the smoke test environment variables in sync with action inputs.
 - `private-action-release.yml` now supports selective dispatch (`job_mode` input: `both`, `action`, `schema`, `version-check`) and the release guard is disabled by default unless explicitly enabled.
+- Release notes are generated from recently closed GitHub issues (optionally extended via `release-items`) rather than `versions/` changelog files.
 - `pages.yml` regenerates OpenAPI artifacts with the automation pipeline and publishes Swagger UI to GitHub Pages.
 
 ## GitHub CLI authentication
