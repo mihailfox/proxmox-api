@@ -1,5 +1,13 @@
 #!/usr/bin/env node
-import { cpSync, existsSync, mkdirSync, rmSync, copyFileSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  rmSync,
+  copyFileSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import path from "node:path";
 
 const repoRoot = process.cwd();
@@ -55,7 +63,18 @@ const preloadImports = (entry.imports ?? [])
   .map((key) => manifest[key]?.file ?? manifest[`/${key}`]?.file)
   .filter((value): value is string => Boolean(value));
 
-const stylesheets = entry.assets ?? [];
+const stylesheetSet = new Set<string>(entry.assets ?? []);
+for (const value of referencedEntries) {
+  for (const css of value?.css ?? []) {
+    stylesheetSet.add(css);
+  }
+}
+for (const [, value] of manifestEntries) {
+  if (value.file?.endsWith(".css")) {
+    stylesheetSet.add(value.file);
+  }
+}
+const stylesheets = Array.from(stylesheetSet);
 
 const html = `<!DOCTYPE html>
 <html lang="en">
@@ -63,11 +82,9 @@ const html = `<!DOCTYPE html>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Proxmox API Viewer</title>
-${stylesheets
-  .map((href) => `    <link rel="stylesheet" href="/${href}" />`)
-  .join("\n")}
-${preloadImports
-  .map((href) => `    <link rel="modulepreload" href="/${href}" />`)
+${stylesheets.map((href) => `    <link rel="stylesheet" crossorigin href="/${href}" />`).join("\n")}
+${modulePreloads
+  .map((href) => `    <link rel="modulepreload" crossorigin href="/${href}" />`)
   .join("\n")}
   </head>
   <body>
