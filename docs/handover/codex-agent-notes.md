@@ -16,6 +16,7 @@
   - `release/<version-tag>` when preparing a release for `main`.
   - `hotfix/<hotfix-title>` for urgent fixes against `main`.
   - Keep `dev` as the integration branch promoted into `main`.
+- Hotfix workflow: branch from `main`, open a PR back into `main`, and then fast-forward or cherry-pick the fix into `dev` to keep both lines synchronized.
 
 ## Working with issues & branches
 - Create a high-level issue, then break work into sub-issues and link them (either via the project “Parent issue” field or `Tracked by #<parent>` comments).
