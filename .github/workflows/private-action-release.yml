@@ -229,7 +229,12 @@ jobs:
           echo "action_tag=$ACTION_TAG" >> "$GITHUB_OUTPUT"
           echo "release_version=$ACTION_TAG" >> "$GITHUB_OUTPUT"
           echo "is_prerelease=$IS_PRERELEASE" >> "$GITHUB_OUTPUT"
+          TAG_DATE=""
+          if [ -n "$LAST_TAG" ]; then
+            TAG_DATE=$(git log -1 --format=%cI "$LAST_TAG")
+          fi
           echo "previous_tag=$LAST_TAG" >> "$GITHUB_OUTPUT"
+          echo "previous_tag_date=$TAG_DATE" >> "$GITHUB_OUTPUT"
           echo "release_items=$RELEASE_ITEMS" >> "$GITHUB_OUTPUT"
 
           {
@@ -244,21 +249,29 @@ jobs:
               echo "- Release items: $RELEASE_ITEMS"
             fi
           } >> "$GITHUB_STEP_SUMMARY"
-      - name: Compose release notes
+      - name: Collect closed issues for release notes
         id: compose
         env:
-          RELEASE_ITEMS: ${{ steps.metadata.outputs.release_items }}
-          PREVIOUS_TAG: ${{ steps.metadata.outputs.previous_tag }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          SINCE: ${{ steps.metadata.outputs.previous_tag_date }}
+          MANUAL_ITEMS: ${{ steps.metadata.outputs.release_items }}
         run: |
           set -euo pipefail
-          ARGS=("--output=var/reports/release-notes.md")
-          if [ -n "$RELEASE_ITEMS" ]; then
-            ARGS+=("--items=$RELEASE_ITEMS")
+          ARGS=("--output" "var/reports/release-notes.md" "--repo" "$REPO" "--state" "closed")
+          if [ -n "${SINCE:-}" ]; then
+            ARGS+=("--since" "$SINCE")
           fi
-          if [ -n "$PREVIOUS_TAG" ]; then
-            ARGS+=("--base-ref=$PREVIOUS_TAG")
+          ARGS+=("--until" "$(date -u +%Y-%m-%dT%H:%M:%SZ)")
+          if [ -n "${MANUAL_ITEMS:-}" ]; then
+            CLEANED=$(echo "$MANUAL_ITEMS" | tr -d ' ' | sed 's/#//g')
+            CLEANED=${CLEANED//,,/,}
+            CLEANED=${CLEANED%,}
+            if [ -n "$CLEANED" ]; then
+              ARGS+=("--include" "$CLEANED")
+            fi
           fi
-          npx tsx tools/scripts/compose-release-notes.ts "${ARGS[@]}"
+          npx tsx tools/scripts/generate-release-notes.ts "${ARGS[@]}"
           python tools/scripts/base64_encode_file.py \
             --input var/reports/release-notes.md \
             --key notes_b64 \
