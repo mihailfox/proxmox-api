@@ -4,7 +4,7 @@ on:
   workflow_dispatch: {}
   push:
     branches:
-      - dev
+      - main
     paths:
       - '.github/workflows/pages.yml'
       - 'package.json'
@@ -46,7 +46,7 @@ jobs:
       - name: Prepare pages bundle
         run: npm run pages:prepare
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: var/pages
 
