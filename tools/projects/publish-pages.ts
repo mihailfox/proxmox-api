@@ -39,14 +39,20 @@ const manifest = JSON.parse(readFileSync(manifestPath, "utf-8")) as Record<
   }
 >;
 
-const entry = Object.values(manifest).find((value) => value.name === "entry.client" || value.isEntry);
+const manifestEntries = Object.entries(manifest);
+
+const entry = manifestEntries
+  .filter(([key]) => key.includes("entry.client"))
+  .map(([, value]) => value)
+  .find((value) => value)
+  ?? manifestEntries.map(([, value]) => value).find((value) => value.isEntry);
 
 if (!entry) {
   throw new Error("Unable to locate entry.client bundle in Vite manifest.");
 }
 
 const preloadImports = (entry.imports ?? [])
-  .map((key) => manifest[key]?.file)
+  .map((key) => manifest[key]?.file ?? manifest[`/${key}`]?.file)
   .filter((value): value is string => Boolean(value));
 
 const stylesheets = entry.assets ?? [];
