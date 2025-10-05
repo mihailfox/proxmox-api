@@ -299,7 +299,16 @@ jobs:
           export INPUT_WORKING_DIRECTORY=.
           export INPUT_REPORT_PATH="$RUNNER_TEMP/summary.json"
           mkdir -p "$RUNNER_TEMP" "$RUNNER_TOOL_CACHE"
-          node "$ACTION_DIR/dist/index.js"
+          ENTRY="$ACTION_DIR/dist/index.cjs"
+          if [ ! -f "$ENTRY" ]; then
+            ENTRY="$ACTION_DIR/dist/index.js"
+          fi
+          if [ ! -f "$ENTRY" ]; then
+            echo "Action entrypoint not found in $ACTION_DIR/dist" >&2
+            ls -R "$ACTION_DIR/dist" >&2 || true
+            exit 1
+          fi
+          node "$ENTRY"
       - name: Create action release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
