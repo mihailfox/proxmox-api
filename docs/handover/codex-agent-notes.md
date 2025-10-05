@@ -30,6 +30,7 @@
 - `automation-pipeline.yml` validates the core toolchain (lint/build/tests). Extend it when new checks are required.
 - `action-validation.yml` keeps the bundled action honest: it rebuilds `dist/` and smoke-tests the archive on Linux, macOS, and Windows. Update aliases if workspace paths change.
 - `private-action-release.yml` handles packaged releases. The bundle step copies `dist/`, `action.yml`, and package metadata; keep the smoke test environment variables in sync with action inputs.
+- `private-action-release.yml` now supports selective dispatch (`job_mode` input: `both`, `action`, `schema`, `version-check`) and the release guard is disabled by default unless explicitly enabled.
 - `pages.yml` regenerates OpenAPI artifacts with the automation pipeline and publishes Swagger UI to GitHub Pages.
 
 ## GitHub CLI authentication
