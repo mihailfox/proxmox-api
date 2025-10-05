@@ -41,21 +41,51 @@ const manifest = JSON.parse(readFileSync(manifestPath, "utf-8")) as Record<
 
 const manifestEntries = Object.entries(manifest);
 
-const entry = manifestEntries
-  .filter(([key]) => key.includes("entry.client"))
-  .map(([, value]) => value)
-  .find((value) => value)
-  ?? manifestEntries.map(([, value]) => value).find((value) => value.isEntry);
+const findManifestEntry = (key: string): (typeof manifest)[string] | undefined => {
+  if (!key) return undefined;
+  return (
+    manifest[key] ??
+    manifest[`/${key}`] ??
+    manifest[`./${key}`] ??
+    manifestEntries.find(([, value]) => value.file === key)?.[1]
+  );
+};
+
+const entry =
+  manifestEntries.find(([key, value]) => key.includes("entry.client") && value.isEntry)?.[1] ??
+  manifestEntries.find(([, value]) => value.isEntry)?.[1];
 
 if (!entry) {
   throw new Error("Unable to locate entry.client bundle in Vite manifest.");
 }
 
-const preloadImports = (entry.imports ?? [])
-  .map((key) => manifest[key]?.file ?? manifest[`/${key}`]?.file)
+const referencedEntries = new Set<typeof manifest[keyof typeof manifest]>();
+
+const importKeys = [...(entry.imports ?? []), ...(entry.dynamicImports ?? [])];
+for (const imported of importKeys) {
+  const resolved = findManifestEntry(imported);
+  if (resolved) {
+    referencedEntries.add(resolved);
+  }
+}
+
+const modulePreloads = Array.from(referencedEntries)
+  .map((value) => value.file)
   .filter((value): value is string => Boolean(value));
 
-const stylesheets = entry.assets ?? [];
+const stylesheetSet = new Set<string>();
+for (const candidate of [entry, ...referencedEntries]) {
+  for (const css of candidate?.css ?? []) {
+    stylesheetSet.add(css);
+  }
+}
+for (const [, value] of manifestEntries) {
+  const file = value.file;
+  if (file?.endsWith('.css')) {
+    stylesheetSet.add(file);
+  }
+}
+const stylesheets = Array.from(stylesheetSet);
 
 const html = `<!DOCTYPE html>
 <html lang="en">
@@ -63,11 +93,10 @@ const html = `<!DOCTYPE html>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Proxmox API Viewer</title>
-${stylesheets
-  .map((href) => `    <link rel="stylesheet" href="/${href}" />`)
-  .join("\n")}
-${preloadImports
-  .map((href) => `    <link rel="modulepreload" href="/${href}" />`)
+${stylesheets.map((href) => `    <link rel="stylesheet" crossorigin href="/${href}" />`).join("\n")}
+${modulePreloads
+  .filter((href) => href !== entry.file)
+  .map((href) => `    <link rel="modulepreload" crossorigin href="/${href}" />`)
   .join("\n")}
   </head>
   <body>
